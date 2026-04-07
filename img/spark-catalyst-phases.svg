@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 130" width="580" height="130" role="img" aria-label="Spark Catalyst optimizer phases diagram">
+  <style>
+    .lbl { font-family: system-ui, sans-serif; }
+    .bg { fill: #f9f9f8; }
+    .unresolved-fill { fill: #f1f5f9; stroke: #cbd5e1; }
+    .unresolved-text { fill: #475569; }
+    .analyzed-fill { fill: #eff6ff; stroke: #93c5fd; }
+    .analyzed-text { fill: #1e3a5f; }
+    .optimized-fill { fill: #dbeafe; stroke: #3b82f6; }
+    .optimized-text { fill: #1e3a5f; }
+    .physical-fill { fill: #f0fdf4; stroke: #86efac; }
+    .physical-text { fill: #166534; }
+    .arr { stroke: #9b9b92; fill: none; stroke-width: 1.5; }
+    .arr-head { fill: #9b9b92; }
+    .ann { fill: #9b9b92; font-size: 7.5px; }
+    .muted { fill: #9b9b92; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #222220; }
+      .unresolved-fill { fill: #1e293b; stroke: #334155; }
+      .unresolved-text { fill: #94a3b8; }
+      .analyzed-fill { fill: #172554; stroke: #3b82f6; }
+      .analyzed-text { fill: #93c5fd; }
+      .optimized-fill { fill: #1e3a5f; stroke: #60a5fa; }
+      .optimized-text { fill: #bfdbfe; }
+      .physical-fill { fill: #052e16; stroke: #16a34a; }
+      .physical-text { fill: #bbf7d0; }
+      .arr { stroke: #6b6b65; }
+      .arr-head { fill: #6b6b65; }
+      .ann { fill: #6b6b65; }
+      .muted { fill: #6b6b65; }
+    }
+  </style>
+
+  <!-- Background -->
+  <rect width="580" height="130" class="bg" rx="4"/>
+
+  <!-- "Catalyst" arch label above all boxes -->
+  <text x="290" y="13" text-anchor="middle" class="lbl muted" font-size="9" font-weight="600" letter-spacing="1">CATALYST OPTIMIZER</text>
+
+  <!-- Arrow marker definition -->
+  <defs>
+    <marker id="arr-head" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L7,3.5 L0,7 Z" class="arr-head"/>
+    </marker>
+  </defs>
+
+  <!-- Box dimensions: width=120, height=50, rx=6 -->
+  <!-- Centered vertically: top = (130-50)/2 = 40, but shift down slightly to leave room for arch label and annotations -->
+  <!-- top=22 gives: label area above, annotation area below -->
+
+  <!-- Box 1: Unresolved Logical Plan (x=10) -->
+  <rect x="10" y="22" width="120" height="50" rx="6" class="unresolved-fill" stroke-width="1.5"/>
+  <text x="70" y="43" text-anchor="middle" class="lbl unresolved-text" font-size="8.5" font-weight="600">Unresolved</text>
+  <text x="70" y="56" text-anchor="middle" class="lbl unresolved-text" font-size="8.5" font-weight="600">Logical Plan</text>
+
+  <!-- Arrow 1→2 -->
+  <line x1="130" y1="47" x2="142" y2="47" class="arr" marker-end="url(#arr-head)"/>
+
+  <!-- Box 2: Analyzed Logical Plan (x=145) -->
+  <rect x="145" y="22" width="120" height="50" rx="6" class="analyzed-fill" stroke-width="1.5"/>
+  <text x="205" y="43" text-anchor="middle" class="lbl analyzed-text" font-size="8.5" font-weight="600">Analyzed</text>
+  <text x="205" y="56" text-anchor="middle" class="lbl analyzed-text" font-size="8.5" font-weight="600">Logical Plan</text>
+  <!-- Annotation below box 2 -->
+  <text x="205" y="84" text-anchor="middle" class="lbl ann">column names &amp; types resolved</text>
+
+  <!-- Arrow 2→3 -->
+  <line x1="265" y1="47" x2="277" y2="47" class="arr" marker-end="url(#arr-head)"/>
+
+  <!-- Box 3: Optimized Logical Plan (x=290) -->
+  <rect x="280" y="22" width="120" height="50" rx="6" class="optimized-fill" stroke-width="1.5"/>
+  <text x="340" y="43" text-anchor="middle" class="lbl optimized-text" font-size="8.5" font-weight="600">Optimized</text>
+  <text x="340" y="56" text-anchor="middle" class="lbl optimized-text" font-size="8.5" font-weight="600">Logical Plan</text>
+  <!-- Annotation below box 3 — three items -->
+  <text x="340" y="84" text-anchor="middle" class="lbl ann">predicate pushdown · column pruning · constant folding</text>
+
+  <!-- Arrow 3→4 -->
+  <line x1="400" y1="47" x2="412" y2="47" class="arr" marker-end="url(#arr-head)"/>
+
+  <!-- Box 4: Physical Plan + Codegen (x=430) -->
+  <rect x="415" y="22" width="120" height="50" rx="6" class="physical-fill" stroke-width="1.5"/>
+  <text x="475" y="43" text-anchor="middle" class="lbl physical-text" font-size="8.5" font-weight="600">Physical Plan</text>
+  <text x="475" y="56" text-anchor="middle" class="lbl physical-text" font-size="8.5" font-weight="600">+ Codegen</text>
+  <!-- Annotation below box 4 -->
+  <text x="475" y="84" text-anchor="middle" class="lbl ann">Tungsten bytecode generation</text>
+
+  <!-- "Tungsten" label below box 4, slightly further down -->
+  <text x="475" y="97" text-anchor="middle" class="lbl muted" font-size="7" font-weight="600" letter-spacing="0.5">TUNGSTEN</text>
+
+  <!-- Bottom note -->
+  <text x="290" y="117" text-anchor="middle" class="lbl muted" font-size="7" font-style="italic">Every SQL query and DataFrame operation passes through all four phases before execution.</text>
+</svg>

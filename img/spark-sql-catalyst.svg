@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 200" width="580" height="200" role="img" aria-label="Spark SQL and DataFrame API both route through the Catalyst Optimizer to the same Execution Engine">
+  <defs>
+    <style>
+      .bg        { fill: #f9f9f8; }
+      .df-fill   { fill: #eff6ff; stroke: #93c5fd; stroke-width: 1.5; }
+      .df-text   { fill: #1e3a5f; }
+      .sql-fill  { fill: #fdf4ff; stroke: #e879f9; stroke-width: 1.5; }
+      .sql-text  { fill: #86198f; }
+      .catalyst-fill  { fill: #1e40af; stroke: #3b82f6; stroke-width: 1.5; }
+      .catalyst-text  { fill: #ffffff; }
+      .engine-fill    { fill: #f0fdf4; stroke: #86efac; stroke-width: 1.5; }
+      .engine-text    { fill: #166534; }
+      .ann-fill       { fill: #fefce8; stroke: #fde047; stroke-width: 1.2; }
+      .ann-text       { fill: #92400e; }
+      .code-text { fill: #374151; }
+      .arr       { stroke: #9b9b92; stroke-width: 1.5; fill: none; }
+      .muted     { fill: #9b9b92; }
+      .lbl       { font-family: system-ui, sans-serif; }
+      .mono      { font-family: ui-monospace, monospace; }
+
+      @media (prefers-color-scheme: dark) {
+        .bg             { fill: #222220; }
+        .df-fill        { fill: #172554; stroke: #3b82f6; stroke-width: 1.5; }
+        .df-text        { fill: #93c5fd; }
+        .sql-fill       { fill: #2e1065; stroke: #c026d3; stroke-width: 1.5; }
+        .sql-text       { fill: #f0abfc; }
+        .catalyst-fill  { fill: #1e3a5f; stroke: #60a5fa; stroke-width: 1.5; }
+        .catalyst-text  { fill: #bfdbfe; }
+        .engine-fill    { fill: #052e16; stroke: #16a34a; stroke-width: 1.5; }
+        .engine-text    { fill: #bbf7d0; }
+        .ann-fill       { fill: #422006; stroke: #ca8a04; stroke-width: 1.2; }
+        .ann-text       { fill: #fde68a; }
+        .code-text      { fill: #d1d5db; }
+        .arr            { stroke: #6b6b65; stroke-width: 1.5; fill: none; }
+        .muted          { fill: #6b6b65; }
+      }
+    </style>
+    <marker id="arr-head" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 Z" class="arr" style="fill:#9b9b92;stroke:none;"/>
+    </marker>
+    <marker id="arr-head-dark" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L8,3 Z" style="fill:#6b6b65;stroke:none;"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="580" height="200" rx="6" class="bg"/>
+
+  <!-- ── Left lane: DataFrame API ── -->
+  <!-- Header box -->
+  <rect x="10" y="10" width="180" height="32" rx="5" class="df-fill"/>
+  <text x="100" y="31" text-anchor="middle" font-size="13" font-weight="600" class="df-text lbl">DataFrame API</text>
+
+  <!-- Code snippet -->
+  <text x="100" y="58" text-anchor="middle" font-size="9.5" class="code-text mono">df.filter(...)</text>
+  <text x="100" y="70" text-anchor="middle" font-size="9.5" class="code-text mono">.groupBy(...)</text>
+  <text x="100" y="82" text-anchor="middle" font-size="9.5" class="code-text mono">.agg(...)</text>
+
+  <!-- Arrow: DataFrame lane → Catalyst -->
+  <line x1="100" y1="88" x2="230" y2="103" class="arr" marker-end="url(#arr-head)"/>
+
+  <!-- ── Right lane: Spark SQL ── -->
+  <!-- Header box -->
+  <rect x="390" y="10" width="180" height="32" rx="5" class="sql-fill"/>
+  <text x="480" y="31" text-anchor="middle" font-size="13" font-weight="600" class="sql-text lbl">Spark SQL</text>
+
+  <!-- Code snippet -->
+  <text x="480" y="58" text-anchor="middle" font-size="9.5" class="code-text mono">spark.sql(</text>
+  <text x="480" y="70" text-anchor="middle" font-size="9.5" class="code-text mono">"SELECT ...</text>
+  <text x="480" y="82" text-anchor="middle" font-size="9.5" class="code-text mono">GROUP BY ...")</text>
+
+  <!-- Arrow: SQL lane → Catalyst -->
+  <line x1="480" y1="88" x2="350" y2="103" class="arr" marker-end="url(#arr-head)"/>
+
+  <!-- ── Center: Catalyst Optimizer ── -->
+  <rect x="170" y="100" width="240" height="40" rx="5" class="catalyst-fill"/>
+  <text x="290" y="116" text-anchor="middle" font-size="13" font-weight="600" class="catalyst-text lbl">Catalyst Optimizer</text>
+  <text x="290" y="131" text-anchor="middle" font-size="10" class="catalyst-text lbl">logical plan → physical plan</text>
+
+  <!-- Arrow: Catalyst → Execution Engine -->
+  <line x1="290" y1="140" x2="290" y2="153" class="arr" marker-end="url(#arr-head)"/>
+
+  <!-- ── Bottom: Execution Engine ── -->
+  <rect x="170" y="155" width="240" height="36" rx="5" class="engine-fill"/>
+  <text x="290" y="170" text-anchor="middle" font-size="13" font-weight="600" class="engine-text lbl">Execution Engine</text>
+  <text x="290" y="183" text-anchor="middle" font-size="10" class="engine-text lbl">identical bytecode on executors</text>
+
+  <!-- ── Annotation badge ── -->
+  <rect x="426" y="97" width="142" height="28" rx="4" class="ann-fill"/>
+  <text x="497" y="110" text-anchor="middle" font-size="10" font-style="italic" class="ann-text lbl">Same plan —</text>
+  <text x="497" y="122" text-anchor="middle" font-size="10" font-style="italic" class="ann-text lbl">same performance</text>
+</svg>

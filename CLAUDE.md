@@ -42,11 +42,11 @@ Audio is generated via `generate_audio_colab.ipynb` on Google Colab (T4 GPU):
 | SparkSession & Execution Model | `06-sparksession-execution-model.ipynb` | `06-sparksession-execution-model.wav` |
 | Reading & Writing Data | `07-reading-writing-data.ipynb` | `07-reading-writing-data.wav` |
 | Core Transformations | `08-core-transformations.ipynb` | `08-core-transformations.wav` |
-| Aggregations & Window Functions | _(planned)_ | `aggregations--window-functions.wav` |
-| Spark SQL & Temporary Views | _(planned)_ | `spark-sql--temporary-views.wav` |
-| SQL Functions & UDFs | _(planned)_ | `sql-functions--udfs.wav` |
-| Partitioning, Shuffles & Catalyst | _(planned)_ | `partitioning-shuffles--catalyst.wav` |
-| Caching & Persistence | _(planned)_ | `caching--persistence.wav` |
+| Aggregations & Window Functions | `09-aggregations-window-functions.ipynb` | `09-aggregations-window-functions.wav` |
+| Spark SQL & Temporary Views | `10-spark-sql-temporary-views.ipynb` | `10-spark-sql-temporary-views.wav` |
+| SQL Functions & UDFs | `11-sql-functions-udfs.ipynb` | `11-sql-functions-udfs.wav` |
+| Partitioning, Shuffles & Catalyst | `12-partitioning-shuffles-catalyst.ipynb` | `partitioning-shuffles--catalyst.wav` |
+| Caching & Persistence | `13-caching-persistence.ipynb` | `caching--persistence.wav` |
 | Broadcast Joins & Data Skew | _(planned)_ | `broadcast-joins--data-skew.wav` |
 | Structured Streaming Fundamentals | _(planned)_ | `structured-streaming-fundamentals.wav` |
 | Sources, Sinks & Watermarking | _(planned)_ | `sources-sinks--watermarking.wav` |

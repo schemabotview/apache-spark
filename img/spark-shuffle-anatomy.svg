@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 220" width="580" height="220" role="img" aria-label="Spark shuffle anatomy diagram">
+  <style>
+    .lbl { font-family: system-ui, sans-serif; }
+    .bg { fill: #f9f9f8; }
+    .stage1-fill { fill: #eff6ff; stroke: #93c5fd; }
+    .stage1-text { fill: #1e3a5f; }
+    .stage2-fill { fill: #f0fdf4; stroke: #86efac; }
+    .stage2-text { fill: #166534; }
+    .task-fill { fill: #3b82f6; }
+    .exchange-fill { fill: #fef9c3; stroke: #fde047; }
+    .exchange-text { fill: #92400e; }
+    .shuffle-arr { stroke: #ef4444; fill: none; stroke-dasharray: 4 2; }
+    .shuffle-head { fill: #ef4444; }
+    .cost-fill { fill: #fef2f2; stroke: #fca5a5; }
+    .cost-text { fill: #991b1b; }
+    .muted { fill: #9b9b92; }
+    .executor-stroke { stroke-width: 1.5; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #222220; }
+      .stage1-fill { fill: #172554; stroke: #3b82f6; }
+      .stage1-text { fill: #93c5fd; }
+      .stage2-fill { fill: #052e16; stroke: #16a34a; }
+      .stage2-text { fill: #bbf7d0; }
+      .task-fill { fill: #2563eb; }
+      .exchange-fill { fill: #422006; stroke: #ca8a04; }
+      .exchange-text { fill: #fde68a; }
+      .shuffle-arr { stroke: #dc2626; }
+      .shuffle-head { fill: #dc2626; }
+      .cost-fill { fill: #450a0a; stroke: #dc2626; }
+      .cost-text { fill: #fca5a5; }
+      .muted { fill: #6b6b65; }
+    }
+  </style>
+
+  <!-- Background -->
+  <rect width="580" height="220" class="bg" rx="4"/>
+
+  <!-- ══════════ Stage 1 — Map (x=10, w=155) ══════════ -->
+  <text x="87" y="18" text-anchor="middle" class="lbl stage1-text" font-size="11" font-weight="600">Stage 1 — Map</text>
+
+  <!-- Executor 1 -->
+  <rect x="15" y="24" width="145" height="54" rx="5" class="stage1-fill executor-stroke"/>
+  <text x="23" y="37" class="lbl stage1-text" font-size="8.5" font-weight="500">Executor 1</text>
+  <!-- Task rectangles -->
+  <rect x="23" y="42" width="52" height="26" rx="3" class="task-fill"/>
+  <text x="49" y="59" text-anchor="middle" class="lbl" fill="#fff" font-size="7.5">Task 1</text>
+  <rect x="83" y="42" width="52" height="26" rx="3" class="task-fill"/>
+  <text x="109" y="59" text-anchor="middle" class="lbl" fill="#fff" font-size="7.5">Task 2</text>
+
+  <!-- Shuffle files under Executor 1 -->
+  <text x="23" y="92" class="lbl muted" font-size="7">shuffle files</text>
+  <line x1="23" y1="97" x2="155" y2="97" class="muted" stroke-width="1" stroke-dasharray="3 2"/>
+  <line x1="23" y1="101" x2="155" y2="101" class="muted" stroke-width="1" stroke-dasharray="3 2"/>
+  <line x1="23" y1="105" x2="155" y2="105" class="muted" stroke-width="1" stroke-dasharray="3 2"/>
+
+  <!-- Executor 2 -->
+  <rect x="15" y="115" width="145" height="54" rx="5" class="stage1-fill executor-stroke"/>
+  <text x="23" y="128" class="lbl stage1-text" font-size="8.5" font-weight="500">Executor 2</text>
+  <!-- Task rectangles -->
+  <rect x="23" y="133" width="52" height="26" rx="3" class="task-fill"/>
+  <text x="49" y="150" text-anchor="middle" class="lbl" fill="#fff" font-size="7.5">Task 3</text>
+  <rect x="83" y="133" width="52" height="26" rx="3" class="task-fill"/>
+  <text x="109" y="150" text-anchor="middle" class="lbl" fill="#fff" font-size="7.5">Task 4</text>
+
+  <!-- Shuffle files under Executor 2 -->
+  <text x="23" y="182" class="lbl muted" font-size="7">shuffle files</text>
+  <line x1="23" y1="187" x2="155" y2="187" class="muted" stroke-width="1" stroke-dasharray="3 2"/>
+  <line x1="23" y1="191" x2="155" y2="191" class="muted" stroke-width="1" stroke-dasharray="3 2"/>
+  <line x1="23" y1="195" x2="155" y2="195" class="muted" stroke-width="1" stroke-dasharray="3 2"/>
+
+  <!-- ══════════ Center — Shuffle / Network Transfer (x=195, w=190) ══════════ -->
+  <!-- Exchange box -->
+  <rect x="210" y="72" width="160" height="38" rx="5" class="exchange-fill" stroke-width="1.5"/>
+  <text x="290" y="88" text-anchor="middle" class="lbl exchange-text" font-size="9" font-weight="600">Exchange</text>
+  <text x="290" y="101" text-anchor="middle" class="lbl muted" font-size="7">spark.sql.shuffle.partitions = 200</text>
+
+  <!-- Annotation below exchange -->
+  <text x="290" y="126" text-anchor="middle" class="lbl muted" font-size="7" font-style="italic">every partition reads from every executor</text>
+
+  <!-- Shuffle arrows: ALL-to-ALL (4 arrows: Ex1→Ex3, Ex1→Ex4, Ex2→Ex3, Ex2→Ex4) -->
+  <!-- Arrow: Executor 1 (right edge ~x=160, mid y=51) → Stage 2 Executor 3 (left edge ~x=420, mid y=51) -->
+  <defs>
+    <marker id="ah" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L6,3 L0,6 Z" class="shuffle-head"/>
+    </marker>
+  </defs>
+
+  <!-- Ex1 → Reduce Ex1 (top-to-top, straighter) -->
+  <path d="M160,51 C185,51 205,51 420,51" class="shuffle-arr" stroke-width="1.5" marker-end="url(#ah)"/>
+  <!-- Ex1 → Reduce Ex2 (top-to-bottom, crossing) -->
+  <path d="M160,51 C195,51 210,142 420,142" class="shuffle-arr" stroke-width="1.5" marker-end="url(#ah)"/>
+  <!-- Ex2 → Reduce Ex1 (bottom-to-top, crossing) -->
+  <path d="M160,142 C195,142 210,51 420,51" class="shuffle-arr" stroke-width="1.5" marker-end="url(#ah)"/>
+  <!-- Ex2 → Reduce Ex2 (bottom-to-bottom, straighter) -->
+  <path d="M160,142 C185,142 205,142 420,142" class="shuffle-arr" stroke-width="1.5" marker-end="url(#ah)"/>
+
+  <!-- Network transfer label -->
+  <text x="290" y="20" text-anchor="middle" class="lbl muted" font-size="9" font-weight="500">Shuffle — Network Transfer</text>
+
+  <!-- ══════════ Stage 2 — Reduce (x=415, w=155) ══════════ -->
+  <text x="497" y="18" text-anchor="middle" class="lbl stage2-text" font-size="11" font-weight="600">Stage 2 — Reduce</text>
+
+  <!-- Executor 3 -->
+  <rect x="420" y="24" width="145" height="54" rx="5" class="stage2-fill executor-stroke"/>
+  <text x="428" y="37" class="lbl stage2-text" font-size="8.5" font-weight="500">Executor 3</text>
+  <rect x="428" y="42" width="52" height="26" rx="3" class="task-fill"/>
+  <text x="454" y="59" text-anchor="middle" class="lbl" fill="#fff" font-size="7.5">Task 5</text>
+  <rect x="488" y="42" width="52" height="26" rx="3" class="task-fill"/>
+  <text x="514" y="59" text-anchor="middle" class="lbl" fill="#fff" font-size="7.5">Task 6</text>
+
+  <!-- Executor 4 -->
+  <rect x="420" y="115" width="145" height="54" rx="5" class="stage2-fill executor-stroke"/>
+  <text x="428" y="128" class="lbl stage2-text" font-size="8.5" font-weight="500">Executor 4</text>
+  <rect x="428" y="133" width="52" height="26" rx="3" class="task-fill"/>
+  <text x="454" y="150" text-anchor="middle" class="lbl" fill="#fff" font-size="7.5">Task 7</text>
+  <rect x="488" y="133" width="52" height="26" rx="3" class="task-fill"/>
+  <text x="514" y="150" text-anchor="middle" class="lbl" fill="#fff" font-size="7.5">Task 8</text>
+
+  <!-- ══════════ Cost strip ══════════ -->
+  <rect x="10" y="203" width="560" height="14" rx="3" class="cost-fill" stroke-width="1"/>
+  <text x="290" y="213" text-anchor="middle" class="lbl cost-text" font-size="7.5" font-weight="500">
+    Shuffle cost: serialize → write to disk → transfer → deserialize
+  </text>
+</svg>

@@ -1,0 +1,131 @@
+<svg viewBox="0 0 780 340" xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,monospace" font-size="13">
+  <style>
+    .bg { fill: #f8f9fa; }
+    .box { rx: 8; ry: 8; }
+    .title { font-size: 15px; font-weight: 700; }
+    .label { font-size: 12px; }
+    .small { font-size: 11px; }
+    .tag { font-size: 11px; font-weight: 600; }
+    .arrow { stroke-width: 2; fill: none; marker-end: url(#arrowhead); }
+
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #1e1e2e; }
+      text { fill: #cdd6f4; }
+      .mem-border { stroke: #585b70; }
+      .storage-fill { fill: #313244; }
+      .exec-fill { fill: #2a2a3d; }
+      .level-mem { fill: #1e3a5f; stroke: #89b4fa; }
+      .level-disk { fill: #2d2f1e; stroke: #a6e3a1; }
+      .level-off { fill: #3d2a2a; stroke: #f38ba8; }
+      .badge-mem { fill: #89b4fa; }
+      .badge-disk { fill: #a6e3a1; }
+      .badge-off { fill: #f38ba8; }
+      .dim-text { fill: #6c7086; }
+      .connector { stroke: #585b70; }
+      .arrow { stroke: #cdd6f4; }
+    }
+    @media (prefers-color-scheme: light) {
+      .bg { fill: #f8f9fa; }
+      text { fill: #1c1c2e; }
+      .mem-border { stroke: #ced4da; }
+      .storage-fill { fill: #e8f4fd; }
+      .exec-fill { fill: #fff8e7; }
+      .level-mem { fill: #dbeafe; stroke: #3b82f6; }
+      .level-disk { fill: #dcfce7; stroke: #16a34a; }
+      .level-off { fill: #fee2e2; stroke: #dc2626; }
+      .badge-mem { fill: #3b82f6; }
+      .badge-disk { fill: #16a34a; }
+      .badge-off { fill: #dc2626; }
+      .dim-text { fill: #9ca3af; }
+      .connector { stroke: #d1d5db; }
+      .arrow { stroke: #374151; }
+    }
+  </style>
+
+  <defs>
+    <marker id="arrowhead" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" class="arrow" style="fill:currentColor"/>
+    </marker>
+  </defs>
+
+  <!-- Background -->
+  <rect width="780" height="340" class="bg" rx="12"/>
+
+  <!-- Title -->
+  <text x="390" y="32" text-anchor="middle" class="title">Spark Caching — Executor Memory &amp; Storage Levels</text>
+
+  <!-- ── LEFT: Executor Memory Block ── -->
+  <rect x="30" y="55" width="310" height="260" rx="10" class="mem-border storage-fill" stroke-width="1.5" fill-opacity="0.4"/>
+  <text x="185" y="76" text-anchor="middle" class="label" font-weight="700">Executor JVM Memory</text>
+
+  <!-- Storage Fraction -->
+  <rect x="48" y="88" width="274" height="130" rx="7" class="storage-fill mem-border" stroke-width="1" fill-opacity="0.8"/>
+  <text x="185" y="106" text-anchor="middle" class="tag" style="fill:#3b82f6">Storage Fraction (60%)</text>
+  <text x="185" y="121" text-anchor="middle" class="small dim-text">spark.memory.storageFraction</text>
+
+  <!-- Cached partitions inside storage -->
+  <rect x="60" y="130" width="56" height="36" rx="5" class="level-mem" stroke-width="1.2"/>
+  <text x="88" y="153" text-anchor="middle" class="small">P0</text>
+  <rect x="122" y="130" width="56" height="36" rx="5" class="level-mem" stroke-width="1.2"/>
+  <text x="150" y="153" text-anchor="middle" class="small">P1</text>
+  <rect x="184" y="130" width="56" height="36" rx="5" class="level-mem" stroke-width="1.2"/>
+  <text x="212" y="153" text-anchor="middle" class="small">P2</text>
+  <rect x="246" y="130" width="56" height="36" rx="5" class="level-disk" stroke-width="1.2"/>
+  <text x="274" y="153" text-anchor="middle" class="small">P3↓</text>
+
+  <text x="88" y="183" text-anchor="middle" class="small dim-text">RAM</text>
+  <text x="150" y="183" text-anchor="middle" class="small dim-text">RAM</text>
+  <text x="212" y="183" text-anchor="middle" class="small dim-text">RAM</text>
+  <text x="274" y="183" text-anchor="middle" class="small dim-text">spill</text>
+  <text x="185" y="205" text-anchor="middle" class="small dim-text">Cached DataFrame partitions</text>
+
+  <!-- Execution Fraction -->
+  <rect x="48" y="228" width="274" height="72" rx="7" class="exec-fill mem-border" stroke-width="1" fill-opacity="0.8"/>
+  <text x="185" y="247" text-anchor="middle" class="tag" style="fill:#f59e0b">Execution Fraction (40%)</text>
+  <text x="185" y="264" text-anchor="middle" class="small dim-text">spark.memory.fraction</text>
+  <text x="185" y="281" text-anchor="middle" class="small dim-text">Shuffles · Sorts · Joins · Aggregations</text>
+
+  <!-- ── RIGHT: Storage Levels ── -->
+  <text x="450" y="76" text-anchor="middle" class="title" font-size="13">Storage Levels</text>
+
+  <!-- MEMORY_ONLY -->
+  <rect x="340" y="90" width="220" height="52" rx="7" class="level-mem" stroke-width="1.5"/>
+  <rect x="340" y="90" width="20" height="52" rx="7" class="badge-mem" opacity="0.9"/>
+  <text x="369" y="110" class="tag">MEMORY_ONLY</text>
+  <text x="369" y="128" class="small dim-text">RAM only · evict = recompute</text>
+  <text x="554" y="110" text-anchor="end" class="small" font-weight="700" style="fill:#3b82f6">Fastest</text>
+
+  <!-- MEMORY_AND_DISK -->
+  <rect x="340" y="152" width="220" height="52" rx="7" class="level-mem" stroke-width="1.5"/>
+  <rect x="340" y="152" width="20" height="52" rx="7" class="badge-disk" opacity="0.9"/>
+  <text x="369" y="172" class="tag">MEMORY_AND_DISK</text>
+  <text x="369" y="190" class="small dim-text">RAM first · spill to disk</text>
+  <text x="554" y="172" text-anchor="end" class="small" font-weight="700" style="fill:#16a34a">Recommended</text>
+
+  <!-- DISK_ONLY -->
+  <rect x="340" y="214" width="220" height="52" rx="7" class="level-disk" stroke-width="1.5"/>
+  <rect x="340" y="214" width="20" height="52" rx="7" class="badge-disk" opacity="0.9"/>
+  <text x="369" y="234" class="tag">DISK_ONLY</text>
+  <text x="369" y="252" class="small dim-text">Disk only · slowest I/O</text>
+
+  <!-- _2 variants -->
+  <rect x="340" y="276" width="220" height="40" rx="7" class="level-off" stroke-width="1.5"/>
+  <rect x="340" y="276" width="20" height="40" rx="7" class="badge-off" opacity="0.9"/>
+  <text x="369" y="292" class="tag">MEMORY_AND_DISK_2</text>
+  <text x="369" y="308" class="small dim-text">Replicated · 2× cost, instant recovery</text>
+
+  <!-- ── BOTTOM RIGHT: cache() vs persist() note ── -->
+  <rect x="580" y="90" width="172" height="90" rx="8" class="mem-border storage-fill" stroke-width="1" fill-opacity="0.6"/>
+  <text x="666" y="110" text-anchor="middle" class="tag">cache()</text>
+  <text x="666" y="128" text-anchor="middle" class="small dim-text">≡ persist(</text>
+  <text x="666" y="144" text-anchor="middle" class="small dim-text">MEMORY_AND_DISK)</text>
+  <text x="666" y="162" text-anchor="middle" class="small dim-text">default since Spark 3</text>
+
+  <rect x="580" y="194" width="172" height="72" rx="8" class="mem-border storage-fill" stroke-width="1" fill-opacity="0.6"/>
+  <text x="666" y="214" text-anchor="middle" class="tag">unpersist()</text>
+  <text x="666" y="232" text-anchor="middle" class="small dim-text">release storage</text>
+  <text x="666" y="249" text-anchor="middle" class="small dim-text">when no longer needed</text>
+
+  <!-- connector arrow from executor to levels -->
+  <line x1="360" y1="185" x2="340" y2="170" class="connector" stroke-width="1.2" stroke-dasharray="4,3"/>
+</svg>

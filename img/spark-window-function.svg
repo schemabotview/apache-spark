@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 580 240" width="580" height="240" font-family="system-ui, sans-serif" font-size="11">
+  <style>
+    .bg         { fill: #f9f9f8; }
+    .hdr-fill   { fill: #1e40af; }
+    .hdr-text   { fill: #ffffff; font-weight: 600; }
+    .row-even   { fill: #eff6ff; }
+    .row-odd    { fill: #dbeafe; }
+    .row-text   { fill: #1e3a5f; }
+    .computed-fill   { fill: #f0fdfa; }
+    .computed-text   { fill: #0d9488; font-weight: 600; }
+    .ann-fill   { fill: #fefce8; stroke: #fde047; stroke-width: 1.2; }
+    .ann-text   { fill: #713f12; }
+    .part-bracket{ stroke: #3b82f6; fill: none; stroke-width: 1.5; }
+    .formula-fill{ fill: #f1f5f9; stroke: #cbd5e1; stroke-width: 1.2; }
+    .formula-text{ fill: #334155; }
+    .muted      { fill: #9b9b92; }
+    .lbl        { font-family: system-ui, sans-serif; }
+
+    @media (prefers-color-scheme: dark) {
+      .bg         { fill: #222220; }
+      .hdr-fill   { fill: #1e3a5f; }
+      .hdr-text   { fill: #bfdbfe; }
+      .row-even   { fill: #172554; }
+      .row-odd    { fill: #1e3a5f; }
+      .row-text   { fill: #93c5fd; }
+      .computed-fill   { fill: #042f2e; }
+      .computed-text   { fill: #2dd4bf; }
+      .ann-fill   { fill: #422006; stroke: #ca8a04; stroke-width: 1.2; }
+      .ann-text   { fill: #fde68a; }
+      .part-bracket{ stroke: #60a5fa; }
+      .formula-fill{ fill: #2a2a27; stroke: #484844; stroke-width: 1.2; }
+      .formula-text{ fill: #e2e8f0; }
+      .muted      { fill: #6b6b65; }
+    }
+  </style>
+
+  <!-- Background -->
+  <rect width="580" height="240" rx="6" class="bg"/>
+
+  <!-- ══════════════════════════════════════════
+       LEFT SIDE — DataFrame table (x=10)
+       Columns: customer_id(80) | txn_date(60) | amount(50) | running_total(72)
+       Row height = 22; header y=12
+       ══════════════════════════════════════════ -->
+
+  <!-- column x positions (left edge of cell) -->
+  <!-- col0=10, col1=92, col2=154, col3=206, tableRight=280 -->
+
+  <!-- Header row -->
+  <rect x="10"  y="12" width="82" height="20" class="hdr-fill"/>
+  <rect x="92"  y="12" width="62" height="20" class="hdr-fill"/>
+  <rect x="154" y="12" width="52" height="20" class="hdr-fill"/>
+  <rect x="206" y="12" width="74" height="20" class="computed-fill" stroke="#0d9488" stroke-width="1"/>
+  <text x="51"  y="26" text-anchor="middle" class="hdr-text lbl" font-size="10">customer_id</text>
+  <text x="123" y="26" text-anchor="middle" class="hdr-text lbl" font-size="10">txn_date</text>
+  <text x="180" y="26" text-anchor="middle" class="hdr-text lbl" font-size="10">amount</text>
+  <text x="243" y="26" text-anchor="middle" class="computed-text lbl" font-size="10">running_total</text>
+
+  <!-- Row 1 — even -->
+  <rect x="10"  y="32" width="82" height="20" class="row-even"/>
+  <rect x="92"  y="32" width="62" height="20" class="row-even"/>
+  <rect x="154" y="32" width="52" height="20" class="row-even"/>
+  <rect x="206" y="32" width="74" height="20" class="computed-fill"/>
+  <text x="51"  y="46" text-anchor="middle" class="row-text lbl" font-size="10">CUST0001</text>
+  <text x="123" y="46" text-anchor="middle" class="row-text lbl" font-size="10">2024-01</text>
+  <text x="180" y="46" text-anchor="middle" class="row-text lbl" font-size="10">500</text>
+  <text x="243" y="46" text-anchor="middle" class="computed-text lbl" font-size="10">500</text>
+
+  <!-- Row 2 — odd -->
+  <rect x="10"  y="52" width="82" height="20" class="row-odd"/>
+  <rect x="92"  y="52" width="62" height="20" class="row-odd"/>
+  <rect x="154" y="52" width="52" height="20" class="row-odd"/>
+  <rect x="206" y="52" width="74" height="20" class="computed-fill"/>
+  <text x="51"  y="66" text-anchor="middle" class="row-text lbl" font-size="10">CUST0001</text>
+  <text x="123" y="66" text-anchor="middle" class="row-text lbl" font-size="10">2024-02</text>
+  <text x="180" y="66" text-anchor="middle" class="row-text lbl" font-size="10">1200</text>
+  <text x="243" y="66" text-anchor="middle" class="computed-text lbl" font-size="10">1700</text>
+
+  <!-- Row 3 — even -->
+  <rect x="10"  y="72" width="82" height="20" class="row-even"/>
+  <rect x="92"  y="72" width="62" height="20" class="row-even"/>
+  <rect x="154" y="72" width="52" height="20" class="row-even"/>
+  <rect x="206" y="72" width="74" height="20" class="computed-fill"/>
+  <text x="51"  y="86" text-anchor="middle" class="row-text lbl" font-size="10">CUST0001</text>
+  <text x="123" y="86" text-anchor="middle" class="row-text lbl" font-size="10">2024-03</text>
+  <text x="180" y="86" text-anchor="middle" class="row-text lbl" font-size="10">800</text>
+  <text x="243" y="86" text-anchor="middle" class="computed-text lbl" font-size="10">2500</text>
+
+  <!-- Row 4 — odd -->
+  <rect x="10"  y="92" width="82" height="20" class="row-odd"/>
+  <rect x="92"  y="92" width="62" height="20" class="row-odd"/>
+  <rect x="154" y="92" width="52" height="20" class="row-odd"/>
+  <rect x="206" y="92" width="74" height="20" class="computed-fill"/>
+  <text x="51"  y="106" text-anchor="middle" class="row-text lbl" font-size="10">CUST0002</text>
+  <text x="123" y="106" text-anchor="middle" class="row-text lbl" font-size="10">2024-01</text>
+  <text x="180" y="106" text-anchor="middle" class="row-text lbl" font-size="10">300</text>
+  <text x="243" y="106" text-anchor="middle" class="computed-text lbl" font-size="10">300</text>
+
+  <!-- Row 5 — even -->
+  <rect x="10"  y="112" width="82" height="20" class="row-even"/>
+  <rect x="92"  y="112" width="62" height="20" class="row-even"/>
+  <rect x="154" y="112" width="52" height="20" class="row-even"/>
+  <rect x="206" y="112" width="74" height="20" class="computed-fill"/>
+  <text x="51"  y="126" text-anchor="middle" class="row-text lbl" font-size="10">CUST0002</text>
+  <text x="123" y="126" text-anchor="middle" class="row-text lbl" font-size="10">2024-02</text>
+  <text x="180" y="126" text-anchor="middle" class="row-text lbl" font-size="10">950</text>
+  <text x="243" y="126" text-anchor="middle" class="computed-text lbl" font-size="10">1250</text>
+
+  <!-- Row 6 — odd -->
+  <rect x="10"  y="132" width="82" height="20" class="row-odd"/>
+  <rect x="92"  y="132" width="62" height="20" class="row-odd"/>
+  <rect x="154" y="132" width="52" height="20" class="row-odd"/>
+  <rect x="206" y="132" width="74" height="20" class="computed-fill"/>
+  <text x="51"  y="146" text-anchor="middle" class="row-text lbl" font-size="10">CUST0002</text>
+  <text x="123" y="146" text-anchor="middle" class="row-text lbl" font-size="10">2024-03</text>
+  <text x="180" y="146" text-anchor="middle" class="row-text lbl" font-size="10">400</text>
+  <text x="243" y="146" text-anchor="middle" class="computed-text lbl" font-size="10">1650</text>
+
+  <!-- Table outer border -->
+  <rect x="10" y="12" width="270" height="140" fill="none" stroke="#94a3b8" stroke-width="1"/>
+  <!-- Column dividers -->
+  <line x1="92"  y1="12" x2="92"  y2="152" stroke="#94a3b8" stroke-width="0.7"/>
+  <line x1="154" y1="12" x2="154" y2="152" stroke="#94a3b8" stroke-width="0.7"/>
+  <line x1="206" y1="12" x2="206" y2="152" stroke="#0d9488" stroke-width="0.9" stroke-dasharray="3,2"/>
+
+  <!-- ══════════════════════════════════════════
+       PARTITION BRACKETS  (x=286 area)
+       Bracket 1: rows 1-3 (y 32-151)  → centre y=92
+       Bracket 2: rows 4-6 (y 92-151)  → centre y=121
+       ══════════════════════════════════════════ -->
+
+  <!-- Bracket for CUST0001 (rows 1–3): y32 to y151 -->
+  <path d="M 286,32 L 292,32 L 292,92 L 286,92" class="part-bracket"/>
+  <!-- Bracket for CUST0002 (rows 4–6): y92 to y152 -->
+  <path d="M 286,92 L 292,92 L 292,152 L 286,152" class="part-bracket"/>
+
+  <!-- Connector lines from brackets to annotation boxes -->
+  <!-- partitionBy connector: from bracket midpoints to ann box left edge -->
+  <line x1="292" y1="62"  x2="316" y2="42"  class="part-bracket" stroke-dasharray="4,2"/>
+  <line x1="292" y1="122" x2="316" y2="42"  class="part-bracket" stroke-dasharray="4,2"/>
+  <!-- orderBy connector -->
+  <line x1="292" y1="82"  x2="316" y2="92"  stroke="#6366f1" fill="none" stroke-width="1.5" stroke-dasharray="4,2"/>
+  <!-- rowsBetween connector -->
+  <line x1="292" y1="112" x2="316" y2="142" stroke="#f97316" fill="none" stroke-width="1.5" stroke-dasharray="4,2"/>
+
+  <!-- ══════════════════════════════════════════
+       RIGHT SIDE — Annotation boxes (x=316)
+       ══════════════════════════════════════════ -->
+
+  <!-- Box 1: partitionBy -->
+  <rect x="316" y="14" width="250" height="46" rx="4" class="ann-fill"/>
+  <text x="326" y="30" class="ann-text lbl" font-size="10" font-weight="700">partitionBy("customer_id")</text>
+  <text x="326" y="44" class="ann-text lbl" font-size="10">Groups rows; window resets per group.</text>
+  <text x="326" y="56" class="ann-text lbl" font-size="10">CUST0001 and CUST0002 are independent.</text>
+
+  <!-- Box 2: orderBy -->
+  <rect x="316" y="70" width="250" height="34" rx="4" class="ann-fill"/>
+  <text x="326" y="86" class="ann-text lbl" font-size="10" font-weight="700">orderBy("txn_date")</text>
+  <text x="326" y="100" class="ann-text lbl" font-size="10">Sorts rows within each partition.</text>
+
+  <!-- Box 3: rowsBetween -->
+  <rect x="316" y="116" width="250" height="44" rx="4" class="ann-fill"/>
+  <text x="326" y="131" class="ann-text lbl" font-size="10" font-weight="700">rowsBetween(unboundedPreceding, currentRow)</text>
+  <text x="326" y="145" class="ann-text lbl" font-size="10">Frame: all rows from partition start</text>
+  <text x="326" y="157" class="ann-text lbl" font-size="10">up to and including the current row.</text>
+
+  <!-- ══════════════════════════════════════════
+       BOTTOM — Formula box
+       ══════════════════════════════════════════ -->
+  <rect x="10" y="168" width="560" height="58" rx="5" class="formula-fill"/>
+  <text x="20" y="184" class="muted lbl" font-size="9">WINDOW SPEC</text>
+  <text x="20" y="200" class="formula-text lbl" font-size="10.5" font-family="ui-monospace, monospace">Window</text>
+  <text x="20" y="214" class="formula-text lbl" font-size="10.5" font-family="ui-monospace, monospace">  .partitionBy("customer_id")</text>
+  <text x="232" y="214" class="formula-text lbl" font-size="10.5" font-family="ui-monospace, monospace">  .orderBy("txn_date")</text>
+  <text x="20" y="222" class="formula-text lbl" font-size="10" font-family="ui-monospace, monospace">  .rowsBetween(Window.unboundedPreceding, Window.currentRow)</text>
+</svg>
