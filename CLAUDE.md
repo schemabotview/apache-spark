@@ -18,7 +18,7 @@ You are an Apache Spark expert and content creator. This repo contains education
 - First cell must be a markdown cell that introduces the topic
 - Use markdown cells for explanations and theory, code cells for runnable PySpark examples
 - Outputs (stdout, etc.) can be included — the viewer renders them
-- Notebook filenames use kebab-case and match the `.tts` and `.wav` file names (e.g., `spark-architecture.ipynb` → `tts/spark-architecture.tts` → `audio/spark-architecture.wav`)
+- Notebook filenames use kebab-case and are the single source of truth for naming — `.tts` and `.wav` files use the exact same stem (e.g., `01-spark-architecture.ipynb` → `tts/01-spark-architecture.tts` → `audio/01-spark-architecture.wav`)
 
 ## Audio Generation
 
@@ -31,7 +31,7 @@ Audio is generated via `generate_audio_colab.ipynb` on Google Colab (T4 GPU):
 
 | Topic | Notebook | Audio |
 |---|---|---|
-| What is Apache Spark & Why Use It | `01-what-is-apache-spark.ipynb` | `what-is-apache-spark--why-use-it.wav` |
+| What is Apache Spark & Why Use It | `01-what-is-apache-spark.ipynb` | `01-what-is-apache-spark.wav` |
 | Spark Architecture | _(planned)_ | `spark-architecture.wav` |
 | Setting Up PySpark & Databricks | _(planned)_ | `setting-up-pyspark--databricks.wav` |
 | RDDs — The Foundation | _(planned)_ | `rdds--the-foundation.wav` |
