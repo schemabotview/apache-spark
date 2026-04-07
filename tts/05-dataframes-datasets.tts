@@ -1,0 +1,131 @@
+The DataFrame is Spark's primary high-level API for structured data. It combines the familiarity of a table — named columns, types, SQL-style operations — with the distributed execution model of Spark. Understanding DataFrames deeply is the single biggest skill for the Databricks Associate exam and real-world Spark work.
+
+The Spark API Hierarchy.
+
+Spark gives you three ways to express computations: SQL, the DataFrame and Dataset API, and the RDD API.
+
+SQL and DataFrame and Dataset all go through the Catalyst optimizer and the Tungsten execution engine — they produce identical execution plans. It does not matter whether you write a SQL query string or chain DataFrame method calls; the end result is the same optimized physical plan.
+
+The RDD API bypasses Catalyst entirely. There is no automatic optimization — you are responsible for writing an efficient plan yourself.
+
+In Python, DataFrame is the only high-level option. Dataset of T, which is a typed collection parameterized by a Scala or Java class, is only available in Scala and Java. In fact, DataFrame is simply an alias for Dataset of Row — they are the same thing.
+
+DataFrame Structure.
+
+A DataFrame is a distributed table. It has a schema — column names and their data types — and it has rows, split across partitions on executor nodes.
+
+Four key properties define a DataFrame. It is immutable — every transformation returns a new DataFrame and leaves the original untouched. It is lazily evaluated — transformations build an execution plan but nothing runs until you call an action. It is schema-enforced — every row is required to match the same column types. And it is partitioned — the rows are divided across partitions so they can be processed in parallel.
+
+The Schema — StructType and StructField.
+
+The schema describes the structure of the DataFrame. In PySpark you define it using StructType as the container and StructField for each column.
+
+Each StructField takes three arguments: the column name as a string, the data type — such as LongType, StringType, IntegerType, BooleanType, DoubleType, DateType, TimestampType, ArrayType, or MapType — and a nullable flag indicating whether the column can contain null values.
+
+Spark also accepts a DDL string as a shorthand. For example, "id LONG NOT NULL, name STRING, age INT, active BOOLEAN" defines the same four-column schema. The DDL form is often more concise for simple schemas.
+
+Always prefer an explicit schema over schema inference. Inference is convenient, but it requires Spark to scan a sample of the data to guess types, which is slower and can produce unexpected results — for example, inferring an integer column as a long, or a date column as a string.
+
+Creating DataFrames.
+
+There are four common ways to create a DataFrame.
+
+The first is from a Python list using spark.createDataFrame, passing the list and a schema. You can pass the StructType schema object or a DDL string or a list of column name strings.
+
+The second is schema inference — pass a list of column names instead of a full schema and Spark infers the types. Convenient for quick experiments, but use explicit schemas in production.
+
+The third is spark.range, which generates a DataFrame of consecutive integers. It accepts a stop value, or a start, stop, and step. It is the fastest way to create test data.
+
+The fourth is from a pandas DataFrame using spark.createDataFrame. Spark maps pandas dtypes to Spark types automatically. Be aware that this collects the pandas data on the driver and distributes it — avoid for large datasets.
+
+Exploring a DataFrame.
+
+Several methods help you understand a DataFrame's contents and structure.
+
+count returns the number of rows. columns returns the list of column name strings. dtypes returns a list of column name and type string pairs. rdd.getNumPartitions tells you how many partitions the DataFrame has.
+
+printSchema prints the column names, types, and nullability in a readable tree format — use this to verify your schema is what you expect.
+
+describe of one or more column names returns a summary statistics DataFrame with count, mean, standard deviation, min, and max for each column.
+
+show prints the first twenty rows in a formatted table. You can pass a number to control how many rows to show, and set truncate to False to see full values without cutting them off.
+
+Selecting Columns.
+
+There are four ways to reference a column in PySpark and they are largely interchangeable.
+
+The string form — just the column name as a string — is the simplest and works for most situations.
+
+The col function from pyspark.sql.functions returns a Column object. This is the preferred form when you need to apply functions to the column, chain operations, or combine expressions.
+
+The DataFrame bracket syntax — df of "name" in brackets — also returns a Column object and ties it explicitly to the DataFrame. This avoids ambiguity when joining two DataFrames that have columns with the same name.
+
+The dot syntax — df dot name — is convenient for interactive use but breaks if the column name contains spaces or matches a Python reserved word.
+
+The expr function accepts a SQL expression string and returns a Column. It is useful for complex expressions that are easier to write in SQL than as method chains, such as "age plus 5 AS age_in_5_years".
+
+The select method accepts any mix of these forms and returns a new DataFrame with only the specified columns.
+
+Adding, Renaming, and Dropping Columns.
+
+withColumn adds a new column or replaces an existing one if the name already exists. It takes the column name as a string and a Column expression. Common patterns include using when and otherwise for conditional logic, calling built-in functions like upper or lower on existing columns, and using lit to add a column of a constant literal value.
+
+withColumnRenamed renames a column — it takes the old name and the new name.
+
+drop removes one or more columns by name and returns the DataFrame without them.
+
+Filtering Rows.
+
+filter and where are identical — use whichever reads more naturally. Both accept either a Column expression or a SQL expression string.
+
+When combining multiple conditions, use the ampersand operator for AND and the pipe operator for OR and the tilde operator for NOT. Always wrap each individual condition in parentheses — without them Python's operator precedence will produce incorrect results.
+
+isin checks whether a column's value is in a given list. Negate it with the tilde operator to get NOT isin.
+
+Handling Nulls.
+
+Nulls require special handling in Spark because standard equality checks do not work for null — null equals null returns null, not true.
+
+isNull and isNotNull are the correct way to filter null and non-null rows respectively.
+
+dropna removes rows that contain null values. By default it drops any row with at least one null. Pass a subset argument with a list of column names to only check those columns.
+
+fillna replaces null values. Pass a dictionary mapping column names to replacement values to fill different columns with different values.
+
+coalesce from pyspark.sql.functions returns the first non-null value from a list of columns. It is useful for creating a fallback column — for example, return the name column if it is not null, otherwise return the string "N/A".
+
+Type Casting.
+
+The cast method converts a column to a different type. You can pass a type object such as DoubleType, or a DDL string such as "string" or "double". The DDL string form is often more readable.
+
+Sorting and Deduplication.
+
+orderBy and sort are synonyms. Both accept column names or Column expressions. Call dot desc on a Column expression for descending order. For multi-column sorting, pass multiple columns — Spark sorts by each in order.
+
+distinct removes duplicate rows across all columns. It causes a shuffle because Spark must compare records across partitions. dropDuplicates does the same but lets you specify which columns to consider — rows are considered duplicates if the values in those columns match, even if other columns differ.
+
+Converting Between APIs.
+
+toPandas collects all rows to the driver and converts them to a pandas DataFrame. Only use this on small DataFrames — collecting a large distributed dataset to the driver will exhaust its memory.
+
+df.rdd returns the underlying RDD of Row objects. Each Row behaves like a named tuple — you access fields by name. This is the bridge when you need low-level RDD operations on structured data.
+
+Going the other direction, you can wrap an RDD of Row objects in spark.createDataFrame to get a DataFrame back.
+
+Summary.
+
+A DataFrame is a distributed table with a schema — immutable, lazily evaluated, and partitioned across executors.
+
+SQL, DataFrame, and Dataset APIs all go through Catalyst and produce identical execution plans. RDD bypasses Catalyst.
+
+Define schemas with StructType and StructField, or as a DDL string. Explicit schemas are faster and safer than inferred ones.
+
+Reference columns with strings, col, bracket syntax, or expr. Use col when applying functions.
+
+withColumn adds or replaces a column. withColumnRenamed renames. drop removes.
+
+filter and where are identical. Combine conditions with ampersand for AND, pipe for OR, tilde for NOT — always parenthesise each condition.
+
+Handle nulls with isNull, isNotNull, dropna, fillna, and coalesce.
+
+toPandas collects to the driver — only use on small DataFrames. df.rdd gives the underlying RDD when you need low-level control.
