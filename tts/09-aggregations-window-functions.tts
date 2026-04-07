@@ -1,0 +1,77 @@
+Aggregations and window functions are the two primary tools for summarising data in Spark. Aggregations collapse many rows into a smaller number of summary rows. Window functions compute a value per row using a sliding frame of neighbouring rows without collapsing anything. Understanding both — and knowing when to use each — is essential for building analytical pipelines.
+
+groupBy and agg.
+
+groupBy partitions the rows of a DataFrame by one or more key columns. Every row that has the same combination of key values is placed into the same group. agg then applies one or more aggregate functions to each group and returns one output row per group. Both steps are lazy — the actual grouping and aggregation only execute when you call an action.
+
+The agg method accepts any number of aggregate function calls, each given an alias. Common patterns include counting all transactions per category with count, summing amounts with sum, computing averages with avg, and finding extremes with min and max. In Python you must import sum, min, and max from pyspark.sql.functions under aliases — typically underscore sum, underscore min, and underscore max — to avoid shadowing Python's built-in functions. countDistinct counts the number of unique values in a column and is useful for questions like "how many unique customers used each payment mode."
+
+When you need to group by multiple keys, pass all the key columns to groupBy separated by commas. For example, grouping by customer_id and category together gives you one row per combination of customer and spending category, showing how much each customer spent in each area.
+
+Aggregate Function Reference.
+
+count of a column name counts non-null values in that column. count of star counts all rows including nulls. sum ignores null values and sums the rest. avg computes the mean, also ignoring nulls. approx_count_distinct is a probabilistic alternative to countDistinct — it is much faster on very large datasets at the cost of a small approximation error.
+
+collect_list gathers all values in a group into an array, preserving duplicates. collect_set does the same but keeps only unique values. These are useful when you want to carry the raw values forward rather than computing a numeric summary. stddev and variance compute statistical spread. first and last return the first or last value in a group — the result depends on sort order, so always use orderBy if you care which row is first.
+
+Filtering Groups — the HAVING Equivalent.
+
+SQL has a HAVING clause for filtering on aggregated values — for example, keeping only customers who made more than three transactions. Spark has no HAVING keyword, but the effect is identical: call filter after agg. Because filter is lazy, Catalyst can often push the predicate down into the aggregation plan for efficiency. The pattern is: groupBy, then agg, then filter on the aggregated column.
+
+Pivot Tables.
+
+The pivot method rotates distinct values from one column into separate output columns. It sits between groupBy and agg in the chain. You pass pivot the column to rotate and optionally a list of values to use as the new column names — providing the list is strongly recommended because without it Spark must scan the data first to discover all distinct values before it can build the plan.
+
+A classic banking example is showing loan repayment counts broken down by status — PAID, MISSED, and PARTIAL — with one row per month. Without pivot, you would get three rows per month. With pivot, you get one row per month and three separate count columns, one for each status value. This format is much easier to read in reports and dashboards.
+
+Window Functions.
+
+A window function computes a value for each row in the DataFrame using a defined frame of surrounding rows. The key difference from groupBy is that the original rows are preserved — you get one output row for every input row, with a new computed column attached. No rows are collapsed.
+
+Three components define a window specification. First, partitionBy groups the rows into independent windows. The window function resets at every partition boundary, exactly like groupBy creates independent groups. Second, orderBy determines the order of rows within each partition — this matters for ranking functions and for running totals where sequence is meaningful. Third, the frame definition controls which rows within the partition are included in each row's calculation. You define the frame using rowsBetween or rangeBetween with start and end positions relative to the current row.
+
+Ranking Functions — row_number, rank, dense_rank.
+
+The three ranking functions all assign a number to each row within its partition based on the orderBy column.
+
+row_number assigns a unique sequential integer starting at one. If two rows are tied on the order column, they still get different numbers — the tiebreaker is arbitrary. This makes row_number the right choice when you need exactly one row per partition, such as the top transaction per customer.
+
+rank assigns the same number to tied rows, but then skips the next numbers. If two rows tie for second place, they both get rank two and the next row gets rank four. The sequence looks like one, two, two, four.
+
+dense_rank also assigns the same number to tied rows, but does not skip. The sequence looks like one, two, two, three. Use dense_rank when you want a compact ranking with no gaps.
+
+To get the top row per group — for example, the single largest transaction per customer — add a row_number column using a window ordered by amount descending, then filter for rows where row_number equals one.
+
+lag and lead.
+
+lag and lead look at neighbouring rows within the partition. lag of a column and a number n returns the value of that column from the row n positions before the current row in the sort order. lead does the same but looks n positions forward. Both return null at the partition boundaries where there is no preceding or following row — you can supply a default value as a third argument if you want something other than null.
+
+lag and lead are useful for computing row-to-row deltas. A classic example is comparing each account transaction's amount to the previous transaction's amount to see whether spending is increasing or decreasing. Another use is detecting gaps — comparing the current transaction date to the previous one to find customers who went a long time without any activity.
+
+Running Aggregates — rowsBetween.
+
+rowsBetween defines the window frame using physical row positions. The two boundary constants you need to know are Window.unboundedPreceding, which means the first row of the partition, and Window.currentRow, which means the current row being processed.
+
+A running total uses rowsBetween of unboundedPreceding and currentRow with sum. For each row, Spark sums all rows from the start of the partition up to and including the current row. As you move down the partition, the frame expands and the running total grows.
+
+A rolling average uses a fixed-size frame. For a three-row rolling average, the frame is rowsBetween of negative two and currentRow — meaning the current row plus the two rows immediately before it. For the first two rows of a partition, the frame is smaller because there are fewer preceding rows available. This is called a shrinking frame and is the default behaviour.
+
+Putting It Together — groupBy Plus Window.
+
+A common pattern is to combine groupBy aggregations with window ranking in a two-step pipeline. In the first step, you use groupBy and agg to compute summary metrics per group — for example, total payments per customer per payment mode. In the second step, you use a window ranked by the aggregated metric to rank each group within its parent partition — for example, ranking payment modes within each customer by total amount. Then you filter for rank equals one to keep only each customer's preferred payment mode. This two-step pattern — aggregate first, then rank the aggregated result — is cleaner and more efficient than trying to do everything in a single window function.
+
+Summary.
+
+groupBy and agg collapse rows into one row per group. Chain filter after agg for HAVING-style filtering on aggregated values.
+
+Common aggregate functions are count, sum, avg, min, max, countDistinct, collect_list, and collect_set. Import sum, min, and max from pyspark.sql.functions under aliases to avoid shadowing Python built-ins.
+
+pivot rotates a column's distinct values into separate output columns. Always supply the value list to avoid a pre-scan.
+
+Window functions compute a value per row without collapsing. Three parts define a window spec: partitionBy for grouping, orderBy for row sequence, and a frame with rowsBetween or rangeBetween for the calculation boundary.
+
+row_number gives unique sequential numbers. rank skips after ties. dense_rank does not skip.
+
+lag and lead access preceding and following rows within a partition — use them for delta calculations and gap detection.
+
+rowsBetween of unboundedPreceding and currentRow gives a running cumulative total. A negative start value like negative two gives a rolling fixed-size frame.

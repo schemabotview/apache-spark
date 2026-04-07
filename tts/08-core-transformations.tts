@@ -1,0 +1,75 @@
+Transformations are the building blocks of every Spark pipeline. They are lazy — calling filter or withColumn records the operation in a logical plan but executes nothing until an action is triggered. This notebook covers the core narrow transformations: operations that process each partition independently, with no data movement across the network. Because no shuffle is involved, narrow transformations are fast and do not create stage boundaries in the execution plan.
+
+select and selectExpr.
+
+The select method projects columns — it returns a new DataFrame with only the columns you specify. You can pass column name strings, Column objects from the col function, or a mix of both. The result is a new DataFrame; the original is unchanged.
+
+selectExpr accepts SQL expression strings directly. This is convenient when you want to perform inline calculations or apply aliases without importing individual functions. For example, you can write a selectExpr that computes a processing fee as two percent of the amount and names the result "processing_fee", all in a single string expression. Under the hood, Spark parses the SQL string through the Catalyst parser — it produces exactly the same execution plan as the equivalent Python expression.
+
+filter and where.
+
+filter and where are identical — they are two names for the same method. Use whichever reads more naturally. Both accept either a Column expression or a SQL expression string.
+
+When combining multiple conditions, use the ampersand operator for AND and the pipe operator for OR and the tilde operator for NOT. Always wrap each individual condition in parentheses. Without parentheses, Python's operator precedence applies before Spark's, and you will get incorrect results without any error message — the query silently produces the wrong rows.
+
+The isin method checks whether a column's value is in a given list. You can negate it with the tilde operator to get NOT isin, which is useful for excluding known bad values — for example, filtering out test or internal merchants by excluding a list of known merchant names.
+
+withColumn, withColumnRenamed, and drop.
+
+withColumn adds a new column or replaces an existing one. It takes the column name as a string and a Column expression as the second argument. If the name you pass already exists in the DataFrame, the existing column is silently replaced — so be careful when reusing names.
+
+Common withColumn patterns include using when and otherwise for conditional classification, calling built-in string or date functions on existing columns, using lit to add a column of a constant literal value — for example, adding a "source" column with the value "card_processor" on every row — and using cast to change a column's data type.
+
+withColumnRenamed renames a column without touching its values. It takes the old name and the new name. This is useful when you need to expose a column under a more readable name to downstream consumers — for example, renaming txn_ts to transaction_timestamp.
+
+drop removes one or more columns by name and returns a new DataFrame without them. This is useful for stripping internal or sensitive columns before writing to a reporting layer — for example, dropping the card_id and is_fraud columns before writing to an analytics table.
+
+Type Casting.
+
+The cast method converts a column to a different data type. You can pass a type object like DoubleType, or a DDL string like "double" or "date" — the DDL string form is usually more readable. Invalid casts do not raise an error — they produce null values instead. So if you cast a string column to an integer and some values cannot be parsed, those rows get null in the cast result rather than failing the job.
+
+Common casting patterns in financial data include casting DecimalType amounts to DoubleType for machine learning feature vectors, which work with floating-point numbers rather than exact decimals. Casting a TimestampType to DateType drops the time component and keeps only the calendar date. Casting a BooleanType to IntegerType produces zero for false and one for true, which is a common encoding for binary classification labels.
+
+String Functions.
+
+PySpark.sql.functions provides a full set of vectorized string operations that run on the JVM. Always prefer these over Python UDFs — they are orders of magnitude faster because they operate directly on the encoded data without Python serialization overhead.
+
+upper and lower change the case of a string column. trim, ltrim, and rtrim strip whitespace from both ends, the left end, or the right end. substring extracts a fixed number of characters starting at a given position — for example, extracting characters five through eight of a customer ID string to get the numeric part. split splits a string on a delimiter and returns an array — you can then index into that array with square brackets to pull the first or second element. regexp_replace replaces patterns matching a regular expression with a replacement string, which is useful for masking sensitive data like phone numbers or card numbers. length returns the number of characters in a string. concat_ws joins multiple columns together with a separator — for example, joining city and state with a comma and space to produce a location label.
+
+Date and Timestamp Functions.
+
+Spark stores dates as DateType, which represents days since the Unix epoch, and timestamps as TimestampType, which represents microseconds. The date functions work on both.
+
+year, month, and dayofmonth extract integer parts from a date or timestamp. date_format formats a date or timestamp as a string using a Java date format pattern — for example, passing "yyyy-MM" produces a month key like "2024-03" that is useful for partitioned writes or monthly grouping. datediff calculates the number of days between two dates. add_months adds a number of calendar months to a date, correctly handling varying month lengths and leap years. current_date returns today's date on the driver at job submission time.
+
+A common banking pattern is computing a customer's age from their date of birth by calling datediff between the current date and the date of birth, then dividing by 365 and casting to integer. Another pattern is computing loan maturity dates by adding the tenure in months to the disbursement date using add_months.
+
+when and otherwise — Conditional Columns.
+
+when is the DataFrame equivalent of SQL CASE WHEN. You call when with a condition and a value, chain additional when calls for subsequent conditions, and end with otherwise for the default. Omitting otherwise leaves unmatched rows as null — always include otherwise unless you intentionally want nulls for unmatched cases.
+
+when expressions are fully composable. You can nest them, combine them with other column expressions, and use them inside withColumn calls. A typical pattern in card transaction analysis is classifying each transaction into risk levels — CRITICAL for amounts above twenty thousand, HIGH for amounts above five thousand, MEDIUM for amounts above one thousand, and LOW for everything else. Another pattern is combining two conditions in a single when — for example, flagging a transaction as "CRITICAL FRAUD" only when it is both flagged as fraud and has an amount above ten thousand.
+
+Chaining Transformations.
+
+Spark transformations are designed to chain — each returns a new DataFrame, so you can call the next transformation immediately on the result. Use parentheses to wrap the entire chain so you can split it across multiple lines without needing backslash line continuations. The entire chain is a single logical plan. Catalyst receives all of it at once and optimises the whole plan before producing the physical execution plan — it does not execute each step sequentially as Python evaluates each line.
+
+A clean pattern for building a reporting-ready DataFrame is to write each transformation as a commented step in a single chain: first filter to the rows you want, then cast types, then derive computed columns, then classify with when expressions, and finally select only the columns needed downstream. This makes the intent of each step clear while letting Catalyst determine the most efficient way to execute the whole thing.
+
+Summary.
+
+All transformations covered here are narrow — they process each partition independently without any shuffle.
+
+select and selectExpr project columns. selectExpr accepts inline SQL expressions and aliases.
+
+filter and where are identical. Combine conditions with ampersand for AND, pipe for OR, and tilde for NOT. Always parenthesise each individual condition.
+
+withColumn adds or replaces a column. withColumnRenamed renames. drop removes.
+
+cast converts types — invalid casts produce null rather than errors. The DDL string form like "double" or "date" is the most readable.
+
+String functions and date functions from pyspark.sql.functions run on the JVM — always prefer them over Python UDFs.
+
+when and otherwise is the DataFrame CASE WHEN. Chain multiple conditions and always provide otherwise to avoid unexpected nulls.
+
+Chain transformations freely using a single parenthesised expression. Catalyst optimises the entire chain as one logical plan.

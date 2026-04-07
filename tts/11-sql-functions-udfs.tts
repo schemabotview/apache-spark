@@ -1,0 +1,111 @@
+Spark ships with hundreds of built-in SQL functions that run entirely on the JVM — no Python serialization, no overhead. When a built-in cannot express your logic, User-Defined Functions let you bring Python code into the pipeline. This notebook covers the most useful built-in functions by category, then Python UDFs and the faster Pandas UDF alternative.
+
+Function Performance Tiers.
+
+Before writing any UDF, understand the three performance tiers. Built-in functions from pyspark.sql.functions are the fastest — they run natively on the JVM inside the Spark execution engine and never touch Python at all. Pandas UDFs, also called vectorized UDFs, use Apache Arrow to transfer data between the JVM and Python as columnar batches — much faster than row-by-row serialization. Plain Python UDFs are the slowest — they serialize each row individually across the JVM–Python boundary, deserialize it in Python, call your function, serialize the result back, and send it to the JVM. On a large dataset this overhead can be ten to one hundred times slower than an equivalent built-in function.
+
+The rule is simple: always exhaust built-in functions before writing a UDF. Most operations you think require a UDF can be expressed with when and otherwise, regexp_replace, or a combination of a few built-in functions.
+
+String Functions.
+
+Beyond upper, lower, trim, and split covered earlier, several string functions are especially useful in financial data pipelines.
+
+lpad and rpad pad a string to a fixed width by prepending or appending a fill character. In banking, this is useful for formatting account numbers, customer IDs, and branch codes to a standard width for legacy system integrations.
+
+format_string builds a formatted display string using a Java-style format pattern, similar to Python's f-strings but executed entirely on the JVM. You can pad columns, align text, and combine values in a single call. This is more efficient than concatenating individual columns with concat_ws when you need precise spacing.
+
+regexp_extract pulls structured data out of a free-text or partially-structured string using a capturing group in a regular expression. The third argument is the group number to return — group zero returns the entire match, group one returns the first capturing group, and so on. Common banking uses include extracting the numeric portion of a customer ID, pulling the domain out of an email address, or extracting a reference number from a description field.
+
+translate performs character-level substitution. You provide a string of characters to find and a string of replacement characters — each character in the first string is replaced by the corresponding character in the second string. This is useful for data masking where you want to replace all digit characters in a card number with asterisks without using a regular expression.
+
+Numeric Functions.
+
+ceil rounds a number up to the nearest integer. floor rounds down. round rounds to a specified number of decimal places using standard half-up rounding. bround uses banker's rounding — rounding half to even — which is required for certain financial calculations to avoid systematic bias.
+
+pow raises a value to a power, which is essential for compound interest and present-value calculations. A loan's total repayment is the principal multiplied by one plus the rate divided by one hundred, raised to the power of the tenure in years. In Spark you express this using pow with lit for the constant values.
+
+greatest and least compare values across multiple columns row-by-row. greatest returns the largest value across all the columns you pass for each row. least returns the smallest. These are useful for enforcing floors and ceilings — for example, taking the greater of the calculated amount and a minimum charge of one hundred rupees.
+
+Date and Time Functions — Advanced.
+
+date_trunc truncates a timestamp to the start of a period. Passing "month" returns the first moment of the month for each timestamp. Passing "week" returns the start of the ISO week. Passing "day" returns midnight. This is the cleanest way to group time-series data into reporting periods.
+
+last_day returns the last calendar date of the month for a given date. This is useful for generating month-end cutoff dates for statement generation and interest calculations.
+
+months_between calculates the number of months between two dates as a decimal. For a loan disbursed six and a half months ago, months_between returns 6.5. Dividing by the tenure in months and multiplying by one hundred gives the percentage of the loan term that has elapsed.
+
+quarter returns the calendar quarter — one through four — for a date or timestamp. This is used extensively in financial reporting for quarterly summaries.
+
+date_format converts a date or timestamp to a string using a Java date format pattern. The pattern "EEEE" returns the full day name — Monday, Tuesday, and so on. The pattern "yyyy-QQ" returns the year and quarter. This is useful for building display labels and partition keys.
+
+unix_timestamp converts a timestamp to the number of seconds since the Unix epoch. from_unixtime converts in the other direction. These are useful when interfacing with systems that store timestamps as epoch integers.
+
+Conditional Functions.
+
+coalesce takes any number of column arguments and returns the first one that is not null. This is the standard pattern for providing a fallback chain — for example, if email is present use email, otherwise use phone, otherwise use the string "NO_CONTACT". coalesce is a built-in and runs on the JVM — always prefer it over a UDF that replicates the same logic.
+
+nullif returns null when a column's value equals a given value, and returns the column's value unchanged otherwise. This is useful for treating sentinel values — like zero or an empty string — as null so they are handled consistently by downstream null-handling logic.
+
+Array Functions.
+
+When a column is of ArrayType, Spark provides a full set of array operations that run on the JVM without any UDF.
+
+collect_list gathers all values in a group into an array, which you used in the aggregations notebook. array_distinct removes duplicate elements from an array. explode is the inverse of collect_list — it takes an array column and produces one output row per array element, effectively flattening the array back into individual rows.
+
+array_contains checks whether a specific value is present in an array. size returns the length of an array. array_sort sorts the elements. array_union and array_intersect perform set operations on two array columns.
+
+Higher-Order Functions.
+
+Higher-order functions apply a lambda expression directly to array elements on the JVM — there is no Python UDF overhead because the lambda is expressed in SQL and executed in native Spark code.
+
+transform applies a function to every element of an array and returns a new array of the same length with the transformed values. filter keeps only the elements for which the condition returns true. aggregate folds the entire array into a single scalar value using a starting value and an accumulator function. exists returns true if any element in the array satisfies the condition. forall returns true only if every element satisfies the condition.
+
+The cleanest way to use higher-order functions in PySpark is through selectExpr with SQL lambda syntax: transform with an arrow expression, filter with an arrow expression, and so on. The arrow syntax is valid ANSI SQL and is parsed by Catalyst directly.
+
+Python UDFs.
+
+A Python UDF wraps a plain Python function so it can be called inside select or spark.sql. You define the function normally, then register it with udf and a return type. You can use the at-udf decorator on the function definition, or call udf explicitly and assign the result to a variable.
+
+To make a UDF callable from spark.sql — not just from the DataFrame API — register it by name using spark.udf.register, passing the name string, the function, and the return type. After registration, spark.sql queries can call it by name just like a built-in function.
+
+A practical example is a card masking UDF that takes a card identifier and replaces the middle characters with asterisks, keeping only the first four and last two characters visible. This kind of masking logic is genuinely hard to express with built-in functions alone, making it a legitimate UDF use case.
+
+Another example is an amount classification UDF that maps transaction amounts to labels like LARGE, MEDIUM, SMALL, and MICRO. However, this specific pattern is better expressed with when and otherwise using built-in functions — the UDF version is shown mainly to illustrate the registration pattern.
+
+Pandas UDFs — Vectorized UDFs.
+
+Pandas UDFs use Apache Arrow to serialize entire columns as contiguous memory buffers and transfer them between the JVM and Python in batches. Your Python function receives a pandas Series or DataFrame instead of individual row values. This eliminates the per-row serialization overhead that makes plain Python UDFs slow.
+
+A scalar Pandas UDF receives one pandas Series per input column and returns a pandas Series of the same length. You decorate the function with at-pandas-udf and the return type. Inside the function you can use the full pandas API — vectorized operations, apply, and anything that works on a Series.
+
+A practical Pandas UDF for financial data is an EMI calculator that computes the monthly equated instalment for each loan using the standard formula: principal times the monthly rate times one plus the rate raised to the number of months, divided by one plus the rate raised to the number of months minus one. This is a genuine use case for a Pandas UDF because the formula involves element-wise arithmetic across three input columns and the result is a floating-point number — exactly the pattern Pandas UDFs are optimised for.
+
+The scalar iterator type — SCALAR_ITER — receives batches of columns as an iterator of Series objects and yields results batch by batch. This is the right choice when your UDF needs to load a model or open a resource once per batch rather than once per row — for example, loading a scikit-learn model from disk and then applying it to each batch.
+
+When to Use Each.
+
+Use built-in functions for case and when logic, string operations, date arithmetic, and numeric calculations. If a built-in exists, use it.
+
+Use Pandas UDFs for complex ML feature engineering, calling external libraries like scikit-learn or spaCy, custom statistical calculations that require vectorized pandas operations, or any row-wise transformation where performance matters.
+
+Use plain Python UDFs only for simple logic that has no built-in alternative and where the data volume is small enough that the serialization overhead is acceptable.
+
+Never use a plain Python UDF on a table with hundreds of millions or billions of rows. At that scale even a fast Python function is too slow due to the per-row JVM–Python boundary crossing. Rewrite with built-ins or switch to a Pandas UDF.
+
+Summary.
+
+Spark ships with hundreds of built-in functions — always prefer them over UDFs. They run on the JVM with no serialization overhead.
+
+String functions: lpad and rpad for fixed-width formatting, format_string for display labels, regexp_extract for structured data extraction, translate for character-level masking.
+
+Numeric functions: ceil, floor, round, pow for financial calculations; greatest and least for row-wise min and max across columns.
+
+Date functions: date_trunc for period boundaries, last_day for month-end, months_between for elapsed time, quarter for reporting periods, date_format for display labels.
+
+Array functions: collect_list to aggregate, explode to flatten, array_distinct to deduplicate, and higher-order functions transform, filter, aggregate, and exists via selectExpr for JVM-native array processing.
+
+Python UDFs cross the JVM–Python boundary per row — ten to one hundred times slower than built-ins. Use sparingly and only when no built-in alternative exists.
+
+Pandas UDFs use Apache Arrow to process columnar batches — much faster than plain UDFs. Use for ML feature engineering and external library calls.
+
+Register any UDF with spark.udf.register to make it callable from spark.sql queries.

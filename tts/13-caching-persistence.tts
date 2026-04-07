@@ -1,0 +1,107 @@
+Spark's lazy evaluation model is powerful — transformations build a plan, and nothing executes until an action is called. But it also means that every time you call an action on the same DataFrame, Spark re-executes the entire lineage from the source. Caching breaks that cycle. When you cache a DataFrame, Spark materialises it in memory after the first action, and subsequent actions read from that stored copy instead of rerunning the full plan.
+
+Why Caching Matters.
+
+Think of a bank teller who must check a customer's KYC status before every transaction. Without caching, they walk to the file room and retrieve the customer's folder every single time — even for the same customer twice in a row. With caching, they pull the folder out once and keep it on their desk for the rest of the shift. The work is done once; all subsequent lookups are instant.
+
+In Spark terms, without caching, every count, show, or join on a DataFrame re-reads the source files and re-applies all transformations from scratch. With caching, the first action materialises the result into memory and every subsequent action reads from that in-memory copy.
+
+Caching pays off in four situations. First, when you call multiple actions on the same DataFrame in the same job. Second, when the DataFrame is used as a dimension table in repeated joins — for example, the customers table joined against card transactions, loan accounts, and payments in sequence. Third, when you are running iterative algorithms like machine learning training loops that revisit the same data in every iteration. Fourth, when the computation to produce the DataFrame is expensive — a large aggregation, a complex multi-table join chain — and you need its result in more than one place.
+
+cache() — Materialise and Reuse.
+
+cache marks a DataFrame for in-memory storage. It is lazy — calling cache alone does nothing and triggers no execution. The data is materialised the first time an action is called after the cache call. All subsequent actions read from the cached copy rather than re-executing the plan.
+
+Since Spark 3.x, cache is shorthand for persist with the MEMORY_AND_DISK storage level. This means if the DataFrame is too large to fit entirely in executor memory, Spark automatically spills the overflow partitions to local disk rather than failing or evicting and recomputing.
+
+The timing difference between the first and subsequent actions makes the benefit concrete. The first action takes the full computation time — reading from source, applying transformations, and writing to the cache. The second and third actions skip all of that and return much faster because they read from memory.
+
+Inspecting Cache Status.
+
+Two properties let you check whether a DataFrame is currently cached. is_cached returns a boolean. storageLevel returns a StorageLevel object that describes exactly where the data is stored — whether it uses disk, memory, off-heap memory, whether it is serialized, and how many replicas it has. Checking these properties is useful when debugging memory issues or verifying that a cache call took effect as expected.
+
+Storage Levels.
+
+persist accepts an explicit StorageLevel argument to control where the data is stored. There are seven main storage levels.
+
+MEMORY_ONLY keeps data in RAM in deserialized form — the fastest to read because there is no deserialization step. If a partition is evicted because memory fills up, it must be recomputed from lineage. Use this for DataFrames that you know fit comfortably in available executor memory.
+
+MEMORY_AND_DISK is the default used by cache. Data goes into RAM first. If a partition is evicted from memory, it spills to local executor disk instead of being dropped. When that partition is needed again, Spark reads it from disk. This is the safe choice for any size of DataFrame.
+
+MEMORY_ONLY_SER serializes the data using Java serialization before storing it in RAM. Serialized data takes less space than deserialized objects, so more data fits in the same amount of memory. The trade-off is a CPU cost to deserialize on each read.
+
+MEMORY_AND_DISK_SER combines serialization with the disk spill safety of MEMORY_AND_DISK. Use for large DataFrames where you want both memory efficiency and disk fallback.
+
+DISK_ONLY stores everything on disk and never in RAM. The slowest option for reads, but uses the least memory. Appropriate in very memory-constrained environments where even disk is acceptable.
+
+The _2 variants — MEMORY_AND_DISK_2, MEMORY_ONLY_2 — replicate each cached partition to two nodes. If one executor crashes, the partition is immediately available from the replica on another executor without recomputation. This doubles the storage cost but eliminates the latency of lineage replay. Use the _2 variants only when recomputing from lineage would be very expensive — for example, a multi-hour aggregation.
+
+OFF_HEAP stores data in native off-heap memory, outside the JVM heap. This avoids garbage collection pressure on the JVM. It is an advanced option that requires specific Spark configuration and is rarely needed in typical workloads.
+
+The rule of thumb is to start with MEMORY_AND_DISK. Move to MEMORY_ONLY when you are confident the data fits in RAM and want the fastest possible reads. Use _2 variants when the lineage replay cost would be unacceptable.
+
+Caching a Dimension Table for Repeated Joins.
+
+The customers table is the classic example of a DataFrame worth caching. It is small — one row per customer — queried frequently, and never changes during a Spark job. Without caching, every join against card transactions or loan accounts re-parses the CSV file from disk. With customers cached in MEMORY_ONLY, every join reads from RAM. Three subsequent joins all benefit from the same cached copy — the CSV is parsed exactly once.
+
+A more general pattern is to cache any DataFrame at the layer where it is first expensive to compute. If your pipeline reads from source, filters, and then joins, cache the post-filter result if you join it more than once. You are caching the expensive portion — not the raw source — so subsequent operations skip both the source read and the filtering.
+
+Caching a Derived DataFrame.
+
+You can cache any DataFrame, not just raw table reads. A pre-filtered fraud transactions DataFrame that is used in multiple downstream analyses — fraud by merchant, fraud amount statistics, fraud by customer city — is a good candidate for caching. You call cache after the filter and select, trigger the first action to materialise it, and then run all subsequent analyses against the cached copy. Each analysis reads from memory rather than re-scanning the original Parquet files and re-applying the filter.
+
+unpersist() — Releasing Cached Data.
+
+Cached data stays in memory until the Spark session ends, until Spark's LRU eviction policy removes it to make room for other cached data, or until you explicitly call unpersist.
+
+Always call unpersist when you are finished with a cached DataFrame. Cached data consumes the storage fraction of executor memory — the portion set aside for cached DataFrames. Memory held by a DataFrame you no longer need is memory unavailable for shuffles, sorts, and joins in the next stage of your pipeline. Over-caching is a common cause of OutOfMemoryError on executors.
+
+unpersist is synchronous by default — it waits until all cached blocks are actually removed from executor memory before returning control to the caller.
+
+Catalog-Level Caching.
+
+When you register a DataFrame as a temporary view, you can cache it at the catalog level using spark.catalog.cacheTable, passing the view name. After this call, any SQL query or DataFrame operation that reads from that view name reads from the cached data instead of re-executing the view's underlying plan. spark.catalog.isCached checks whether a given view name is currently cached. spark.catalog.uncacheTable releases the cache for a specific view name.
+
+The difference from calling cache on the DataFrame directly is the level of indirection — catalog caching works through the view name, so any code that references the view by name benefits automatically, including spark.sql queries.
+
+Checkpointing — Truncating Long Lineage Chains.
+
+Caching stores the data in memory or on disk but preserves the lineage. Spark still knows how the DataFrame was produced and can recompute it from the source if a cached partition is lost. For long lineage chains, the plan itself can become a performance and memory problem — Catalyst must hold the entire plan in memory, and the plan grows with every transformation added to the chain.
+
+Checkpointing goes further than caching. It saves the DataFrame to a reliable storage location — HDFS in a cluster environment, or a local path for development — and then breaks the lineage completely. Spark no longer knows how the data was produced. It simply reads the saved files. The plan for a checkpointed DataFrame is just a file scan, regardless of how complex the original computation was.
+
+Use checkpointing for iterative machine learning algorithms where the lineage accumulates across many training iterations. Use it for streaming jobs with stateful operations that build up long lineage chains over time. A practical threshold is any DAG longer than roughly twenty to thirty shuffle stages.
+
+Unlike cache, checkpointing is eager — it executes immediately when called, rather than waiting for the next action. Before checkpointing, always call spark.sparkContext.setCheckpointDir to specify where the checkpoint files should be written.
+
+You can see the effect of checkpointing by calling explain on the DataFrame before and after. Before checkpointing, the plan shows all the source scans, joins, and aggregations in the lineage. After checkpointing, the plan shows only a simple scan of the checkpoint directory.
+
+Anti-Patterns — When Not to Cache.
+
+Caching is not free. It consumes storage memory that would otherwise be available for shuffles, sorts, and joins. Over-caching is as harmful as under-caching.
+
+Do not cache a DataFrame that is used in only one action. The data is written to the cache, consuming memory, and then never read from that cache again. You paid the storage cost and got nothing in return.
+
+Do not cache a very large DataFrame that exceeds available executor memory. When the cached data does not fit, partitions are constantly evicted and then recomputed when accessed again — a cycle of eviction and recomputation that is slower than not caching at all.
+
+Do not cache a DataFrame that changes between actions. Cached data is a snapshot from the moment the first action materialised it. If the underlying data has changed since then, subsequent actions will read stale data from the cache.
+
+Do not cache an intermediate step in a long transformation chain that is only computed once. Cache the final result of the expensive portion, not every intermediate step along the way.
+
+Finally, cache at the right layer. If your pipeline is read, then filter, then join, then aggregate, and you need to run multiple aggregations on the joined result, cache the post-join DataFrame — not the raw read. You want to skip the expensive portion on subsequent accesses, not just the cheap source scan.
+
+Summary.
+
+Spark's lazy evaluation re-executes the full lineage for every action. Caching breaks that cycle by materialising a DataFrame after the first action so subsequent actions read from memory.
+
+cache is shorthand for persist with MEMORY_AND_DISK since Spark 3.x. Use persist with an explicit StorageLevel when you need control over serialisation, disk spill, or replication.
+
+MEMORY_ONLY is the fastest but drops evicted partitions to recompute. MEMORY_AND_DISK is the safe default and spills to disk on eviction. DISK_ONLY uses the least memory but is the slowest. The _2 variants replicate to two nodes for instant recovery at double the storage cost.
+
+Cache dimension tables reused across joins, expensive derived DataFrames used in multiple actions, and iterative algorithm inputs.
+
+Always call unpersist when done. Do not rely on LRU eviction to manage memory for you.
+
+Catalog caching with spark.catalog.cacheTable caches at the SQL view level, visible to all queries against that view name.
+
+Checkpointing saves to reliable storage and truncates the lineage completely. Use for very long DAGs and iterative algorithms. Unlike cache, checkpointing is eager — it executes immediately.

@@ -1,0 +1,73 @@
+SQL is a first-class citizen in Spark. The spark.sql method accepts any ANSI SQL string and passes it through the same Catalyst optimizer as the DataFrame API. Both paths produce identical physical execution plans. This means you can mix SQL and DataFrame code freely in the same application — register a DataFrame as a view, query it with SQL, take the result back as a DataFrame, and continue chaining DataFrame operations. There is no performance difference between the two approaches. Choose whichever form is more readable for the task at hand.
+
+Temporary Views.
+
+To make a DataFrame queryable by SQL, you register it as a temporary view using createOrReplaceTempView. You pass a name string, and from that point on any call to spark.sql can reference that name in a FROM clause, a JOIN, or a subquery. The view is scoped to the current SparkSession — it is visible only within that session and is dropped automatically when the session ends. No data is copied. The view is simply a named pointer to the DataFrame's existing logical plan.
+
+If you call createOrReplaceTempView with a name that already exists, it silently replaces the old view with the new one. This makes it safe to re-run cells in a notebook without worrying about conflicts.
+
+For a typical pipeline you register all the tables you need at the top of the job, give them short, readable names, and then write SQL queries against those names for the rest of the job.
+
+Basic SQL Queries.
+
+spark.sql returns a DataFrame. You can call any DataFrame operation on it — show, count, write, or another transformation. The query string itself is standard SQL: SELECT with column expressions, WHERE for filtering, ORDER BY, LIMIT, GROUP BY, HAVING, and aliases using AS.
+
+Aggregate queries look exactly as they do in any SQL database. You write SELECT with aggregate functions like COUNT, SUM, AVG, ROUND, and CAST, followed by GROUP BY and optionally HAVING. Spark supports HAVING natively in SQL — unlike the DataFrame API where you must chain a filter after agg. In SQL you simply write HAVING and the condition directly in the query.
+
+CTEs — the WITH Clause.
+
+Common Table Expressions let you name intermediate query results and reference them later in the same query. The syntax is WITH, followed by a name, followed by AS and the subquery in parentheses. You can define multiple CTEs in sequence, and each one can reference the ones defined before it.
+
+CTEs are the best tool for making complex multi-step queries readable. Instead of nesting subqueries three levels deep, you pull each logical step out into its own named CTE at the top of the query. A reader can follow the logic top-to-bottom without having to mentally unwrap nested expressions. For example, you might define a fraud_summary CTE that aggregates fraud counts per customer, then a customer_info CTE that filters to KYC-verified customers, and then join the two in the final SELECT.
+
+SQL JOINs.
+
+Spark SQL supports all standard join types. INNER JOIN returns only rows that have a matching key in both tables. LEFT JOIN returns all rows from the left table, with nulls in the right columns for rows that have no match. RIGHT JOIN is the mirror image. FULL OUTER JOIN returns all rows from both tables, with nulls wherever there is no match on the other side.
+
+LEFT SEMI JOIN returns rows from the left table that have at least one matching row in the right table, but includes no columns from the right table. It is equivalent to EXISTS in standard SQL and is more efficient than an INNER JOIN when you only care whether a match exists, not what the right-side values are.
+
+LEFT ANTI JOIN is the complement — it returns rows from the left table that have no matching row in the right table. It is the SQL equivalent of NOT EXISTS. A typical use case is finding customers who have never made a payment: left anti join customers against payments on customer_id, and the result is every customer with no payment record.
+
+For multi-table joins, you can chain as many JOIN clauses as needed. A customer 360 query might left join customers against card_accounts, loan_accounts, and payments in a single query to produce one summary row per customer showing how many cards, loans, and payments each customer has.
+
+Subqueries.
+
+Spark SQL supports subqueries in three positions. A scalar subquery in the WHERE clause computes a single value and compares it to a column — for example, filtering for transactions with an amount greater than the overall average, where the average is computed by a subquery. An IN subquery checks whether a column's value appears in the result set of the subquery — for example, finding all payments from customers who currently have an active loan. A FROM subquery treats the result of a nested SELECT as a table that the outer query can reference.
+
+Window Functions in SQL.
+
+SQL window functions use the OVER keyword with a PARTITION BY clause, an ORDER BY clause, and optionally a ROWS BETWEEN or RANGE BETWEEN frame specification. The semantics are identical to the DataFrame Window API — partitionBy in the DataFrame API maps directly to PARTITION BY in SQL, orderBy maps to ORDER BY, and rowsBetween maps to ROWS BETWEEN.
+
+All the same functions are available: ROW_NUMBER, RANK, DENSE_RANK, LAG, LEAD, SUM as a running total, AVG as a rolling average. The SQL form is often more concise for window functions because you can write the entire expression inline without defining a separate Window object.
+
+Global Temporary Views.
+
+The default createOrReplaceTempView is session-scoped. If you need a view to be visible across multiple SparkSessions running in the same JVM process — for example, in a multi-tenant Databricks notebook environment — use createOrReplaceGlobalTempView instead. Global temp views are stored in a special database called global_temp, and you must reference them with that prefix: global_temp dot view_name. They persist until either the JVM process exits or you explicitly drop them.
+
+In practice, session-scoped views are almost always the right choice. Global temp views add complexity and are only needed for specific cross-session sharing patterns.
+
+The Catalog API.
+
+spark.catalog provides a programmatic Python interface to the session's metadata. listTables returns all registered views and tables, including their names, whether they are temporary or permanent, and which database they belong to. tableExists checks whether a specific name is registered, which is useful before running a query that depends on a view being present. listColumns returns the column names, types, and nullability for any registered table or view. These are useful for introspection at the start of a job — you can verify that all expected views are registered before running any queries.
+
+DataFrame API versus SQL — They Are the Same.
+
+The most important thing to understand about Spark SQL is that it is not a separate execution engine layered on top of the DataFrame API. Both SQL and DataFrame code are compiled by Catalyst into the same intermediate logical plan representation. Catalyst then applies the same optimization rules — predicate pushdown, column pruning, join reordering — and produces the same physical plan regardless of which form you used to write the query.
+
+You can confirm this by calling explain on both a DataFrame expression and its SQL equivalent. The printed physical plans will be identical. This means there is no reason to avoid SQL for performance reasons. If a query is cleaner to write in SQL, write it in SQL. If a transformation is easier to express in the DataFrame API, use the DataFrame API. Mix the two freely in the same pipeline.
+
+Summary.
+
+createOrReplaceTempView registers a DataFrame as a session-scoped SQL view, automatically dropped when the session ends. No data is copied — the view is a named pointer to the DataFrame's logical plan.
+
+spark.sql returns a DataFrame. Chain any DataFrame operation on the result or call an action directly.
+
+SQL supports CTEs with the WITH clause, all standard join types including SEMI and ANTI, subqueries in WHERE, FROM, and SELECT positions, and HAVING for filtering on aggregated values.
+
+Window functions in SQL use OVER with PARTITION BY, ORDER BY, and ROWS BETWEEN — identical semantics to the DataFrame Window API.
+
+createOrReplaceGlobalTempView shares a view across sessions. Reference it with the global_temp prefix. Use session-scoped views in all other cases.
+
+spark.catalog provides listTables, tableExists, and listColumns for programmatic metadata inspection.
+
+SQL and DataFrame API produce identical physical plans through Catalyst. Choose whichever form is more readable — mix them freely in the same application.

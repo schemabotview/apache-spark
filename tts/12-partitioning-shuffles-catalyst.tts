@@ -1,0 +1,91 @@
+Performance in Spark comes down to three things: how data is partitioned, how often it shuffles, and how well Catalyst can optimise your query plan. This notebook covers all three — from controlling partition count and layout, to reading execution plans, to understanding the optimisations Catalyst applies automatically.
+
+Partitions — The Unit of Parallelism.
+
+A partition is a chunk of data that lives on one executor node and is processed by exactly one task running on one executor core. The number of partitions in a DataFrame directly controls the maximum parallelism of the job. If you have a twelve-core cluster and a DataFrame with three partitions, only three cores are working at any time — the other nine are idle. If you have two hundred partitions but only twelve cores, tasks run in waves but all cores stay busy.
+
+Too few partitions under-utilises the cluster. Too many partitions creates scheduling overhead — the driver must track and schedule each task, and if tasks are very small the scheduling cost dominates the actual computation cost.
+
+The practical target is one hundred and twenty-eight to two hundred and fifty-six megabytes of uncompressed data per partition. For local development mode, two to four times the number of CPU cores is a good starting point. After a shuffle operation, the number of output partitions is controlled by the configuration spark.sql.shuffle.partitions, which defaults to two hundred. On a large cluster two hundred is sensible. On a laptop or a small Databricks cluster, two hundred shuffle partitions on a small dataset creates two hundred tiny tasks with almost no work each — a common source of poor local performance.
+
+You can inspect partition counts with rdd.getNumPartitions on any DataFrame. You can see the row distribution across partitions by adding a spark_partition_id column and then grouping by it to count rows per partition.
+
+repartition versus coalesce.
+
+repartition performs a full shuffle — every row is sent over the network to a new partition determined by a hash function. The result is a specified number of partitions with roughly equal row counts. Because it shuffles, repartition can both increase and decrease partition count. Use it before a heavy join or aggregation when you want to control how many parallel tasks run, or when you want to hash-partition the data by a specific column before a join.
+
+coalesce reduces partition count without a full shuffle. It merges existing partitions together on the same executor nodes, so data movement is minimal. The result is the requested number of partitions, but they may be unequal in size because no balancing occurs. Use coalesce when you are reducing partition count — for example, collapsing two hundred partitions into one before writing a small CSV export. Never use coalesce to increase partitions — it can only decrease.
+
+repartition with a column argument — repartition of n and a column — performs a hash partition where all rows with the same column value are guaranteed to land in the same partition. This is useful before a join: if you repartition both DataFrames by the join key using the same number of partitions, each partition on the left side only needs to be joined with the corresponding partition on the right side. Spark can then perform the join without an additional shuffle.
+
+Partitioned Storage — partitionBy.
+
+Writing a DataFrame with partitionBy creates a directory hierarchy on disk where each unique value of the partition column gets its own subdirectory. For example, writing card transactions partitioned by month_key creates one directory per month — month_key equals 2024-01, month_key equals 2024-02, and so on. Each directory contains the Parquet files for that month only.
+
+When a downstream job reads this table and filters on month_key equals 2024-01, Spark reads only the 2024-01 directory and skips all other directories entirely. This is called partition pruning and it can eliminate the vast majority of I/O for time-range queries on large tables.
+
+Choosing the right partition column matters. High-cardinality columns like customer_id create one directory per customer — potentially millions of tiny directories and files, which overwhelms object storage metadata and slows reads. Prefer low-to-medium cardinality columns like status, month, quarter, or category that produce a manageable number of partitions each containing a reasonable amount of data.
+
+What Triggers a Shuffle.
+
+A shuffle is the most expensive operation in Spark. When a shuffle occurs, every executor writes its output rows to local disk sorted by target partition. Those files are then transferred over the network to the executors responsible for each target partition, where they are read back and deserialised. A shuffle involves three sequential I/O phases: write to local disk, network transfer, and read from disk — all before the next stage of computation can begin.
+
+The operations that always trigger a shuffle are groupBy, join, distinct, orderBy, repartition, and a union followed by distinct. These operations require rows with matching keys or values to be co-located on the same executor, which is only possible by redistributing the data.
+
+The operations that never trigger a shuffle are filter, select, withColumn, map, flatMap, and coalesce. These are narrow transformations — each output partition depends on exactly one input partition, so no data movement is needed.
+
+Every shuffle creates a stage boundary in the execution plan. You can see these boundaries in the output of explain by looking for Exchange nodes. Each Exchange node represents one shuffle — data flowing from the upstream stage through the disk-and-network cycle into the downstream stage.
+
+The Catalyst Optimizer.
+
+Every query — whether written as SQL or as DataFrame API calls — passes through the Catalyst optimizer before any execution begins. Catalyst has four phases.
+
+The first phase is analysis. Catalyst resolves column names and types by looking them up in the schema catalog. If you reference a column that does not exist, Catalyst catches it here and raises an AnalysisException before any data is touched.
+
+The second phase is logical optimisation. Catalyst applies a set of rule-based rewrites to the logical plan. The two most important rules are predicate pushdown and column pruning. Predicate pushdown moves filter conditions as close to the data source as possible — ideally into the file reader itself, so that row groups in Parquet or ORC files are skipped without being decoded. Column pruning tracks which columns are actually needed by the final output and tells the file reader to skip all other columns. For columnar formats like Parquet and ORC, unread columns are literally never decoded from disk. Other logical optimisation rules include constant folding, which evaluates constant expressions at planning time, and filter merging, which combines multiple filter conditions into one.
+
+The third phase is physical planning. Catalyst converts the optimised logical plan into one or more physical plans — concrete implementations with specific join strategies, sort orders, and operator implementations. It uses statistics about table sizes to choose between join strategies. For example, if one side of a join is small enough to fit in executor memory, Catalyst chooses a broadcast hash join instead of a sort-merge join, eliminating the shuffle entirely.
+
+The fourth phase is code generation. Tungsten, Spark's execution engine, generates optimised JVM bytecode for the tightest inner loops of the physical plan — for example, the loop that iterates over rows during an aggregation. This generated code is compiled and loaded at runtime, and it is significantly faster than interpreted code that processes one row at a time through a generic operator interface.
+
+Reading Execution Plans.
+
+The explain method prints the execution plan for any DataFrame. Calling explain with no arguments or with "simple" shows only the physical plan — a quick way to see what Spark will actually do. The "extended" mode shows all four intermediate plans: unresolved, analyzed, optimised, and physical. The "formatted" mode shows the physical plan in a readable tree format with estimated row counts. The "cost" mode adds cost estimates. The "codegen" mode shows the generated JVM bytecode, which is very verbose and rarely needed outside of deep performance debugging.
+
+When reading a plan, look for Exchange nodes — each one is a shuffle. Look at FileScan nodes for PushedFilters to confirm predicate pushdown is working, and look at the ReadSchema field to confirm column pruning is limiting which columns are read from disk.
+
+Adaptive Query Execution.
+
+Adaptive Query Execution, or AQE, has been enabled by default since Spark version 3.2. Unlike the static Catalyst optimiser which plans the query before any data is read, AQE re-optimises parts of the plan at runtime using statistics collected after each shuffle stage completes.
+
+AQE has three main features. Coalescing shuffle partitions automatically merges small post-shuffle partitions into fewer larger ones, reducing the number of tasks in downstream stages without you having to tune spark.sql.shuffle.partitions manually. For a query that produces very uneven shuffle output — some partitions large, most tiny — AQE collapses the tiny ones together. Switching join strategies detects at runtime when a table that was estimated to be large is actually small enough to broadcast — it then converts a planned sort-merge join into a broadcast hash join, eliminating the shuffle. Skew join handling detects partitions that are much larger than the median and automatically splits them into sub-partitions, distributing the heavy work across multiple tasks instead of leaving one task to process a disproportionately large amount of data.
+
+Data Skew.
+
+Skew occurs when some partitions contain far more rows than others. In a banking dataset this is common with customer_id joins — a small number of high-volume customers can generate ten times more transactions than average customers, causing those partitions to be much larger than the rest. The result is that one or a few tasks take much longer than all the others, and the entire stage cannot complete until the last slow task finishes.
+
+You can detect skew by adding a spark_partition_id column and counting rows per partition. A healthy distribution shows roughly equal row counts across all partitions. A skewed distribution shows one or a few partitions with dramatically more rows than the others.
+
+For manual skew correction, repartitionByRange distributes rows more evenly by sorting on a numeric column and dividing into equal-sized ranges. AQE's skew join handling addresses skew automatically at join time, but repartitionByRange is useful when you want explicit control before a groupBy.
+
+Tuning spark.sql.shuffle.partitions.
+
+The default value of two hundred exists because it was sized for a medium-to-large Hadoop cluster with many cores. On a small local machine or a development cluster, two hundred shuffle partitions on a small dataset produces two hundred tasks that each process only a few rows — the task scheduling overhead often exceeds the actual computation time.
+
+For local development, set spark.sql.shuffle.partitions to two to four times your CPU core count. For production clusters, the right value depends on your dataset size and cluster configuration — a target of one hundred to two hundred megabytes of data per post-shuffle partition is a reasonable heuristic. With AQE enabled, you can set shuffle.partitions to a larger value and let AQE coalesce small partitions automatically — this is the preferred approach because it adapts to the actual data rather than requiring you to tune the value for every query.
+
+Summary.
+
+A partition is the unit of parallelism — one task per partition per core. Target one hundred and twenty-eight to two hundred and fifty-six megabytes per partition.
+
+repartition reshuffles evenly with a full shuffle and can increase or decrease partition count. coalesce reduces without a shuffle but may produce unequal sizes. repartition with a column hash-partitions by key, co-locating matching rows before a join.
+
+Writing with partitionBy creates directory-per-value storage on disk. Downstream filters prune whole directories without reading them.
+
+Shuffles are triggered by groupBy, join, distinct, orderBy, and repartition. Each shuffle involves disk write, network transfer, and disk read. Look for Exchange nodes in explain to count shuffles.
+
+Catalyst applies predicate pushdown and column pruning automatically. Verify with explain of "extended" mode and check PushedFilters and ReadSchema in the FileScan node.
+
+AQE dynamically coalesces small partitions, switches join strategies, and handles skew at runtime. It is enabled by default since Spark 3.2.
+
+Set spark.sql.shuffle.partitions to two to four times core count for local workloads. The default of two hundred is sized for large production clusters.

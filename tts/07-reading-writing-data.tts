@@ -1,0 +1,67 @@
+Reading and writing data is the entry and exit point of every Spark job. Spark provides a unified API for both operations — spark.read for loading data into a DataFrame, and df.write for saving a DataFrame back to storage. The format, the path, and a handful of options are all that change between CSV, JSON, Parquet, ORC, and Delta Lake. Everything else stays the same.
+
+The Read Side.
+
+On the read side, the pattern is always the same: spark.read, then dot format to specify the file type, then dot option for any format-specific settings, and finally dot load with the path. For the most common formats — CSV, JSON, Parquet, and ORC — Spark provides shorthand methods that combine format and load into one call. So spark.read.csv of a path is exactly equivalent to spark.read.format of "csv" dot load of the same path.
+
+The Write Side.
+
+On the write side, the pattern mirrors the read: df.write, then dot format, then dot mode, then dot save. The mode is required — it controls what happens when the destination already exists. The shorthand methods work the same way: df.write.parquet of a path is shorthand for df.write.format of "parquet" dot save.
+
+Reading CSV.
+
+CSV is the simplest format. Two options matter for almost every CSV file. First, option header true tells Spark to treat the first row as column names instead of data. Without it, Spark assigns generic names like underscore c0, underscore c1, and so on. Second, you should always pass an explicit schema using the schema method. Never rely on schema inference in production. Inference requires Spark to scan through the entire file — or at least a large sample of it — just to guess the data types. It is slower, and it can guess wrong. A column of integers like credit scores might be inferred as long instead of int. A date column stored as a string might be left as a string. By passing an explicit StructType schema, you get the correct types immediately and Spark skips the scan entirely.
+
+Reading JSON.
+
+JSON files do not need a header option — the key names in each JSON object automatically become the column names. The main option to know is multiLine true. By default, Spark expects each line of the JSON file to be a complete, self-contained document. Some systems, particularly older banking and lending platforms, write JSON documents that span multiple lines — the object opens on one line and closes several lines later. For those files, you must set multiLine to true, otherwise Spark reads each line as a fragment and fails to parse it.
+
+Reading Parquet.
+
+Parquet is the preferred format for Spark workloads. Unlike CSV and JSON, Parquet is a binary columnar format that embeds the schema directly in the file footer. Spark reads the footer metadata before reading any data rows, so it always knows the exact column names and types without inference. You can still pass an explicit schema to enforce types or to select only a subset of columns, which triggers column pruning — Spark reads only the columns you requested and skips the rest entirely on disk. Parquet also supports predicate pushdown: if you filter on a column before reading, Spark can use the per-row-group statistics stored in the file to skip entire chunks of data that cannot possibly match the filter. This makes Parquet dramatically faster than CSV or JSON for analytical queries.
+
+Reading ORC.
+
+ORC, which stands for Optimized Row Columnar, is functionally similar to Parquet. It is the default output format of many older Hadoop and Hive pipelines. Like Parquet, ORC embeds the schema in the file and supports predicate pushdown and column pruning. Reading ORC in Spark is identical to reading Parquet — call spark.read.orc with the path, optionally pass a schema, and Spark handles the rest.
+
+Reading Delta Lake.
+
+Delta Lake is a storage layer built on top of Parquet files. A Delta table is a directory that contains Parquet data files plus a transaction log subfolder called underscore delta underscore log. The transaction log records every write operation as a JSON or checkpoint file, which is what gives Delta Lake its ACID guarantees and time-travel capability. To read a Delta table, use spark.read.format of "delta" dot load of the directory path. You do not point Spark at individual files — you point it at the directory, and Spark reads the transaction log to determine which data files are current and valid.
+
+Schema Inference versus Explicit Schema.
+
+Always prefer an explicit schema for production pipelines. Schema inference is convenient for quick exploration — you can load a file without knowing its structure — but it carries real costs. For CSV and JSON, Spark must read through the data before it can start processing it. The inferred types may not match what you expect. A column of true and false values might be inferred as a boolean in one run and as a string in another if the data changes slightly. Dates stored as strings in ISO format are routinely inferred as strings rather than dates, which then requires an extra cast step downstream. With an explicit schema, Spark skips the inference scan, enforces the types you declared, and fails fast if the data does not match — which is almost always what you want in a production job.
+
+Write Modes.
+
+Every write operation requires a mode. The default mode is error, which raises an exception if the destination path already exists. This is intentionally conservative — it prevents you from accidentally overwriting data you wanted to keep. The overwrite mode replaces whatever is at the destination completely. The append mode adds new rows to existing data without touching what is already there. The ignore mode silently does nothing if the destination already exists, which is useful for idempotent pipelines where you want to write once and never re-run.
+
+Writing Data.
+
+Writing uses the same unified API. For CSV, you typically call coalesce of one before writing a small result set — this collapses all partitions into a single output file, which is easier to share with downstream systems that expect a single file, like a compliance team loading data into Excel. For JSON, the same pattern applies. For Parquet, you generally skip coalesce and let Spark write multiple files in parallel, one per partition, for maximum write throughput.
+
+Partitioned Writes.
+
+The partitionBy method divides the output into subdirectories based on the values in one or more columns. If you write card transactions and call partitionBy of "status", Spark creates three subdirectories: status equals SUCCESS, status equals DECLINED, and status equals REVERSED. Each subdirectory contains only the files for that status value. The benefit is partition pruning on reads: when a downstream job filters on status equals SUCCESS, Spark skips the DECLINED and REVERSED directories entirely. It never reads those files at all. For large tables queried frequently by a specific column — transaction status, transaction date, loan type — partitioned writes dramatically reduce the data scanned on every query.
+
+coalesce versus repartition Before Writing.
+
+When you write data, the number of output files equals the number of partitions in the DataFrame at write time. Too many small partitions produce hundreds of tiny files that overwhelm object storage and slow down subsequent reads. Too few partitions under-utilise parallelism during the write.
+
+coalesce of n reduces the partition count without a shuffle. It merges existing partitions together on the same executor nodes. The result is n files, but they may be unequal in size because no data moves between executors. Use coalesce when you are reducing partition count — for example, going from two hundred partitions down to one file for a small CSV export.
+
+repartition of n performs a full shuffle — it redistributes every row across the cluster and produces n roughly equal-sized partitions. Use repartition when you need balanced output files, or when you are increasing the partition count, or when you want to co-locate rows by a key column using repartition with a column argument.
+
+Summary.
+
+Spark's read and write APIs are unified across all formats. The format, the path, and a few options are all that differ between CSV, JSON, Parquet, ORC, and Delta.
+
+Always pass an explicit schema in production. Inference is slower and can silently produce wrong types.
+
+CSV needs option header true. JSON files with multi-line documents need option multiLine true. Parquet and ORC embed their schemas. Delta needs only format of "delta".
+
+Write modes are overwrite, append, ignore, and error. The default is error.
+
+Use partitionBy to create subdirectory-per-value layouts that enable partition pruning on reads.
+
+Use coalesce to reduce files without a shuffle. Use repartition to balance or increase files with a full shuffle.
