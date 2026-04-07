@@ -1,0 +1,122 @@
+<svg viewBox="0 0 560 218" width="560" height="218" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      /* ── Light ──────────────────────────────────────── */
+      .bg        { fill: #f9f9f8; }
+      .border    { stroke: #e8e8e4; }
+
+      /* App row */
+      .app-fill  { fill: #eeeeff; }
+      .app-stroke{ stroke: #6c63ff; }
+      .app-text  { fill: #3730a3; }
+
+      /* SQL / DataFrames */
+      .sql-fill  { fill: #dbeafe; }
+      .sql-stroke{ stroke: #93c5fd; }
+      .sql-text  { fill: #1e40af; }
+
+      /* Streaming */
+      .str-fill  { fill: #ffedd5; }
+      .str-stroke{ stroke: #fdba74; }
+      .str-text  { fill: #c2410c; }
+
+      /* MLlib */
+      .ml-fill   { fill: #d1fae5; }
+      .ml-stroke { stroke: #6ee7b7; }
+      .ml-text   { fill: #065f46; }
+
+      /* GraphX */
+      .gx-fill   { fill: #ede9fe; }
+      .gx-stroke { stroke: #c4b5fd; }
+      .gx-text   { fill: #5b21b6; }
+
+      /* Spark Core */
+      .core-fill  { fill: #f0fdf4; }
+      .core-stroke{ stroke: #86efac; }
+      .core-text  { fill: #166534; }
+      .core-sub   { fill: #16a34a; }
+
+      /* Cluster Manager */
+      .cm-fill   { fill: #f1f5f9; }
+      .cm-stroke { stroke: #cbd5e1; }
+      .cm-text   { fill: #334155; }
+      .cm-sub    { fill: #64748b; }
+
+      .label     { font-family: system-ui, sans-serif; }
+
+      /* ── Dark ───────────────────────────────────────── */
+      @media (prefers-color-scheme: dark) {
+        .bg        { fill: #222220; }
+        .border    { stroke: #333330; }
+
+        .app-fill  { fill: #1e1b4b; }
+        .app-stroke{ stroke: #818cf8; }
+        .app-text  { fill: #c7d2fe; }
+
+        .sql-fill  { fill: #1e3a5f; }
+        .sql-stroke{ stroke: #3b82f6; }
+        .sql-text  { fill: #93c5fd; }
+
+        .str-fill  { fill: #431407; }
+        .str-stroke{ stroke: #f97316; }
+        .str-text  { fill: #fed7aa; }
+
+        .ml-fill   { fill: #052e16; }
+        .ml-stroke { stroke: #22c55e; }
+        .ml-text   { fill: #bbf7d0; }
+
+        .gx-fill   { fill: #2e1065; }
+        .gx-stroke { stroke: #a78bfa; }
+        .gx-text   { fill: #ddd6fe; }
+
+        .core-fill  { fill: #052e16; }
+        .core-stroke{ stroke: #16a34a; }
+        .core-text  { fill: #bbf7d0; }
+        .core-sub   { fill: #4ade80; }
+
+        .cm-fill   { fill: #2a2a27; }
+        .cm-stroke { stroke: #484844; }
+        .cm-text   { fill: #e2e8f0; }
+        .cm-sub    { fill: #94a3b8; }
+      }
+    </style>
+  </defs>
+
+  <!-- Canvas -->
+  <rect width="560" height="218" rx="10" class="bg border" stroke-width="1"/>
+
+  <!-- Row 1: Your Application -->
+  <rect x="14" y="12" width="532" height="34" rx="6" class="app-fill app-stroke" stroke-width="1.5"/>
+  <text x="280" y="34" font-size="12" font-weight="700" text-anchor="middle" class="label app-text">Your Application</text>
+
+  <!-- Row 2: Four component boxes -->
+  <!-- Spark SQL & DataFrames -->
+  <rect x="14"  y="56" width="127" height="56" rx="6" class="sql-fill sql-stroke" stroke-width="1.5"/>
+  <text x="77"  y="80" font-size="10" font-weight="700" text-anchor="middle" class="label sql-text">Spark SQL</text>
+  <text x="77"  y="94" font-size="9"  text-anchor="middle" class="label sql-text">&amp; DataFrames</text>
+
+  <!-- Structured Streaming -->
+  <rect x="149" y="56" width="127" height="56" rx="6" class="str-fill str-stroke" stroke-width="1.5"/>
+  <text x="212" y="76" font-size="10" font-weight="700" text-anchor="middle" class="label str-text">Structured</text>
+  <text x="212" y="90" font-size="10" font-weight="700" text-anchor="middle" class="label str-text">Streaming</text>
+
+  <!-- MLlib -->
+  <rect x="284" y="56" width="127" height="56" rx="6" class="ml-fill ml-stroke" stroke-width="1.5"/>
+  <text x="347" y="77" font-size="10" font-weight="700" text-anchor="middle" class="label ml-text">MLlib</text>
+  <text x="347" y="92" font-size="9"  text-anchor="middle" class="label ml-text">ML &amp; Pipelines</text>
+
+  <!-- GraphX -->
+  <rect x="419" y="56" width="127" height="56" rx="6" class="gx-fill gx-stroke" stroke-width="1.5"/>
+  <text x="482" y="77" font-size="10" font-weight="700" text-anchor="middle" class="label gx-text">GraphX</text>
+  <text x="482" y="92" font-size="9"  text-anchor="middle" class="label gx-text">Graph Processing</text>
+
+  <!-- Row 3: Spark Core -->
+  <rect x="14" y="122" width="532" height="46" rx="6" class="core-fill core-stroke" stroke-width="1.5"/>
+  <text x="280" y="141" font-size="12" font-weight="700" text-anchor="middle" class="label core-text">Spark Core</text>
+  <text x="280" y="158" font-size="9"  text-anchor="middle" class="label core-sub">task scheduling · memory management · fault tolerance · I/O</text>
+
+  <!-- Row 4: Cluster Manager -->
+  <rect x="14" y="178" width="532" height="30" rx="6" class="cm-fill cm-stroke" stroke-width="1.5"/>
+  <text x="180" y="198" font-size="10" font-weight="700" text-anchor="middle" class="label cm-text">Cluster Manager</text>
+  <text x="380" y="198" font-size="9"  text-anchor="middle" class="label cm-sub">YARN · Kubernetes · Standalone · Mesos</text>
+</svg>
