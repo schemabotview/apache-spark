@@ -1,0 +1,127 @@
+<svg viewBox="0 0 580 210" width="580" height="210" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      /* ── Light ──────────────────────────────────────── */
+      .bg          { fill: #f9f9f8; }
+
+      /* Action trigger */
+      .act-fill   { fill: #fefce8; }
+      .act-stroke { stroke: #fde047; }
+      .act-text   { fill: #713f12; }
+
+      /* Job */
+      .job-fill   { fill: #eeeeff; }
+      .job-stroke { stroke: #818cf8; }
+      .job-text   { fill: #3730a3; }
+
+      /* Stage */
+      .stg-fill   { fill: #dbeafe; }
+      .stg-stroke { stroke: #93c5fd; }
+      .stg-text   { fill: #1e40af; }
+
+      /* Task */
+      .tsk-fill   { fill: #eff6ff; }
+      .tsk-stroke { stroke: #bfdbfe; }
+      .tsk-text   { fill: #1d4ed8; }
+
+      /* Shuffle boundary */
+      .shuf-stroke { stroke: #f97316; }
+      .shuf-text   { fill: #c2410c; }
+
+      .arr-head  { fill: #9b9b92; }
+      .arr-stroke{ stroke: #9b9b92; fill: none; }
+      .muted     { fill: #9b9b92; }
+      .lbl       { font-family: system-ui, sans-serif; }
+
+      /* ── Dark ───────────────────────────────────────── */
+      @media (prefers-color-scheme: dark) {
+        .bg          { fill: #222220; }
+
+        .act-fill   { fill: #1c1a05; }
+        .act-stroke { stroke: #ca8a04; }
+        .act-text   { fill: #fef08a; }
+
+        .job-fill   { fill: #1e1b4b; }
+        .job-stroke { stroke: #818cf8; }
+        .job-text   { fill: #c7d2fe; }
+
+        .stg-fill   { fill: #1e3a5f; }
+        .stg-stroke { stroke: #3b82f6; }
+        .stg-text   { fill: #93c5fd; }
+
+        .tsk-fill   { fill: #172554; }
+        .tsk-stroke { stroke: #1d4ed8; }
+        .tsk-text   { fill: #bfdbfe; }
+
+        .shuf-stroke { stroke: #f97316; }
+        .shuf-text   { fill: #fed7aa; }
+
+        .arr-head   { fill: #6b6b65; }
+        .arr-stroke { stroke: #6b6b65; fill: none; }
+        .muted      { fill: #6b6b65; }
+      }
+    </style>
+    <marker id="jst-arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" class="arr-head"/>
+    </marker>
+  </defs>
+
+  <rect width="580" height="210" rx="10" class="bg" stroke="none"/>
+
+  <!-- Action -->
+  <rect x="220" y="10" width="140" height="28" rx="5" class="act-fill act-stroke" stroke-width="1.5"/>
+  <text x="290" y="29" font-size="10" font-weight="700" text-anchor="middle" class="lbl act-text">Action  ( .count() )</text>
+
+  <!-- Arrow → Job -->
+  <line x1="290" y1="38" x2="290" y2="54" stroke-width="1.2" class="arr-stroke" marker-end="url(#jst-arr)"/>
+  <text x="296" y="50" font-size="7.5" class="lbl muted">triggers</text>
+
+  <!-- Job -->
+  <rect x="160" y="57" width="260" height="28" rx="5" class="job-fill job-stroke" stroke-width="1.5"/>
+  <text x="290" y="76" font-size="10" font-weight="700" text-anchor="middle" class="lbl job-text">Job  (one per action)</text>
+
+  <!-- Arrow → Stages -->
+  <line x1="220" y1="85" x2="150" y2="108" stroke-width="1.2" class="arr-stroke" marker-end="url(#jst-arr)"/>
+  <line x1="360" y1="85" x2="430" y2="108" stroke-width="1.2" class="arr-stroke" marker-end="url(#jst-arr)"/>
+  <text x="290" y="100" font-size="7.5" text-anchor="middle" class="lbl muted">split at shuffle boundaries</text>
+
+  <!-- Stage 1 -->
+  <rect x="30"  y="110" width="230" height="28" rx="5" class="stg-fill stg-stroke" stroke-width="1.5"/>
+  <text x="145" y="129" font-size="10" font-weight="700" text-anchor="middle" class="lbl stg-text">Stage 1  (narrow transforms)</text>
+
+  <!-- Stage 2 -->
+  <rect x="320" y="110" width="230" height="28" rx="5" class="stg-fill stg-stroke" stroke-width="1.5"/>
+  <text x="435" y="129" font-size="10" font-weight="700" text-anchor="middle" class="lbl stg-text">Stage 2  (after shuffle)</text>
+
+  <!-- Shuffle boundary marker -->
+  <line x1="290" y1="105" x2="290" y2="195" stroke-width="1.5" stroke-dasharray="5,3" class="shuf-stroke"/>
+  <text x="290" y="202" font-size="8" text-anchor="middle" class="lbl shuf-text">shuffle boundary</text>
+
+  <!-- Arrows → Tasks for Stage 1 -->
+  <line x1="90"  y1="138" x2="56"  y2="158" stroke-width="1.1" class="arr-stroke" marker-end="url(#jst-arr)"/>
+  <line x1="145" y1="138" x2="145" y2="158" stroke-width="1.1" class="arr-stroke" marker-end="url(#jst-arr)"/>
+  <line x1="200" y1="138" x2="234" y2="158" stroke-width="1.1" class="arr-stroke" marker-end="url(#jst-arr)"/>
+
+  <!-- Tasks Stage 1 -->
+  <rect x="28"  y="160" width="56" height="22" rx="4" class="tsk-fill tsk-stroke" stroke-width="1"/>
+  <text x="56"  y="175" font-size="8.5" text-anchor="middle" class="lbl tsk-text">Task 1</text>
+  <rect x="117" y="160" width="56" height="22" rx="4" class="tsk-fill tsk-stroke" stroke-width="1"/>
+  <text x="145" y="175" font-size="8.5" text-anchor="middle" class="lbl tsk-text">Task 2</text>
+  <rect x="206" y="160" width="56" height="22" rx="4" class="tsk-fill tsk-stroke" stroke-width="1"/>
+  <text x="234" y="175" font-size="8.5" text-anchor="middle" class="lbl tsk-text">Task 3</text>
+  <text x="145" y="196" font-size="7.5" text-anchor="middle" class="lbl muted">1 task = 1 partition</text>
+
+  <!-- Arrows → Tasks for Stage 2 -->
+  <line x1="380" y1="138" x2="346" y2="158" stroke-width="1.1" class="arr-stroke" marker-end="url(#jst-arr)"/>
+  <line x1="435" y1="138" x2="435" y2="158" stroke-width="1.1" class="arr-stroke" marker-end="url(#jst-arr)"/>
+  <line x1="490" y1="138" x2="524" y2="158" stroke-width="1.1" class="arr-stroke" marker-end="url(#jst-arr)"/>
+
+  <!-- Tasks Stage 2 -->
+  <rect x="318" y="160" width="56" height="22" rx="4" class="tsk-fill tsk-stroke" stroke-width="1"/>
+  <text x="346" y="175" font-size="8.5" text-anchor="middle" class="lbl tsk-text">Task 4</text>
+  <rect x="407" y="160" width="56" height="22" rx="4" class="tsk-fill tsk-stroke" stroke-width="1"/>
+  <text x="435" y="175" font-size="8.5" text-anchor="middle" class="lbl tsk-text">Task 5</text>
+  <rect x="496" y="160" width="56" height="22" rx="4" class="tsk-fill tsk-stroke" stroke-width="1"/>
+  <text x="524" y="175" font-size="8.5" text-anchor="middle" class="lbl tsk-text">Task 6</text>
+  <text x="435" y="196" font-size="7.5" text-anchor="middle" class="lbl muted">1 task = 1 partition</text>
+</svg>

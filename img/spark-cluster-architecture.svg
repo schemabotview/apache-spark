@@ -1,0 +1,150 @@
+<svg viewBox="0 0 580 290" width="580" height="290" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      /* ── Light ──────────────────────────────────────── */
+      .bg          { fill: #f9f9f8; }
+      .canvas-border { stroke: #e8e8e4; fill: none; }
+
+      /* Driver */
+      .driver-fill   { fill: #eeeeff; }
+      .driver-stroke { stroke: #818cf8; }
+      .driver-text   { fill: #3730a3; }
+      .driver-sub    { fill: #6c63ff; }
+
+      /* Cluster Manager */
+      .cm-fill   { fill: #f1f5f9; }
+      .cm-stroke { stroke: #cbd5e1; }
+      .cm-text   { fill: #334155; }
+      .cm-sub    { fill: #64748b; }
+
+      /* Worker nodes */
+      .wk-fill   { fill: #f0fdf4; }
+      .wk-stroke { stroke: #86efac; }
+      .wk-text   { fill: #166534; }
+
+      /* Executor boxes inside workers */
+      .ex-fill   { fill: #dcfce7; }
+      .ex-stroke { stroke: #4ade80; }
+      .ex-text   { fill: #14532d; }
+
+      /* Arrows / lines */
+      .arr-stroke  { stroke: #9b9b92; }
+      .arr-head    { fill: #9b9b92; }
+      .arr-blue    { stroke: #6c63ff; }
+      .arr-head-blue { fill: #6c63ff; }
+
+      /* Labels */
+      .muted   { fill: #9b9b92; }
+      .lbl     { font-family: system-ui, sans-serif; }
+
+      /* ── Dark ───────────────────────────────────────── */
+      @media (prefers-color-scheme: dark) {
+        .bg            { fill: #222220; }
+        .canvas-border { stroke: #333330; }
+
+        .driver-fill   { fill: #1e1b4b; }
+        .driver-stroke { stroke: #818cf8; }
+        .driver-text   { fill: #c7d2fe; }
+        .driver-sub    { fill: #a5b4fc; }
+
+        .cm-fill   { fill: #2a2a27; }
+        .cm-stroke { stroke: #484844; }
+        .cm-text   { fill: #e2e8f0; }
+        .cm-sub    { fill: #94a3b8; }
+
+        .wk-fill   { fill: #052e16; }
+        .wk-stroke { stroke: #16a34a; }
+        .wk-text   { fill: #bbf7d0; }
+
+        .ex-fill   { fill: #14532d; }
+        .ex-stroke { stroke: #22c55e; }
+        .ex-text   { fill: #dcfce7; }
+
+        .arr-stroke    { stroke: #6b6b65; }
+        .arr-head      { fill: #6b6b65; }
+        .arr-blue      { stroke: #818cf8; }
+        .arr-head-blue { fill: #818cf8; }
+
+        .muted { fill: #6b6b65; }
+      }
+    </style>
+    <marker id="arr"      markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" class="arr-head"/></marker>
+    <marker id="arr-blue" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" class="arr-head-blue"/></marker>
+  </defs>
+
+  <!-- Canvas -->
+  <rect width="580" height="290" rx="10" class="bg canvas-border" stroke-width="1"/>
+
+  <!-- Driver -->
+  <rect x="14" y="14" width="200" height="82" rx="7" class="driver-fill driver-stroke" stroke-width="1.5"/>
+  <text x="114" y="34"  font-size="11" font-weight="700" text-anchor="middle" class="lbl driver-text">Driver</text>
+  <text x="114" y="50"  font-size="9"  text-anchor="middle" class="lbl driver-sub">SparkSession · DAG Scheduler</text>
+  <text x="114" y="63"  font-size="9"  text-anchor="middle" class="lbl driver-sub">Task Scheduler · Catalyst</text>
+  <text x="114" y="76"  font-size="9"  text-anchor="middle" class="lbl driver-sub">runs your PySpark code</text>
+
+  <!-- Cluster Manager -->
+  <rect x="366" y="14" width="200" height="82" rx="7" class="cm-fill cm-stroke" stroke-width="1.5"/>
+  <text x="466" y="34"  font-size="11" font-weight="700" text-anchor="middle" class="lbl cm-text">Cluster Manager</text>
+  <text x="466" y="50"  font-size="9"  text-anchor="middle" class="lbl cm-sub">allocates CPU &amp; memory</text>
+  <text x="466" y="63"  font-size="9"  text-anchor="middle" class="lbl cm-sub">YARN · Kubernetes</text>
+  <text x="466" y="76"  font-size="9"  text-anchor="middle" class="lbl cm-sub">Standalone · Mesos</text>
+
+  <!-- Arrow: Driver ↔ Cluster Manager -->
+  <line x1="214" y1="48" x2="366" y2="48" stroke-width="1.3" class="arr-stroke" marker-end="url(#arr)"/>
+  <line x1="366" y1="58" x2="214" y2="58" stroke-width="1.3" class="arr-stroke" marker-end="url(#arr)"/>
+  <text x="290" y="44" font-size="8" text-anchor="middle" class="lbl muted">request resources</text>
+  <text x="290" y="68" font-size="8" text-anchor="middle" class="lbl muted">grant executor slots</text>
+
+  <!-- Arrows: Driver → Workers (schedule tasks, dashed blue) -->
+  <line x1="80"  y1="96" x2="80"  y2="168" stroke-width="1.2" stroke-dasharray="4,3" class="arr-blue" marker-end="url(#arr-blue)"/>
+  <line x1="114" y1="96" x2="290" y2="168" stroke-width="1.2" stroke-dasharray="4,3" class="arr-blue" marker-end="url(#arr-blue)"/>
+  <line x1="130" y1="96" x2="500" y2="168" stroke-width="1.2" stroke-dasharray="4,3" class="arr-blue" marker-end="url(#arr-blue)"/>
+  <text x="200" y="144" font-size="8" text-anchor="middle" class="lbl driver-sub">schedule tasks</text>
+
+  <!-- Worker 1 -->
+  <rect x="14"  y="168" width="166" height="104" rx="7" class="wk-fill wk-stroke" stroke-width="1.5"/>
+  <text x="97"  y="186" font-size="10" font-weight="700" text-anchor="middle" class="lbl wk-text">Worker Node 1</text>
+  <rect x="24"  y="193" width="146" height="32" rx="5" class="ex-fill ex-stroke" stroke-width="1"/>
+  <text x="97"  y="207" font-size="9"  text-anchor="middle" class="lbl ex-text">Executor (JVM process)</text>
+  <text x="97"  y="219" font-size="8"  text-anchor="middle" class="lbl ex-text">cores · heap memory · cache</text>
+  <text x="97"  y="256" font-size="8"  text-anchor="middle" class="lbl wk-text">Task  Task  Task</text>
+  <rect x="26"  y="231" width="40" height="18" rx="3" class="ex-fill ex-stroke" stroke-width="1"/>
+  <rect x="77"  y="231" width="40" height="18" rx="3" class="ex-fill ex-stroke" stroke-width="1"/>
+  <rect x="128" y="231" width="40" height="18" rx="3" class="ex-fill ex-stroke" stroke-width="1"/>
+  <text x="46"  y="244" font-size="8" text-anchor="middle" class="lbl ex-text">T1</text>
+  <text x="97"  y="244" font-size="8" text-anchor="middle" class="lbl ex-text">T2</text>
+  <text x="148" y="244" font-size="8" text-anchor="middle" class="lbl ex-text">T3</text>
+  <text x="97"  y="264" font-size="7.5" text-anchor="middle" class="lbl muted">1 task per partition</text>
+
+  <!-- Worker 2 -->
+  <rect x="207" y="168" width="166" height="104" rx="7" class="wk-fill wk-stroke" stroke-width="1.5"/>
+  <text x="290" y="186" font-size="10" font-weight="700" text-anchor="middle" class="lbl wk-text">Worker Node 2</text>
+  <rect x="217" y="193" width="146" height="32" rx="5" class="ex-fill ex-stroke" stroke-width="1"/>
+  <text x="290" y="207" font-size="9"  text-anchor="middle" class="lbl ex-text">Executor (JVM process)</text>
+  <text x="290" y="219" font-size="8"  text-anchor="middle" class="lbl ex-text">cores · heap memory · cache</text>
+  <rect x="219" y="231" width="40" height="18" rx="3" class="ex-fill ex-stroke" stroke-width="1"/>
+  <rect x="270" y="231" width="40" height="18" rx="3" class="ex-fill ex-stroke" stroke-width="1"/>
+  <rect x="321" y="231" width="40" height="18" rx="3" class="ex-fill ex-stroke" stroke-width="1"/>
+  <text x="239" y="244" font-size="8" text-anchor="middle" class="lbl ex-text">T4</text>
+  <text x="290" y="244" font-size="8" text-anchor="middle" class="lbl ex-text">T5</text>
+  <text x="341" y="244" font-size="8" text-anchor="middle" class="lbl ex-text">T6</text>
+  <text x="290" y="264" font-size="7.5" text-anchor="middle" class="lbl muted">1 task per partition</text>
+
+  <!-- Worker 3 -->
+  <rect x="400" y="168" width="166" height="104" rx="7" class="wk-fill wk-stroke" stroke-width="1.5"/>
+  <text x="483" y="186" font-size="10" font-weight="700" text-anchor="middle" class="lbl wk-text">Worker Node 3</text>
+  <rect x="410" y="193" width="146" height="32" rx="5" class="ex-fill ex-stroke" stroke-width="1"/>
+  <text x="483" y="207" font-size="9"  text-anchor="middle" class="lbl ex-text">Executor (JVM process)</text>
+  <text x="483" y="219" font-size="8"  text-anchor="middle" class="lbl ex-text">cores · heap memory · cache</text>
+  <rect x="412" y="231" width="40" height="18" rx="3" class="ex-fill ex-stroke" stroke-width="1"/>
+  <rect x="463" y="231" width="40" height="18" rx="3" class="ex-fill ex-stroke" stroke-width="1"/>
+  <rect x="514" y="231" width="40" height="18" rx="3" class="ex-fill ex-stroke" stroke-width="1"/>
+  <text x="432" y="244" font-size="8" text-anchor="middle" class="lbl ex-text">T7</text>
+  <text x="483" y="244" font-size="8" text-anchor="middle" class="lbl ex-text">T8</text>
+  <text x="534" y="244" font-size="8" text-anchor="middle" class="lbl ex-text">T9</text>
+  <text x="483" y="264" font-size="7.5" text-anchor="middle" class="lbl muted">1 task per partition</text>
+
+  <!-- Results arc back to driver -->
+  <path d="M 97,272 Q 97,282 290,282 Q 410,282 410,272" fill="none" stroke-width="1.2" stroke-dasharray="4,3" class="arr-stroke" marker-end="url(#arr)"/>
+  <text x="253" y="280" font-size="7.5" text-anchor="middle" class="lbl muted">results returned to driver on collect()</text>
+</svg>
