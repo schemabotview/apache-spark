@@ -1,0 +1,93 @@
+Before writing any Spark code you need a working environment. There are two paths: a local PySpark installation on your machine for development and learning, or Databricks for a fully managed cloud experience. This topic walks through both.
+
+Two Setup Paths.
+
+Both paths give you a SparkSession — the code you write is identical. The difference is where the cluster runs and how much you have to configure.
+
+With local PySpark, you install the library on your machine, open a Jupyter notebook or script, and create a SparkSession pointing to local star mode. The driver and executors all run on your own CPU and RAM.
+
+With Databricks, you open a browser, attach a cloud cluster, and a SparkSession is already waiting for you — no installation needed.
+
+Option A — Local PySpark.
+
+Prerequisites.
+
+PySpark requires Java 8 or 11 on your system PATH. You can check by running java -version in a terminal. If Java is missing, install Adoptium Temurin 11, which is free and cross-platform.
+
+Installing PySpark.
+
+Once Java is in place, a single pip command is all you need: pip install pyspark. PySpark bundles Spark itself, so there is no separate Spark download. You can also pin to a specific version, for example pip install pyspark equals equals 3.5.0.
+
+For extra functionality you can install pip install pyspark with the sql extra for Spark SQL additions, delta-spark for Delta Lake support, or jupyter if you want notebook support.
+
+Creating a SparkSession locally.
+
+You build a SparkSession using the builder pattern. Set the app name, set the master to local star to use all available CPU cores, and call getOrCreate. A good habit for local development is to also set spark.sql.shuffle.partitions to a small number like 4, because the default of 200 is far too many for small local datasets.
+
+Once created, the session object exposes the Spark version, the master URL, the Spark UI address, and the number of cores available as default parallelism.
+
+PySpark Interactive Shell.
+
+PySpark ships with an interactive Python shell that pre-creates both spark and sc for you. Launch it with the pyspark command, optionally passing a master flag to control core count. To use PySpark inside Jupyter, set two environment variables before launching: PYSPARK_DRIVER_PYTHON set to jupyter, and PYSPARK_DRIVER_PYTHON_OPTS set to notebook, then run pyspark. Alternatively, just import pyspark and build a SparkSession manually inside a regular Jupyter notebook.
+
+Option B — Databricks.
+
+Databricks is the company founded by the creators of Spark. Their platform runs Spark on cloud infrastructure — AWS, Azure, or Google Cloud — and adds Delta Lake, Unity Catalog, MLflow, and a collaborative notebook interface on top.
+
+Getting Started with Community Edition.
+
+The free Databricks Community Edition requires no credit card. Sign up at community.cloud.databricks.com. Once in the workspace, go to Compute and create a cluster by choosing a Databricks Runtime version and clicking Create. Then go to Workspace, create a Notebook, and attach it to your cluster. A spark session is already available — there is no setup code to write.
+
+The Community Edition gives you a single-node cluster that terminates after two hours of inactivity. It is sufficient for learning all exam topics.
+
+Databricks Runtime.
+
+The Databricks Runtime, or DBR, is a pre-configured environment that bundles a pinned version of Spark, Delta Lake, popular Python libraries, and Databricks performance optimizations. DBR 14 ships with Spark 3.5 and is the latest long-term support release. DBR 13 ships with Spark 3.4. For the Databricks Certified Associate Developer exam, use DBR 13 or 14.
+
+Databricks Notebook Basics.
+
+Magic Commands.
+
+Databricks notebooks support magic commands that change the language or behaviour of a single cell. Percent python runs a Python cell, which is the default. Percent sql runs a SQL query and shows the results as an interactive table. Percent scala runs Scala. Percent r runs R. Percent md renders Markdown. Percent sh runs a shell command on the driver node. Percent fs is shorthand for dbutils file system commands. And percent run followed by a notebook path executes another notebook inline, making its variables available in the current session.
+
+display versus show.
+
+On Databricks, prefer display of df over df.show. The display function renders an interactive table with sorting, filtering, and built-in charting. show still works but outputs plain text.
+
+Databricks Utilities — dbutils.
+
+dbutils is a Databricks-specific object that is not available in plain PySpark. It has five main namespaces. dbutils.fs lets you browse, copy, move, and delete files in DBFS or cloud storage. dbutils.secrets reads credentials from Databricks Secret Scopes so you never hardcode passwords. dbutils.widgets creates interactive input controls in notebooks. dbutils.notebook runs other notebooks, passes parameters, and chains workflows. And dbutils.jobs exposes job context like the run ID and task name when a notebook is running as part of a scheduled job.
+
+Databricks File System — DBFS.
+
+DBFS is an abstraction layer over cloud object storage that is mounted at the root inside Databricks. It lets you use simple file paths instead of cloud URIs in most places. You can refer to files with a plain DBFS path like slash databricks-datasets, with a dbfs colon URI, or with a full cloud URI like an S3 path. On Unity Catalog clusters running DBR 12 and above, prefer Unity Catalog Volume paths for new data over the older DBFS paths.
+
+Local versus Databricks — Key Differences.
+
+Let's compare the two environments across the dimensions that matter most.
+
+For setup, local PySpark requires pip install pyspark plus Java, while Databricks needs only a browser.
+
+For the SparkSession, locally you build one with the builder pattern; on Databricks it is pre-created as spark.
+
+For cluster size, locally you are limited to your laptop's CPU and RAM; on Databricks you get cloud virtual machines with auto-scaling.
+
+For data access, locally you read local files or JDBC sources; on Databricks you have DBFS, S3, Azure Data Lake, Google Cloud Storage, and Unity Catalog.
+
+The display function and dbutils are Databricks-only. Delta Lake requires an extra pip install and configuration locally, but is the built-in default format on Databricks.
+
+Collaboration is file and Git based locally; Databricks supports real-time multi-user notebooks.
+
+Cost is free locally. On Databricks the compute has a cloud cost, though Community Edition remains free.
+
+Summary.
+
+Local PySpark means pip install pyspark, Java 8 or 11 required, then build a SparkSession with master set to local star. It is good for offline development and learning.
+
+Databricks means sign up, create a cluster with a DBR version, and spark is pre-created in every notebook. It is the right environment for cloud-scale work and exam practice.
+
+Databricks adds display, dbutils, DBFS, magic commands like percent sql, percent md, and percent run, and Delta Lake out of the box.
+
+Use spark.sql.shuffle.partitions set to 4 locally to avoid the 200-partition default on small datasets.
+
+The Spark code you write is the same on both environments — only the session setup and file paths differ.
