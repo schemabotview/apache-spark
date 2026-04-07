@@ -1,0 +1,108 @@
+<svg viewBox="0 0 580 200" width="580" height="200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      /* ── Light ──────────────────────────────────────── */
+      .bg           { fill: #f9f9f8; }
+
+      /* Source */
+      .src-fill     { fill: #fefce8; stroke: #fde047; }
+      .src-text     { fill: #713f12; }
+
+      /* Partition boxes */
+      .part-fill    { fill: #dbeafe; stroke: #93c5fd; }
+      .part-text    { fill: #1e40af; }
+
+      /* Executor zones */
+      .ex-fill      { fill: #f0fdf4; stroke: #86efac; }
+      .ex-text      { fill: #166534; }
+      .ex-sub       { fill: #16a34a; }
+
+      /* Partition inside executor */
+      .pex-fill     { fill: #dcfce7; stroke: #4ade80; }
+      .pex-text     { fill: #14532d; }
+
+      /* Arrows */
+      .arr-stroke   { stroke: #9b9b92; fill: none; }
+      .arr-head     { fill: #9b9b92; }
+
+      .muted        { fill: #9b9b92; }
+      .lbl          { font-family: system-ui, sans-serif; }
+
+      /* ── Dark ───────────────────────────────────────── */
+      @media (prefers-color-scheme: dark) {
+        .bg           { fill: #222220; }
+
+        .src-fill     { fill: #1c1a05; stroke: #ca8a04; }
+        .src-text     { fill: #fef08a; }
+
+        .part-fill    { fill: #1e3a5f; stroke: #3b82f6; }
+        .part-text    { fill: #93c5fd; }
+
+        .ex-fill      { fill: #052e16; stroke: #16a34a; }
+        .ex-text      { fill: #bbf7d0; }
+        .ex-sub       { fill: #4ade80; }
+
+        .pex-fill     { fill: #14532d; stroke: #22c55e; }
+        .pex-text     { fill: #dcfce7; }
+
+        .arr-stroke   { stroke: #6b6b65; fill: none; }
+        .arr-head     { fill: #6b6b65; }
+
+        .muted        { fill: #6b6b65; }
+      }
+    </style>
+    <marker id="rp-arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" class="arr-head"/>
+    </marker>
+  </defs>
+
+  <rect width="580" height="200" rx="10" class="bg" stroke="none"/>
+
+  <!-- Source data -->
+  <rect x="12" y="72" width="96" height="56" rx="6" class="src-fill" stroke-width="1.4"/>
+  <text x="60" y="96"  font-size="10" font-weight="700" text-anchor="middle" class="lbl src-text">Source</text>
+  <text x="60" y="110" font-size="8.5" text-anchor="middle" class="lbl src-text">Data</text>
+  <text x="60" y="186" font-size="8" text-anchor="middle" class="lbl muted">e.g. HDFS / S3 / list</text>
+
+  <!-- Arrow: source → partitions -->
+  <line x1="108" y1="100" x2="130" y2="100" stroke-width="1.3" class="arr-stroke" marker-end="url(#rp-arr)"/>
+  <text x="119" y="94" font-size="7.5" text-anchor="middle" class="lbl muted">split</text>
+
+  <!-- Partitions (middle) -->
+  <rect x="130" y="26"  width="100" height="32" rx="5" class="part-fill" stroke-width="1.2"/>
+  <text x="180" y="46"  font-size="9" font-weight="700" text-anchor="middle" class="lbl part-text">Partition 1</text>
+  <rect x="130" y="66"  width="100" height="32" rx="5" class="part-fill" stroke-width="1.2"/>
+  <text x="180" y="86"  font-size="9" font-weight="700" text-anchor="middle" class="lbl part-text">Partition 2</text>
+  <rect x="130" y="106" width="100" height="32" rx="5" class="part-fill" stroke-width="1.2"/>
+  <text x="180" y="126" font-size="9" font-weight="700" text-anchor="middle" class="lbl part-text">Partition 3</text>
+  <rect x="130" y="146" width="100" height="32" rx="5" class="part-fill" stroke-width="1.2"/>
+  <text x="180" y="166" font-size="9" font-weight="700" text-anchor="middle" class="lbl part-text">Partition 4</text>
+  <text x="180" y="190" font-size="8" text-anchor="middle" class="lbl muted">sc.parallelize(data, 4)</text>
+
+  <!-- Arrows: partitions → executors -->
+  <line x1="230" y1="42"  x2="296" y2="68"  stroke-width="1.2" class="arr-stroke" marker-end="url(#rp-arr)"/>
+  <line x1="230" y1="82"  x2="296" y2="82"  stroke-width="1.2" class="arr-stroke" marker-end="url(#rp-arr)"/>
+  <line x1="230" y1="122" x2="296" y2="130" stroke-width="1.2" class="arr-stroke" marker-end="url(#rp-arr)"/>
+  <line x1="230" y1="162" x2="296" y2="144" stroke-width="1.2" class="arr-stroke" marker-end="url(#rp-arr)"/>
+  <text x="263" y="106" font-size="7.5" text-anchor="middle" class="lbl muted">distribute</text>
+
+  <!-- Executor 1 -->
+  <rect x="296" y="14" width="268" height="84" rx="6" class="ex-fill" stroke-width="1.4"/>
+  <text x="430" y="30" font-size="10" font-weight="700" text-anchor="middle" class="lbl ex-text">Executor 1  (Worker Node 1)</text>
+  <rect x="306" y="36" width="114" height="52" rx="5" class="pex-fill" stroke-width="1.1"/>
+  <text x="363" y="57" font-size="9"  text-anchor="middle" class="lbl pex-text">Partition 1</text>
+  <text x="363" y="70" font-size="7.5" text-anchor="middle" class="lbl pex-text">rows 0 – 249,999</text>
+  <rect x="428" y="36" width="126" height="52" rx="5" class="pex-fill" stroke-width="1.1"/>
+  <text x="491" y="57" font-size="9"  text-anchor="middle" class="lbl pex-text">Partition 2</text>
+  <text x="491" y="70" font-size="7.5" text-anchor="middle" class="lbl pex-text">rows 250,000 – 499,999</text>
+
+  <!-- Executor 2 -->
+  <rect x="296" y="110" width="268" height="84" rx="6" class="ex-fill" stroke-width="1.4"/>
+  <text x="430" y="126" font-size="10" font-weight="700" text-anchor="middle" class="lbl ex-text">Executor 2  (Worker Node 2)</text>
+  <rect x="306" y="132" width="114" height="52" rx="5" class="pex-fill" stroke-width="1.1"/>
+  <text x="363" y="153" font-size="9"  text-anchor="middle" class="lbl pex-text">Partition 3</text>
+  <text x="363" y="166" font-size="7.5" text-anchor="middle" class="lbl pex-text">rows 500,000 – 749,999</text>
+  <rect x="428" y="132" width="126" height="52" rx="5" class="pex-fill" stroke-width="1.1"/>
+  <text x="491" y="153" font-size="9"  text-anchor="middle" class="lbl pex-text">Partition 4</text>
+  <text x="491" y="166" font-size="7.5" text-anchor="middle" class="lbl pex-text">rows 750,000 – 999,999</text>
+</svg>

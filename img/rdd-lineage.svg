@@ -1,0 +1,114 @@
+<svg viewBox="0 0 620 178" width="620" height="178" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      /* ── Light ──────────────────────────────────────── */
+      .bg            { fill: #f9f9f8; }
+
+      /* Lineage zone */
+      .zone-fill     { fill: #fefce8; stroke: #fde047; }
+      .zone-text     { fill: #854d0e; }
+
+      /* RDD boxes */
+      .rdd-fill      { fill: #dbeafe; stroke: #93c5fd; }
+      .rdd-text      { fill: #1e40af; }
+      .rdd-sub       { fill: #3b82f6; }
+
+      /* Transform labels */
+      .tfm-fill      { fill: #f1f5f9; stroke: #cbd5e1; }
+      .tfm-text      { fill: #475569; }
+
+      /* Failed partition annotation */
+      .fail-fill     { fill: #fee2e2; stroke: #fca5a5; }
+      .fail-text     { fill: #991b1b; }
+      .recomp-text   { fill: #16a34a; }
+
+      /* Arrows */
+      .arr-stroke    { stroke: #9b9b92; fill: none; }
+      .arr-head      { fill: #9b9b92; }
+      .arr-recomp    { stroke: #16a34a; fill: none; }
+      .arr-recomp-hd { fill: #16a34a; }
+
+      .muted  { fill: #9b9b92; }
+      .lbl    { font-family: system-ui, sans-serif; }
+
+      /* ── Dark ───────────────────────────────────────── */
+      @media (prefers-color-scheme: dark) {
+        .bg            { fill: #222220; }
+
+        .zone-fill     { fill: #1c1a05; stroke: #ca8a04; }
+        .zone-text     { fill: #fef08a; }
+
+        .rdd-fill      { fill: #1e3a5f; stroke: #3b82f6; }
+        .rdd-text      { fill: #93c5fd; }
+        .rdd-sub       { fill: #60a5fa; }
+
+        .tfm-fill      { fill: #2a2a27; stroke: #484844; }
+        .tfm-text      { fill: #cbd5e1; }
+
+        .fail-fill     { fill: #450a0a; stroke: #f87171; }
+        .fail-text     { fill: #fca5a5; }
+        .recomp-text   { fill: #4ade80; }
+
+        .arr-stroke    { stroke: #6b6b65; fill: none; }
+        .arr-head      { fill: #6b6b65; }
+        .arr-recomp    { stroke: #22c55e; fill: none; }
+        .arr-recomp-hd { fill: #22c55e; }
+
+        .muted  { fill: #6b6b65; }
+      }
+    </style>
+    <marker id="rl-arr"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" class="arr-head"/></marker>
+    <marker id="rl-rc"   markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" class="arr-recomp-hd"/></marker>
+  </defs>
+
+  <rect width="620" height="178" rx="10" class="bg" stroke="none"/>
+
+  <!-- Lineage zone -->
+  <rect x="10" y="10" width="600" height="106" rx="7" class="zone-fill" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="310" y="24" font-size="9" font-weight="700" text-anchor="middle" class="lbl zone-text">RDD Lineage Graph — recorded at definition time, used to recompute lost partitions</text>
+
+  <!-- RDD 1: base -->
+  <rect x="22"  y="34" width="96" height="64" rx="5" class="rdd-fill" stroke-width="1.3"/>
+  <text x="70"  y="58" font-size="9"  font-weight="700" text-anchor="middle" class="lbl rdd-text">Base RDD</text>
+  <text x="70"  y="72" font-size="8"  text-anchor="middle" class="lbl rdd-sub">sc.textFile()</text>
+  <text x="70"  y="84" font-size="7.5" text-anchor="middle" class="lbl rdd-sub">or parallelize()</text>
+
+  <!-- transform arrow -->
+  <line x1="118" y1="66" x2="148" y2="66" stroke-width="1.2" class="arr-stroke" marker-end="url(#rl-arr)"/>
+  <rect x="122" y="52" width="52" height="20" rx="3" class="tfm-fill" stroke-width="1"/>
+  <text x="148" y="65" font-size="8.5" font-weight="700" text-anchor="middle" class="lbl tfm-text">.filter()</text>
+
+  <!-- RDD 2 -->
+  <rect x="148" y="34" width="96" height="64" rx="5" class="rdd-fill" stroke-width="1.3"/>
+  <text x="196" y="58" font-size="9"  font-weight="700" text-anchor="middle" class="lbl rdd-text">Filtered RDD</text>
+  <text x="196" y="72" font-size="8"  text-anchor="middle" class="lbl rdd-sub">even lines only</text>
+
+  <!-- transform arrow -->
+  <line x1="244" y1="66" x2="274" y2="66" stroke-width="1.2" class="arr-stroke" marker-end="url(#rl-arr)"/>
+  <rect x="248" y="52" width="46" height="20" rx="3" class="tfm-fill" stroke-width="1"/>
+  <text x="271" y="65" font-size="8.5" font-weight="700" text-anchor="middle" class="lbl tfm-text">.map()</text>
+
+  <!-- RDD 3 -->
+  <rect x="274" y="34" width="96" height="64" rx="5" class="rdd-fill" stroke-width="1.3"/>
+  <text x="322" y="58" font-size="9"  font-weight="700" text-anchor="middle" class="lbl rdd-text">Mapped RDD</text>
+  <text x="322" y="72" font-size="8"  text-anchor="middle" class="lbl rdd-sub">key-value pairs</text>
+
+  <!-- transform arrow -->
+  <line x1="370" y1="66" x2="400" y2="66" stroke-width="1.2" class="arr-stroke" marker-end="url(#rl-arr)"/>
+  <rect x="366" y="52" width="84" height="20" rx="3" class="tfm-fill" stroke-width="1"/>
+  <text x="408" y="65" font-size="8.5" font-weight="700" text-anchor="middle" class="lbl tfm-text">.reduceByKey()</text>
+
+  <!-- RDD 4: result -->
+  <rect x="450" y="34" width="96" height="64" rx="5" class="rdd-fill" stroke-width="1.3"/>
+  <text x="498" y="58" font-size="9"  font-weight="700" text-anchor="middle" class="lbl rdd-text">Result RDD</text>
+  <text x="498" y="72" font-size="8"  text-anchor="middle" class="lbl rdd-sub">aggregated</text>
+  <text x="498" y="84" font-size="7.5" text-anchor="middle" class="lbl rdd-sub">.collect() →</text>
+
+  <!-- Failure annotation on RDD 3 -->
+  <rect x="274" y="108" width="96" height="26" rx="4" class="fail-fill" stroke-width="1"/>
+  <text x="322" y="125" font-size="8.5" font-weight="700" text-anchor="middle" class="lbl fail-text">partition lost ✕</text>
+
+  <!-- Re-compute arrow: base RDD → RDD 3 via lineage (curved below) -->
+  <path d="M 70,130 C 70,158 322,158 322,134" fill="none" stroke-width="1.3" stroke-dasharray="5,3" class="arr-recomp" marker-end="url(#rl-rc)"/>
+  <text x="196" y="172" font-size="8" text-anchor="middle" class="lbl recomp-text">Spark replays lineage to recompute the lost partition — no data replication needed</text>
+</svg>
