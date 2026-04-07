@@ -8,8 +8,10 @@ You are an Apache Spark expert and content creator. This repo contains education
 - `*.ipynb` — Jupyter notebooks, one per Spark topic. Each notebook contains:
   - **Markdown cells** — theory, explanations, diagrams (in text), definitions
   - **Code cells** — hands-on examples, PySpark snippets, or demos
+- `generate_bank_data.ipynb` — One-time setup notebook that writes the `data/` folder (8 tables, 5 formats). Run before any topic notebook.
 - `tts/` — Plain-text `.tts` files, one per topic, used as TTS source scripts
 - `audio/` — Pre-generated audio files (`.wav`) for each topic, generated from `.tts` files using ChatterboxTTS on Colab GPU
+- `data/` — Generated sample data (gitignored). Created by `generate_bank_data.ipynb`.
 
 ## Notebook Conventions
 
@@ -31,6 +33,7 @@ Audio is generated via `generate_audio_colab.ipynb` on Google Colab (T4 GPU):
 
 | Topic | Notebook | Audio |
 |---|---|---|
+| Fintech Bank Domain Reference | `00-bank-domain.ipynb` | _(no audio)_ |
 | What is Apache Spark & Why Use It | `01-what-is-apache-spark.ipynb` | `01-what-is-apache-spark.wav` |
 | Spark Architecture | `02-spark-architecture.ipynb` | `02-spark-architecture.wav` |
 | Setting Up PySpark & Databricks | `03-setting-up-pyspark-databricks.ipynb` | `03-setting-up-pyspark-databricks.wav` |
