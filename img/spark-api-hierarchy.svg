@@ -1,0 +1,122 @@
+<svg viewBox="0 0 540 230" width="540" height="230" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      /* ── Light ──────────────────────────────────────── */
+      .bg            { fill: #f9f9f8; }
+
+      /* SQL tier */
+      .sql-fill      { fill: #fdf4ff; stroke: #e879f9; }
+      .sql-text      { fill: #86198f; }
+      .sql-sub       { fill: #a21caf; }
+
+      /* DataFrame / Dataset tier */
+      .df-fill       { fill: #eeeeff; stroke: #818cf8; }
+      .df-text       { fill: #3730a3; }
+      .df-sub        { fill: #6c63ff; }
+
+      /* RDD tier */
+      .rdd-fill      { fill: #f1f5f9; stroke: #cbd5e1; }
+      .rdd-text      { fill: #334155; }
+      .rdd-sub       { fill: #64748b; }
+
+      /* Execution engine */
+      .eng-fill      { fill: #f0fdf4; stroke: #86efac; }
+      .eng-text      { fill: #166534; }
+      .eng-sub       { fill: #16a34a; }
+
+      /* Catalyst + Tungsten bracket */
+      .opt-fill      { fill: #dbeafe; stroke: #93c5fd; }
+      .opt-text      { fill: #1e40af; }
+
+      /* Arrows */
+      .arr-stroke    { stroke: #9b9b92; fill: none; }
+      .arr-head      { fill: #9b9b92; }
+
+      .muted  { fill: #9b9b92; }
+      .lbl    { font-family: system-ui, sans-serif; }
+
+      /* ── Dark ───────────────────────────────────────── */
+      @media (prefers-color-scheme: dark) {
+        .bg            { fill: #222220; }
+
+        .sql-fill      { fill: #2e1065; stroke: #c026d3; }
+        .sql-text      { fill: #f0abfc; }
+        .sql-sub       { fill: #e879f9; }
+
+        .df-fill       { fill: #1e1b4b; stroke: #818cf8; }
+        .df-text       { fill: #c7d2fe; }
+        .df-sub        { fill: #a5b4fc; }
+
+        .rdd-fill      { fill: #2a2a27; stroke: #484844; }
+        .rdd-text      { fill: #e2e8f0; }
+        .rdd-sub       { fill: #94a3b8; }
+
+        .eng-fill      { fill: #052e16; stroke: #16a34a; }
+        .eng-text      { fill: #bbf7d0; }
+        .eng-sub       { fill: #4ade80; }
+
+        .opt-fill      { fill: #1e3a5f; stroke: #3b82f6; }
+        .opt-text      { fill: #93c5fd; }
+
+        .arr-stroke    { stroke: #6b6b65; fill: none; }
+        .arr-head      { fill: #6b6b65; }
+
+        .muted  { fill: #6b6b65; }
+      }
+    </style>
+    <marker id="ah-arr" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto">
+      <path d="M0,0 L0,7 L7,3.5 z" class="arr-head"/>
+    </marker>
+  </defs>
+
+  <rect width="540" height="230" rx="10" class="bg" stroke="none"/>
+
+  <!-- SQL tier -->
+  <rect x="12" y="12" width="320" height="46" rx="6" class="sql-fill" stroke-width="1.4"/>
+  <text x="172" y="31" font-size="11" font-weight="700" text-anchor="middle" class="lbl sql-text">Spark SQL</text>
+  <text x="172" y="48" font-size="8.5" text-anchor="middle" class="lbl sql-sub">spark.sql("SELECT ...") · %sql magic · SQL strings</text>
+
+  <!-- DataFrame / Dataset tier -->
+  <rect x="12" y="68" width="320" height="54" rx="6" class="df-fill" stroke-width="1.4"/>
+  <text x="172" y="88" font-size="11" font-weight="700" text-anchor="middle" class="lbl df-text">DataFrame  /  Dataset[T]</text>
+  <text x="172" y="103" font-size="8.5" text-anchor="middle" class="lbl df-sub">df.filter()  ·  df.groupBy()  ·  df.join()</text>
+  <text x="172" y="115" font-size="8"   text-anchor="middle" class="lbl muted">DataFrame = Dataset[Row]  ·  Dataset[T] is Scala/Java only</text>
+
+  <!-- RDD tier -->
+  <rect x="12" y="132" width="320" height="46" rx="6" class="rdd-fill" stroke-width="1.4"/>
+  <text x="172" y="151" font-size="11" font-weight="700" text-anchor="middle" class="lbl rdd-text">RDD</text>
+  <text x="172" y="167" font-size="8.5" text-anchor="middle" class="lbl rdd-sub">rdd.map()  ·  rdd.filter()  ·  rdd.reduceByKey()</text>
+
+  <!-- Arrows down -->
+  <line x1="172" y1="58"  x2="172" y2="68"  stroke-width="1.2" class="arr-stroke" marker-end="url(#ah-arr)"/>
+  <line x1="172" y1="122" x2="172" y2="132" stroke-width="1.2" class="arr-stroke" marker-end="url(#ah-arr)"/>
+
+  <!-- Catalyst + Tungsten bracket (covers SQL + DataFrame) -->
+  <rect x="344" y="12" width="128" height="110" rx="6" class="opt-fill" stroke-width="1.3"/>
+  <text x="408" y="32"  font-size="9"  font-weight="700" text-anchor="middle" class="lbl opt-text">Catalyst</text>
+  <text x="408" y="46"  font-size="8"  text-anchor="middle" class="lbl opt-text">Optimizer</text>
+  <text x="408" y="62"  font-size="8"  text-anchor="middle" class="lbl muted">logical plan</text>
+  <text x="408" y="74"  font-size="8"  text-anchor="middle" class="lbl muted">physical plan</text>
+  <line x1="344" y1="90" x2="480" y2="90" stroke-width="0.7" stroke-dasharray="3,2" class="arr-stroke"/>
+  <text x="408" y="103" font-size="9"  font-weight="700" text-anchor="middle" class="lbl opt-text">Tungsten</text>
+  <text x="408" y="116" font-size="8"  text-anchor="middle" class="lbl muted">JVM bytecode gen</text>
+
+  <!-- Bracket line connecting opt box to SQL+DF tiers -->
+  <line x1="344" y1="35"  x2="332" y2="35"  stroke-width="1.1" class="arr-stroke"/>
+  <line x1="344" y1="95"  x2="332" y2="95"  stroke-width="1.1" class="arr-stroke"/>
+  <line x1="332" y1="35"  x2="332" y2="95"  stroke-width="1.1" class="arr-stroke"/>
+  <text x="338" y="66" font-size="8" text-anchor="middle" transform="rotate(-90 338 66)" class="lbl opt-text">auto-optimised</text>
+
+  <!-- No-optimization note for RDD -->
+  <rect x="344" y="132" width="128" height="46" rx="6" class="rdd-fill" stroke-width="1.3"/>
+  <text x="408" y="152" font-size="8.5" font-weight="700" text-anchor="middle" class="lbl rdd-text">No Catalyst</text>
+  <text x="408" y="166" font-size="8"   text-anchor="middle" class="lbl rdd-sub">manual optimisation</text>
+
+  <!-- Execution engine -->
+  <rect x="12" y="192" width="460" height="30" rx="5" class="eng-fill" stroke-width="1.3"/>
+  <text x="242" y="211" font-size="10" font-weight="700" text-anchor="middle" class="lbl eng-text">Spark Execution Engine  (tasks on executors)</text>
+
+  <!-- Arrow: all three APIs → execution engine -->
+  <line x1="172" y1="178" x2="172" y2="192" stroke-width="1.2" class="arr-stroke" marker-end="url(#ah-arr)"/>
+  <line x1="408" y1="178" x2="408" y2="192" stroke-width="1.2" class="arr-stroke" marker-end="url(#ah-arr)"/>
+</svg>

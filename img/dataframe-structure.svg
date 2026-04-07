@@ -1,0 +1,151 @@
+<svg viewBox="0 0 580 210" width="580" height="210" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      /* ── Light ──────────────────────────────────────── */
+      .bg           { fill: #f9f9f8; }
+
+      /* Schema header row */
+      .schema-fill  { fill: #1e40af; }
+      .schema-text  { fill: #ffffff; }
+      .schema-sub   { fill: #bfdbfe; }
+
+      /* Data rows */
+      .row-even     { fill: #eff6ff; }
+      .row-odd      { fill: #dbeafe; }
+      .row-text     { fill: #1e3a5f; }
+
+      /* Partition zone */
+      .part-zone    { fill: none; stroke: #93c5fd; }
+      .part-label   { fill: #1d4ed8; }
+
+      /* Executor boxes */
+      .ex-fill      { fill: #f0fdf4; stroke: #86efac; }
+      .ex-text      { fill: #166534; }
+
+      /* Divider line between partitions */
+      .div-line     { stroke: #3b82f6; }
+
+      .muted        { fill: #9b9b92; }
+      .lbl          { font-family: system-ui, sans-serif; }
+
+      /* ── Dark ───────────────────────────────────────── */
+      @media (prefers-color-scheme: dark) {
+        .bg           { fill: #222220; }
+
+        .schema-fill  { fill: #1e3a5f; }
+        .schema-text  { fill: #e0f2fe; }
+        .schema-sub   { fill: #7dd3fc; }
+
+        .row-even     { fill: #172554; }
+        .row-odd      { fill: #1e3a5f; }
+        .row-text     { fill: #93c5fd; }
+
+        .part-zone    { fill: none; stroke: #3b82f6; }
+        .part-label   { fill: #60a5fa; }
+
+        .ex-fill      { fill: #052e16; stroke: #16a34a; }
+        .ex-text      { fill: #bbf7d0; }
+
+        .div-line     { stroke: #2563eb; }
+
+        .muted        { fill: #6b6b65; }
+      }
+    </style>
+  </defs>
+
+  <rect width="580" height="210" rx="10" class="bg" stroke="none"/>
+
+  <!-- Title -->
+  <text x="290" y="20" font-size="10" font-weight="700" text-anchor="middle" class="lbl muted">DataFrame = distributed table with a schema + data partitioned across executors</text>
+
+  <!-- Schema header -->
+  <rect x="12" y="28" width="558" height="28" rx="4" class="schema-fill"/>
+  <text x="86"  y="46" font-size="9" font-weight="700" text-anchor="middle" class="lbl schema-text">id</text>
+  <text x="86"  y="54" font-size="7.5" text-anchor="middle" class="lbl schema-sub">LongType</text>
+  <line x1="152" y1="28" x2="152" y2="56" stroke="#3b82f6" stroke-width="0.5"/>
+  <text x="226" y="46" font-size="9" font-weight="700" text-anchor="middle" class="lbl schema-text">name</text>
+  <text x="226" y="54" font-size="7.5" text-anchor="middle" class="lbl schema-sub">StringType</text>
+  <line x1="300" y1="28" x2="300" y2="56" stroke="#3b82f6" stroke-width="0.5"/>
+  <text x="374" y="46" font-size="9" font-weight="700" text-anchor="middle" class="lbl schema-text">age</text>
+  <text x="374" y="54" font-size="7.5" text-anchor="middle" class="lbl schema-sub">IntegerType</text>
+  <line x1="448" y1="28" x2="448" y2="56" stroke="#3b82f6" stroke-width="0.5"/>
+  <text x="505" y="46" font-size="9" font-weight="700" text-anchor="middle" class="lbl schema-text">active</text>
+  <text x="505" y="54" font-size="7.5" text-anchor="middle" class="lbl schema-sub">BooleanType</text>
+
+  <!-- Partition 1 zone -->
+  <rect x="12" y="56" width="278" height="116" rx="4" class="part-zone" stroke-width="1.2" stroke-dasharray="4,2"/>
+  <text x="151" y="68" font-size="8" font-weight="700" text-anchor="middle" class="lbl part-label">Partition 1  (Executor 1)</text>
+
+  <!-- Rows partition 1 -->
+  <rect x="12" y="70" width="278" height="20" class="row-even"/>
+  <text x="86"  y="83" font-size="8.5" text-anchor="middle" class="lbl row-text">1</text>
+  <text x="226" y="83" font-size="8.5" text-anchor="middle" class="lbl row-text">Alice</text>
+  <text x="374" y="83" font-size="8.5" text-anchor="middle" class="lbl row-text">30</text>
+  <text x="505" y="83" font-size="8.5" text-anchor="middle" class="lbl row-text">true</text>
+
+  <rect x="12" y="90" width="278" height="20" class="row-odd"/>
+  <text x="86"  y="103" font-size="8.5" text-anchor="middle" class="lbl row-text">2</text>
+  <text x="226" y="103" font-size="8.5" text-anchor="middle" class="lbl row-text">Bob</text>
+  <text x="374" y="103" font-size="8.5" text-anchor="middle" class="lbl row-text">25</text>
+  <text x="505" y="103" font-size="8.5" text-anchor="middle" class="lbl row-text">false</text>
+
+  <rect x="12" y="110" width="278" height="20" class="row-even"/>
+  <text x="86"  y="123" font-size="8.5" text-anchor="middle" class="lbl row-text">3</text>
+  <text x="226" y="123" font-size="8.5" text-anchor="middle" class="lbl row-text">Carol</text>
+  <text x="374" y="123" font-size="8.5" text-anchor="middle" class="lbl row-text">35</text>
+  <text x="505" y="123" font-size="8.5" text-anchor="middle" class="lbl row-text">true</text>
+
+  <rect x="12" y="130" width="278" height="20" class="row-odd"/>
+  <text x="86"  y="143" font-size="8.5" text-anchor="middle" class="lbl row-text">4</text>
+  <text x="226" y="143" font-size="8.5" text-anchor="middle" class="lbl row-text">Dan</text>
+  <text x="374" y="143" font-size="8.5" text-anchor="middle" class="lbl row-text">28</text>
+  <text x="505" y="143" font-size="8.5" text-anchor="middle" class="lbl row-text">true</text>
+
+  <!-- Partition 2 zone -->
+  <rect x="292" y="56" width="278" height="116" rx="4" class="part-zone" stroke-width="1.2" stroke-dasharray="4,2"/>
+  <text x="431" y="68" font-size="8" font-weight="700" text-anchor="middle" class="lbl part-label">Partition 2  (Executor 2)</text>
+
+  <!-- Rows partition 2 -->
+  <rect x="292" y="70" width="278" height="20" class="row-even"/>
+  <text x="86"  y="83" font-size="8.5" text-anchor="middle" class="lbl row-text"/>
+  <text x="366" y="83" font-size="8.5" text-anchor="middle" class="lbl row-text">5</text>
+  <text x="506" y="83" font-size="8.5" text-anchor="middle" class="lbl row-text">Eve</text>
+  <text x="654" y="83" font-size="8.5" text-anchor="middle" class="lbl row-text">22</text>
+  <text x="785" y="83" font-size="8.5" text-anchor="middle" class="lbl row-text">false</text>
+
+  <rect x="292" y="90" width="278" height="20" class="row-odd"/>
+  <rect x="292" y="110" width="278" height="20" class="row-even"/>
+  <rect x="292" y="130" width="278" height="20" class="row-odd"/>
+
+  <!-- Re-draw text for partition 2 rows using correct x offsets -->
+  <!-- Row 5 -->
+  <text x="366" y="83"  font-size="8.5" text-anchor="middle" class="lbl row-text">5</text>
+  <text x="431" y="83"  font-size="8.5" text-anchor="middle" class="lbl row-text">Eve</text>
+  <text x="514" y="83"  font-size="8.5" text-anchor="middle" class="lbl row-text">22</text>
+  <text x="565" y="83"  font-size="8.5" text-anchor="middle" class="lbl row-text">false</text>
+  <!-- Row 6 -->
+  <text x="366" y="103" font-size="8.5" text-anchor="middle" class="lbl row-text">6</text>
+  <text x="431" y="103" font-size="8.5" text-anchor="middle" class="lbl row-text">Frank</text>
+  <text x="514" y="103" font-size="8.5" text-anchor="middle" class="lbl row-text">40</text>
+  <text x="565" y="103" font-size="8.5" text-anchor="middle" class="lbl row-text">true</text>
+  <!-- Row 7 -->
+  <text x="366" y="123" font-size="8.5" text-anchor="middle" class="lbl row-text">7</text>
+  <text x="431" y="123" font-size="8.5" text-anchor="middle" class="lbl row-text">Grace</text>
+  <text x="514" y="123" font-size="8.5" text-anchor="middle" class="lbl row-text">31</text>
+  <text x="565" y="123" font-size="8.5" text-anchor="middle" class="lbl row-text">true</text>
+  <!-- Row 8 -->
+  <text x="366" y="143" font-size="8.5" text-anchor="middle" class="lbl row-text">8</text>
+  <text x="431" y="143" font-size="8.5" text-anchor="middle" class="lbl row-text">Hank</text>
+  <text x="514" y="143" font-size="8.5" text-anchor="middle" class="lbl row-text">29</text>
+  <text x="565" y="143" font-size="8.5" text-anchor="middle" class="lbl row-text">false</text>
+
+  <!-- Column dividers across rows -->
+  <line x1="152" y1="56" x2="152" y2="172" stroke-width="0.5" class="div-line"/>
+  <line x1="300" y1="56" x2="300" y2="172" stroke-width="0.5" class="div-line"/>
+  <line x1="448" y1="56" x2="448" y2="172" stroke-width="0.5" class="div-line"/>
+
+  <!-- Footer -->
+  <text x="151" y="188" font-size="8" text-anchor="middle" class="lbl muted">Rows processed in parallel per partition</text>
+  <text x="431" y="188" font-size="8" text-anchor="middle" class="lbl muted">Schema enforced — every row matches the same types</text>
+  <text x="290" y="202" font-size="7.5" text-anchor="middle" class="lbl muted">df.printSchema()  ·  df.count()  ·  df.show()  work across all partitions</text>
+</svg>
