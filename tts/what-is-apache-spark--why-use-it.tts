@@ -1,0 +1,59 @@
+Apache Spark is a unified, open-source distributed computing engine for large-scale data processing. It lets you run computations across a cluster of machines in parallel — handling workloads that range from batch ETL, to SQL queries, to machine learning, to real-time streaming — all within a single framework.
+
+Before we dive into what Spark is today, let's understand why it was built in the first place.
+
+A Brief History.
+
+Spark started in 2009 as a research project at UC Berkeley's AMPLab, led by Matei Zaharia. The first paper was published in 2010 under the title "Spark: Cluster Computing with Working Sets." By 2012, the foundational RDD paper was out. In 2013, the project was donated to the Apache Software Foundation, and Databricks — the company founded by the Spark creators — was born. Apache Spark 1.0 released in 2014, and it quickly became a top-level Apache project.
+
+By 2015, Spark had beaten Hadoop MapReduce in sorting benchmarks and introduced the DataFrame API. Spark 2.0 in 2016 was a major leap — it unified the DataFrame and Dataset APIs, introduced Structured Streaming, and replaced SQLContext and HiveContext with the simpler SparkSession. Spark 3.0 in 2020 added Adaptive Query Execution, and recent versions have continued improving Python and pandas integration.
+
+The Problem Spark Was Solving.
+
+Before Spark, the dominant framework for distributed processing was Hadoop MapReduce. It worked, but it had a painful limitation: every intermediate step had to be written to disk. A multi-step machine learning algorithm might do one hundred iterations — each one triggering a full read and write cycle to disk. That made iterative algorithms extremely slow.
+
+Spark's key insight was simple: keep data in memory across iterations. This made iterative workloads like machine learning and graph algorithms ten to one hundred times faster than MapReduce.
+
+Why Spark is Fast.
+
+Spark's speed comes from three core design decisions.
+
+First, in-memory processing. Intermediate results are kept in RAM across stages instead of being written to disk between each step. Disk I/O is orders of magnitude slower than memory access — this alone is the biggest win for iterative jobs.
+
+Second, lazy evaluation. Spark does not execute transformations immediately. When you call filter or groupBy, Spark records the instruction but does nothing. Execution is triggered only by an action — like count, show, or write. This lets Spark build a complete picture of your job — the DAG, or Directed Acyclic Graph — before running anything.
+
+Third, the Catalyst optimizer. Before executing a query, Spark rewrites it into a more efficient plan — pushing filters early, reordering joins, eliminating redundant steps. You write simple code; Spark figures out the fastest execution path.
+
+Core Components.
+
+Spark is a unified platform — one engine, multiple workload types.
+
+Spark Core is the foundation. It handles task scheduling, memory management, fault recovery, and I/O. It provides the RDD API — the original low-level abstraction that everything else is built on.
+
+Spark SQL and DataFrames is the most widely used component. It lets you query structured data with SQL or a DataFrame API similar to pandas. It's powered by the Catalyst optimizer and the Tungsten execution engine.
+
+Structured Streaming handles real-time data processing. You write the same batch DataFrame code — Spark handles micro-batching or continuous processing under the hood. It supports exactly-once semantics and stateful operations like windowing and joins.
+
+MLlib is Spark's distributed machine learning library. It provides algorithms for classification, regression, clustering, and recommendation, plus the ML Pipelines API — a scikit-learn-inspired way to build reproducible machine learning workflows.
+
+GraphX is a graph computation library for large-scale graph processing — things like PageRank and connected components. Python users typically use the GraphFrames library instead.
+
+Spark versus Hadoop MapReduce.
+
+Hadoop MapReduce uses a disk-based model: read, process, write to disk, repeat. Spark keeps data in memory, making it ten to one hundred times faster for iterative jobs. MapReduce only has a Java API and handles batch workloads only. Spark supports Python, Scala, Java, and R, and handles batch, SQL, streaming, ML, and graph workloads all in one engine. For fault tolerance, MapReduce replicates data to HDFS, while Spark recomputes lost partitions using lineage — the recorded history of how a dataset was derived.
+
+Spark does not replace HDFS. It often reads from and writes to HDFS. What it replaces is the MapReduce execution engine.
+
+Key Features at a Glance.
+
+Speed from in-memory computation and the Catalyst optimizer. Ease of use with high-level APIs in Python, Scala, Java, and R. A unified engine for batch, SQL, streaming, ML, and graph work. Fault tolerance through RDD lineage. Scalability from a single laptop in local mode up to thousands of nodes. An open ecosystem that reads from S3, HDFS, GCS, Kafka, JDBC, Delta Lake, Apache Iceberg, and more. And managed platforms like Databricks, AWS EMR, Google Dataproc, and Azure HDInsight.
+
+Common Use Cases.
+
+ETL and data engineering — ingest raw logs, clean them, and write to a data warehouse. Ad-hoc SQL analytics — query billions of rows of Parquet files with Spark SQL. Machine learning — train a model on a one hundred gigabyte dataset distributed across a cluster. Real-time streaming — process Kafka events to detect fraud in milliseconds. Data lake processing — read and write Delta Lake tables with ACID guarantees. And graph analytics — running PageRank on a social graph with billions of edges.
+
+Summary.
+
+Spark was born in 2009 at UC Berkeley to solve the speed limitations of Hadoop MapReduce, primarily by keeping data in memory. It is a unified engine — one framework covers batch, SQL, streaming, ML, and graph workloads. Speed comes from in-memory processing, lazy evaluation, and the Catalyst optimizer. The five main components are Spark Core, Spark SQL, Structured Streaming, MLlib, and GraphX. You interact with Spark primarily through the DataFrame API in Python, or through SQL — and both compile down to the same optimized execution engine.
+
+In the next topic, we'll go deeper into Spark Architecture — how drivers, executors, and the cluster manager fit together at runtime.
