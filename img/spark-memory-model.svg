@@ -1,0 +1,124 @@
+<svg viewBox="0 0 520 200" width="520" height="200" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      /* ── Light ──────────────────────────────────────── */
+      .bg           { fill: #f9f9f8; }
+
+      /* Outer heap border */
+      .heap-fill    { fill: #f3f3f0; }
+      .heap-stroke  { stroke: #d1d1cb; }
+      .heap-text    { fill: #1a1a18; }
+
+      /* Unified memory region */
+      .uni-fill     { fill: #eeeeff; }
+      .uni-stroke   { stroke: #818cf8; }
+      .uni-text     { fill: #3730a3; }
+
+      /* Execution memory */
+      .exec-fill    { fill: #dbeafe; }
+      .exec-stroke  { stroke: #93c5fd; }
+      .exec-text    { fill: #1e40af; }
+      .exec-sub     { fill: #3b82f6; }
+
+      /* Storage memory */
+      .stor-fill    { fill: #d1fae5; }
+      .stor-stroke  { stroke: #6ee7b7; }
+      .stor-text    { fill: #065f46; }
+      .stor-sub     { fill: #059669; }
+
+      /* Reserved region */
+      .res-fill     { fill: #fefce8; }
+      .res-stroke   { stroke: #fde047; }
+      .res-text     { fill: #713f12; }
+      .res-sub      { fill: #92400e; }
+
+      /* Borrow arrow */
+      .borrow-stroke { stroke: #6c63ff; fill: none; }
+      .borrow-head   { fill: #6c63ff; }
+
+      .muted  { fill: #9b9b92; }
+      .lbl    { font-family: system-ui, sans-serif; }
+
+      /* ── Dark ───────────────────────────────────────── */
+      @media (prefers-color-scheme: dark) {
+        .bg           { fill: #222220; }
+
+        .heap-fill    { fill: #2a2a27; }
+        .heap-stroke  { stroke: #484844; }
+        .heap-text    { fill: #f0f0ec; }
+
+        .uni-fill     { fill: #1e1b4b; }
+        .uni-stroke   { stroke: #818cf8; }
+        .uni-text     { fill: #c7d2fe; }
+
+        .exec-fill    { fill: #1e3a5f; }
+        .exec-stroke  { stroke: #3b82f6; }
+        .exec-text    { fill: #93c5fd; }
+        .exec-sub     { fill: #60a5fa; }
+
+        .stor-fill    { fill: #052e16; }
+        .stor-stroke  { stroke: #22c55e; }
+        .stor-text    { fill: #bbf7d0; }
+        .stor-sub     { fill: #4ade80; }
+
+        .res-fill     { fill: #1c1a05; }
+        .res-stroke   { stroke: #ca8a04; }
+        .res-text     { fill: #fef08a; }
+        .res-sub      { fill: #fcd34d; }
+
+        .borrow-stroke { stroke: #818cf8; fill: none; }
+        .borrow-head   { fill: #818cf8; }
+
+        .muted  { fill: #6b6b65; }
+      }
+    </style>
+    <marker id="bw-l" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" class="borrow-head"/>
+    </marker>
+    <marker id="bw-r" markerWidth="6" markerHeight="6" refX="1" refY="3" orient="auto-start-reverse">
+      <path d="M0,0 L0,6 L6,3 z" class="borrow-head"/>
+    </marker>
+  </defs>
+
+  <rect width="520" height="200" rx="10" class="bg" stroke="none"/>
+
+  <!-- Outer heap box -->
+  <rect x="12" y="12" width="496" height="170" rx="8" class="heap-fill heap-stroke" stroke-width="1.5"/>
+  <text x="260" y="30" font-size="11" font-weight="700" text-anchor="middle" class="lbl heap-text">Executor JVM Heap</text>
+
+  <!-- Unified Memory region (60%) -->
+  <rect x="22" y="38" width="316" height="134" rx="6" class="uni-fill uni-stroke" stroke-width="1.3"/>
+  <text x="180" y="54" font-size="10" font-weight="700" text-anchor="middle" class="lbl uni-text">Unified Memory  (60% of heap)</text>
+
+  <!-- Execution Memory box -->
+  <rect x="32" y="62" width="140" height="98" rx="5" class="exec-fill exec-stroke" stroke-width="1.2"/>
+  <text x="102" y="80" font-size="10" font-weight="700" text-anchor="middle" class="lbl exec-text">Execution</text>
+  <text x="102" y="95" font-size="8.5" text-anchor="middle" class="lbl exec-sub">shuffles</text>
+  <text x="102" y="108" font-size="8.5" text-anchor="middle" class="lbl exec-sub">joins &amp; sorts</text>
+  <text x="102" y="121" font-size="8.5" text-anchor="middle" class="lbl exec-sub">hash tables</text>
+  <text x="102" y="134" font-size="8.5" text-anchor="middle" class="lbl exec-sub">sort buffers</text>
+  <text x="102" y="151" font-size="7.5" text-anchor="middle" class="lbl muted">can spill to disk</text>
+
+  <!-- Storage Memory box -->
+  <rect x="188" y="62" width="140" height="98" rx="5" class="stor-fill stor-stroke" stroke-width="1.2"/>
+  <text x="258" y="80" font-size="10" font-weight="700" text-anchor="middle" class="lbl stor-text">Storage</text>
+  <text x="258" y="95" font-size="8.5" text-anchor="middle" class="lbl stor-sub">cached DataFrames</text>
+  <text x="258" y="108" font-size="8.5" text-anchor="middle" class="lbl stor-sub">cached RDDs</text>
+  <text x="258" y="121" font-size="8.5" text-anchor="middle" class="lbl stor-sub">broadcast vars</text>
+  <text x="258" y="151" font-size="7.5" text-anchor="middle" class="lbl muted">LRU eviction</text>
+
+  <!-- Borrow arrow (bidirectional) between exec and storage -->
+  <line x1="172" y1="111" x2="188" y2="111" stroke-width="1.3" class="borrow-stroke" marker-end="url(#bw-l)" marker-start="url(#bw-r)"/>
+  <text x="180" y="107" font-size="7" text-anchor="middle" class="lbl muted">borrow</text>
+
+  <!-- Reserved region (40%) -->
+  <rect x="348" y="38" width="150" height="134" rx="6" class="res-fill res-stroke" stroke-width="1.3"/>
+  <text x="423" y="54" font-size="10" font-weight="700" text-anchor="middle" class="lbl res-text">Reserved  (40%)</text>
+  <text x="423" y="90"  font-size="8.5" text-anchor="middle" class="lbl res-sub">user code</text>
+  <text x="423" y="105" font-size="8.5" text-anchor="middle" class="lbl res-sub">Spark internals</text>
+  <text x="423" y="120" font-size="8.5" text-anchor="middle" class="lbl res-sub">Python worker</text>
+  <text x="423" y="135" font-size="8.5" text-anchor="middle" class="lbl res-sub">metadata</text>
+
+  <!-- Footer note -->
+  <text x="260" y="193" font-size="7.5" text-anchor="middle" class="lbl muted">spark.memory.fraction=0.6  ·  spark.memory.storageFraction=0.5</text>
+</svg>
