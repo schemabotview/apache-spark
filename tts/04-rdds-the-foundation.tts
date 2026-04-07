@@ -1,0 +1,125 @@
+RDDs — Resilient Distributed Datasets — are the original Spark data abstraction. Every DataFrame and Dataset you write today compiles down to RDD operations under the hood. Understanding RDDs explains why Spark behaves the way it does: lazy evaluation, fault tolerance through lineage, and partition-level parallelism.
+
+What is an RDD?
+
+An RDD is defined by three properties that its name describes.
+
+Resilient means fault-tolerant. Lost partitions are recomputed from lineage rather than from replicated data — Spark does not need to keep copies of the data on multiple nodes the way a traditional distributed database does.
+
+Distributed means partitioned across executor memory on multiple nodes. The data is split into chunks that live on different machines and can be processed in parallel.
+
+Dataset means a collection of records — any JVM object can be an element: strings, integers, tuples, case classes, or custom objects.
+
+Beyond the name, RDDs have three more important characteristics. They are immutable — you never modify an RDD in place; every transformation produces a new RDD and leaves the original unchanged. They are lazily evaluated — transformations are recorded as a plan but nothing executes until you call an action. And they are schema-free — unlike DataFrames, RDDs have no built-in column names or types.
+
+Partitions — the Unit of Parallelism.
+
+An RDD is split into partitions — chunks of data that can be processed independently and in parallel. Each partition is processed by exactly one task running on one executor core.
+
+The number of partitions determines the degree of parallelism for that RDD. By default, sc.parallelize creates as many partitions as the default parallelism, which is usually equal to the total number of executor cores. You can control the partition count explicitly by passing the numSlices argument. After a shuffle, the number of output partitions is controlled by the spark.sql.shuffle.partitions configuration, which defaults to 200.
+
+Lineage and Fault Tolerance.
+
+Spark does not replicate RDD data to achieve fault tolerance. Instead, it records the sequence of transformations that produced each RDD — this is called the lineage graph. If a partition is lost because an executor crashed, Spark replays only the relevant portion of the lineage to recompute just that partition.
+
+This design is why caching matters. If you reuse an RDD multiple times without caching it, Spark recomputes it from the source every time an action is called. Calling cache or persist materialises the RDD in memory once, so subsequent uses are served from that cached copy instead of repeating the full computation.
+
+Creating RDDs.
+
+There are three main ways to create an RDD.
+
+The first is from a Python collection using sc.parallelize. You pass a list and optionally a numSlices argument to control the number of partitions.
+
+The second is from a file using sc.textFile. Each line in the file becomes one string element in the RDD. You can also use sc.wholeTextFiles, sc.sequenceFile, and other readers for different formats.
+
+The third is from an existing DataFrame. Calling df.rdd on any DataFrame returns the underlying RDD of Row objects. This is useful when you need low-level control over something the DataFrame API cannot express.
+
+RDD Transformations.
+
+Like DataFrames, RDD transformations are lazy — they update the lineage graph but do not execute.
+
+map applies a function to each element one-to-one and returns a new RDD of the same length.
+
+flatMap applies a function that can return zero or more elements per input, then flattens all the results into a single RDD. The classic use is splitting sentences into words.
+
+filter keeps only elements for which the function returns true.
+
+distinct removes duplicate elements and causes a shuffle.
+
+union concatenates two RDDs without deduplication.
+
+reduceByKey merges all values for each key using a commutative and associative function. Crucially, it performs partial aggregation on each partition before the shuffle, so far less data crosses the network. This is the preferred way to aggregate over keys.
+
+groupByKey groups all values for each key into an iterable. It shuffles every single value before aggregating — for large datasets this is significantly slower than reduceByKey. Avoid it when you can express the same operation with reduceByKey or aggregateByKey.
+
+sortByKey sorts the RDD by key and causes a shuffle.
+
+mapValues applies a function only to the values in a key-value RDD, leaving keys unchanged.
+
+repartition reshuffles the data into a new number of partitions with a full shuffle. coalesce reduces the partition count without a full shuffle and is more efficient when you are only reducing — not increasing — partition count.
+
+Key-Value Pair RDDs.
+
+A Pair RDD is simply an RDD of two-element tuples where the first element is the key and the second is the value. It unlocks the grouping and aggregation operations — reduceByKey, groupByKey, mapValues, sortByKey — that parallel what SQL GROUP BY does.
+
+The classic example is word count. You start with lines of text, apply flatMap to split each line into words, then map each word to a tuple of the word and the number one, then call reduceByKey with addition to sum all the ones for each word. The result is a Pair RDD of word and count.
+
+RDD Actions.
+
+Actions trigger execution and return a result to the driver or write to storage.
+
+collect returns all elements as a Python list. Be careful — it pulls all data to the driver, which can cause out-of-memory errors on large RDDs.
+
+count returns the number of elements.
+
+first returns the first element. take of n returns the first n elements. top of n returns the n largest elements in descending order.
+
+reduce aggregates all elements using a function, for example summing all numbers.
+
+countByValue returns a dictionary mapping each unique value to its count.
+
+saveAsTextFile writes one file per partition to a given path.
+
+foreach applies a function to each element on the executors as a side effect — useful for writing to an external system per record.
+
+Persistence — cache and persist.
+
+By default, Spark recomputes an RDD from scratch every time an action is called. If you use the same RDD in multiple actions, call cache or persist to materialise it once.
+
+cache is shorthand for persist with the MEMORY_ONLY storage level. The full persist method accepts a StorageLevel argument.
+
+MEMORY_ONLY, the default, keeps data in RAM. If a partition is evicted it must be recomputed from lineage.
+
+MEMORY_AND_DISK spills partitions to local disk when they are evicted from memory. This is the safe choice for large RDDs.
+
+DISK_ONLY stores everything on disk and is the slowest option but uses the least memory.
+
+MEMORY_ONLY_2 replicates each partition to two nodes, giving fault tolerance without recomputation — but at double the memory cost.
+
+Always call unpersist when you are done with a cached RDD to release the memory.
+
+RDD versus DataFrame — When to Use Each.
+
+The RDD API is low-level and explicit — you write exactly what you want Spark to do. The DataFrame API is high-level and declarative — you describe what you want and Catalyst figures out how to do it efficiently.
+
+DataFrames are faster for structured data because Catalyst optimises the plan and Tungsten generates efficient JVM bytecode. RDDs get none of this — optimisation is entirely manual.
+
+In Python, RDDs are also untyped — elements are plain Python objects with no schema. DataFrames have a typed schema enforced at every row.
+
+Use the DataFrame API for almost everything. Drop to RDDs when you need something DataFrames cannot express — for example, mapPartitions for custom per-partition setup like opening a database connection once per partition instead of once per row, or when working with unstructured non-tabular data.
+
+Summary.
+
+An RDD is Resilient — fault-tolerant through lineage replay — Distributed — partitioned across executors — and a Dataset — a collection of any JVM objects.
+
+RDDs are immutable and lazily evaluated. Transformations build the lineage graph; actions trigger execution.
+
+Partitions are the unit of parallelism — one task per partition per executor core.
+
+Fault tolerance works by replaying lineage, not replicating data. Cache RDDs you reuse to avoid recomputation.
+
+Pair RDDs of key-value tuples enable reduceByKey, groupByKey, mapValues, and sortByKey. Prefer reduceByKey over groupByKey to minimise the data shuffled across the network.
+
+Use cache or persist with MEMORY_AND_DISK for RDDs used more than once. Call unpersist when done.
+
+In modern Spark, prefer the DataFrame API — it is faster and automatically optimised. Use RDDs only when you need low-level control that DataFrames cannot provide.
