@@ -1,0 +1,77 @@
+The SparkSession is your single entry point into everything Spark. Understanding what it is, how it relates to the older SparkContext, and how Spark executes your code — lazily building a DAG and only running on an action — is the foundation for writing correct and efficient Spark programs.
+
+SparkSession — The Entry Point.
+
+SparkSession was introduced in Spark 2.0 to unify three previously separate entry points. Before Spark 2.0, you had to choose between SparkContext for the core RDD API, SQLContext for DataFrame and SQL queries, and HiveContext for Hive-integrated queries. SparkSession replaced all three with a single object.
+
+SparkContext still exists and is accessible via spark.sparkContext. SQLContext and HiveContext are merged directly into SparkSession and no longer need to be created separately.
+
+With SparkSession you get one object that handles everything: creating DataFrames, running SQL, reading data, and accessing the underlying SparkContext when needed.
+
+A single SparkSession per application is the norm. On Databricks, one is always pre-created for you as spark. In a standalone script or notebook you build one yourself using the builder pattern.
+
+SparkContext versus SparkSession.
+
+SparkContext is the lower-level object. It represents the connection to the cluster and is the layer that actually manages executors, tasks, and RDDs. SparkSession wraps SparkContext and adds the DataFrame and SQL layer on top.
+
+Think of it as a hierarchy: SparkSession contains a SparkContext, which in turn holds the DAG Scheduler, the Task Scheduler, and the executor backends.
+
+In practice, use spark — the SparkSession — for everything DataFrame and SQL related. Access spark.sparkContext only when you need the low-level RDD API, accumulators, or to read Spark configuration values.
+
+Creating a SparkSession.
+
+You build a SparkSession using the builder pattern. Start with SparkSession.builder, set an app name which shows in the Spark UI and logs, set a master — local star for local mode using all CPU cores — then add any configuration overrides with the config method, and finally call getOrCreate.
+
+getOrCreate is important: if a SparkSession already exists in the JVM, it returns that existing session rather than creating a new one. This makes it safe to call SparkSession.builder.getOrCreate anywhere in your code without accidentally creating duplicate sessions.
+
+Key SparkSession entry points include spark.read for loading data with the DataFrameReader, spark.sql for running a SQL string that returns a DataFrame, spark.range for generating a DataFrame of integers useful in testing, spark.createDataFrame for building a DataFrame from a Python list or pandas DataFrame, spark.catalog for inspecting and managing tables and databases, spark.conf for reading and setting runtime configuration, and spark.sparkContext for accessing the underlying SparkContext when you need the RDD API.
+
+Lazy Evaluation.
+
+Spark's most important design principle is that transformations are lazy.
+
+When you call filter, select, groupBy, withColumn, or any other transformation, Spark does not execute anything. It records the operation as a step in a logical plan. Execution is deferred until you call an action.
+
+Why does this matter? Because Spark can see the entire pipeline before running it. The Catalyst optimizer can reorder steps, merge them, and eliminate redundant ones. A filter pushed before a join reads far less data. Multiple transformations on the same dataset can be fused into a single pass through the data, which is called pipelining. And you avoid unnecessary computation entirely — if you define a chain of transformations but never call an action, nothing runs.
+
+Transformations versus Actions.
+
+Transformations are lazy — they update the plan but do not execute. They always return another DataFrame or RDD. Examples include filter, select, join, groupBy, and withColumn.
+
+Actions are eager — they trigger the DAG to execute and return a concrete result such as a value, a file written to storage, or printed output. Examples include show, count, collect, take, and write.
+
+Narrow versus Wide Transformations.
+
+Transformations are further classified by how data flows between partitions.
+
+Narrow transformations are those where each output partition depends on exactly one input partition. No data crosses the network. All narrow transformations in a sequence are pipelined together into a single stage with no shuffle. Examples include map, filter, select, withColumn, union, and sample.
+
+Wide transformations are those where each output partition depends on many input partitions. Data must be redistributed across the network — this is called a shuffle. Wide transformations always create a new stage boundary. Examples include groupBy, join, distinct, repartition, and sortBy.
+
+Minimising wide transformations — particularly unnecessary shuffles — is one of the most impactful optimisations you can make in Spark.
+
+The Full Execution Model.
+
+When you call an action, here is what happens end to end.
+
+First, Catalyst parses your transformations into a logical plan. Second, Catalyst resolves column names and types against the schema to produce the analyzed logical plan. Third, Catalyst applies optimization rules — pushing predicates down, eliminating redundant projections, and reordering joins — to produce the optimized logical plan. Fourth, Catalyst selects physical operators and costs alternative strategies to produce the physical plan. Fifth, Tungsten generates optimized JVM bytecode for the physical plan. Sixth, the DAG Scheduler breaks the physical plan into a directed acyclic graph of stages, cutting at every shuffle boundary. Seventh, the Task Scheduler assigns tasks to executor cores, preferring data-local placement where the data already lives on the same machine as the executor. And eighth, the executors run the tasks and either return results to the driver or write output to storage.
+
+Adaptive Query Execution — AQE.
+
+Before Spark 3.0, all optimization happened upfront using estimated statistics that might be inaccurate. Adaptive Query Execution, introduced in Spark 3.0 and enabled by default from Spark 3.2, re-optimizes the query at runtime as real partition statistics become available after each shuffle.
+
+AQE has three main features. Dynamic partition coalescing merges small post-shuffle partitions to avoid thousands of tiny tasks that would overwhelm the scheduler. Dynamic join strategy switching detects when one side of a join turns out to be small enough to broadcast, and automatically upgrades from a slow sort-merge join to a fast broadcast join. And skew join handling detects oversized partitions — caused by data skew — and splits them so that one slow task does not block the entire stage.
+
+You can verify AQE is enabled by checking spark.conf.get of spark.sql.adaptive.enabled.
+
+Summary.
+
+SparkSession is the unified entry point since Spark 2.0, replacing SQLContext and HiveContext and wrapping SparkContext. Build one with SparkSession.builder, set appName and master, and call getOrCreate. On Databricks, spark is always pre-created.
+
+Transformations are lazy — they build a logical plan without executing. Actions trigger execution.
+
+Narrow transformations keep data in the same partition with no shuffle and no stage boundary. Wide transformations redistribute data across the network, requiring a shuffle, and always create a new stage.
+
+At execution time, Catalyst optimizes the plan, Tungsten generates the bytecode, the DAG Scheduler splits it into stages, and the Task Scheduler assigns tasks to executors.
+
+Adaptive Query Execution in Spark 3.0 and above re-optimizes at runtime: it coalesces small partitions, switches join strategies when beneficial, and handles data skew automatically.
