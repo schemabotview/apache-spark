@@ -1,0 +1,67 @@
+Understanding how Spark is structured under the hood is essential for writing efficient code, diagnosing performance problems, and making sense of the Spark UI. This topic covers the physical architecture of a Spark cluster and the logical execution model — how your code becomes tasks running on machines.
+
+The Cluster Architecture.
+
+Every Spark application involves three types of process. The Driver runs on one dedicated node — or your laptop in local mode — and is responsible for running your code, building the execution plan, and coordinating everything. The Cluster Manager is a separate service whose only job is to allocate CPU and memory across the cluster. And Executors are JVM processes that live on worker nodes — they execute the actual tasks and store cached data.
+
+The Driver.
+
+The Driver is the brain of a Spark application. It is the process that runs your main function, or your notebook session, and hosts the SparkSession.
+
+Here is what the Driver does. It parses your transformations and builds a logical plan. It hands that plan to Catalyst to produce an optimized physical plan. The DAG Scheduler then breaks the physical plan into a graph of stages. The Task Scheduler assigns individual tasks to free executor slots, respecting data locality wherever possible. Finally, the Driver collects results when you call an action that returns data, like collect or take.
+
+One important point: the Driver must stay alive for the entire duration of the application. If it dies, the application fails. For production jobs, always run the driver on a stable node — not on your laptop.
+
+The Cluster Manager.
+
+The Cluster Manager is a separate service that Spark talks to in order to acquire resources. Spark is intentionally agnostic about which cluster manager you use. It just asks for a number of cores and a certain amount of memory, and the cluster manager decides where to provision them.
+
+There are several options. Standalone is the simplest — it ships with Spark and works well for dedicated Spark clusters. YARN is the standard in Hadoop ecosystems like Cloudera, HDP, and Amazon EMR. Kubernetes is the cloud-native option where each executor runs in its own pod, and it is preferred for new deployments. Databricks is a fully managed platform that abstracts the cluster manager entirely. And Mesos is a legacy option largely replaced by Kubernetes.
+
+On Databricks or in local mode, you do not interact with the cluster manager directly.
+
+Executors.
+
+An Executor is a JVM process launched on a worker node at the start of an application. It stays alive for the entire application lifetime, unless it crashes.
+
+Each executor has three things: a fixed number of CPU cores, where each core can run one task at a time; a fixed amount of heap memory, split between execution memory and storage memory; and local disk for spilling data that does not fit in RAM.
+
+A few key points about executors. They are isolated — one application's executors cannot see another application's data. Cached data lives in executor memory or on disk, and it disappears when the application ends. And if an executor crashes, Spark reschedules its tasks on other executors using RDD lineage.
+
+Jobs, Stages, and Tasks.
+
+This is the execution hierarchy — how a single action on a DataFrame becomes thousands of individual units of work.
+
+When you call an action like count, write, or show, Spark creates a Job. That job is the top-level unit of work — one action equals one job. The job is then split into Stages at shuffle boundaries. A stage is a group of transformations that can run without exchanging data between partitions. Finally, each stage is broken into Tasks — one task per partition. A task is the smallest unit of work: it runs on a single executor core and processes a single partition.
+
+Shuffle Boundaries.
+
+A shuffle is when data has to be redistributed across the network — for example during a groupBy, a join, or a repartition. Spark cuts a new stage at every shuffle because all tasks in the upstream stage must complete before the downstream stage can start. Minimising shuffles is one of the highest-leverage performance optimisations you can make in Spark.
+
+Memory Model.
+
+Each executor's heap is divided into regions under the Unified Memory Manager, introduced in Spark 1.6.
+
+Sixty percent of the heap goes to Unified Memory, which is shared between two sub-regions: Execution Memory and Storage Memory. The remaining forty percent is Reserved for user code, Spark internals, the Python worker process, and metadata.
+
+Execution Memory is used during task execution — for sort buffers, hash tables for joins, and shuffle write buffers. It can spill to disk when it runs out of space.
+
+Storage Memory is used for cached DataFrames and RDDs, and for broadcast variables. When space is needed by execution, storage entries are evicted using a least-recently-used policy.
+
+The boundary between execution and storage is soft — either region can borrow space from the other when it is idle.
+
+Two configuration properties control this. spark.memory.fraction, which defaults to 0.6, sets the fraction of the heap given to unified memory. And spark.memory.storageFraction, which defaults to 0.5, sets the fraction of unified memory reserved for storage — this protects cached data from being completely evicted.
+
+Local Mode versus Cluster Mode.
+
+In local mode, the Driver and executors all run in a single JVM on your machine. Parallelism is limited to your local CPU cores — local star uses all of them. This is the right choice for development, testing, and learning.
+
+In cluster mode, the Driver runs on one node and executors run on separate worker nodes. It scales to thousands of cores and is used for production workloads.
+
+Most notebooks in this series use local mode with the local star master string, which tells Spark to simulate a cluster using all available cores on the local machine.
+
+Summary.
+
+A Spark application has three components: the Driver, the Cluster Manager, and Executors on worker nodes. The Driver runs your code, builds the DAG, and schedules tasks — it is the single point of coordination. The Cluster Manager allocates resources, and Spark is agnostic about which one is used. Executors are long-lived JVM processes that run tasks and hold cached data. An action triggers a Job, which is split into Stages at shuffle boundaries, and each stage runs as parallel Tasks — one per partition. Executor memory is split into execution and storage regions that can borrow from each other.
+
+In the next topic, we will look at Setting Up PySpark and Databricks — getting a local environment running and navigating the Databricks workspace.
