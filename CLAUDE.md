@@ -33,7 +33,7 @@ Audio is generated via `generate_audio_colab.ipynb` on Google Colab (T4 GPU):
 
 | Topic | Notebook | Audio |
 |---|---|---|
-| Fintech Bank Domain Reference | `00-bank-domain.ipynb` | _(no audio)_ |
+| Fintech Bank Domain Reference | `bank-domain.ipynb` | _(no audio)_ |
 | What is Apache Spark & Why Use It | `01-what-is-apache-spark.ipynb` | `01-what-is-apache-spark.wav` |
 | Spark Architecture | `02-spark-architecture.ipynb` | `02-spark-architecture.wav` |
 | Setting Up PySpark & Databricks | `03-setting-up-pyspark-databricks.ipynb` | `03-setting-up-pyspark-databricks.wav` |
