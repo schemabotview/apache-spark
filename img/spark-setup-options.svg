@@ -1,0 +1,135 @@
+<svg viewBox="0 0 580 224" width="580" height="224" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      /* ── Light ──────────────────────────────────────── */
+      .bg { fill: #f9f9f8; }
+
+      /* Local zone */
+      .local-zone   { fill: #eff6ff; stroke: #93c5fd; }
+      .local-title  { fill: #1e40af; }
+
+      /* Databricks zone */
+      .db-zone      { fill: #fdf4ff; stroke: #e879f9; }
+      .db-title     { fill: #86198f; }
+
+      /* Step boxes — local */
+      .ls-fill      { fill: #dbeafe; stroke: #93c5fd; }
+      .ls-text      { fill: #1e40af; }
+      .ls-sub       { fill: #3b82f6; }
+
+      /* Step boxes — databricks */
+      .ds-fill      { fill: #fae8ff; stroke: #e879f9; }
+      .ds-text      { fill: #86198f; }
+      .ds-sub       { fill: #a21caf; }
+
+      /* Arrows */
+      .arr-local    { stroke: #3b82f6; fill: none; }
+      .arr-local-hd { fill: #3b82f6; }
+      .arr-db       { stroke: #c026d3; fill: none; }
+      .arr-db-hd    { fill: #c026d3; }
+
+      /* Shared result box */
+      .shared-fill   { fill: #f0fdf4; stroke: #86efac; }
+      .shared-text   { fill: #166534; }
+
+      .divider { stroke: #e8e8e4; }
+      .muted   { fill: #9b9b92; }
+      .lbl     { font-family: system-ui, sans-serif; }
+
+      /* ── Dark ───────────────────────────────────────── */
+      @media (prefers-color-scheme: dark) {
+        .bg { fill: #222220; }
+
+        .local-zone   { fill: #1e3a5f; stroke: #3b82f6; }
+        .local-title  { fill: #93c5fd; }
+
+        .db-zone      { fill: #2e1065; stroke: #c026d3; }
+        .db-title     { fill: #e879f9; }
+
+        .ls-fill      { fill: #1e3a5f; stroke: #3b82f6; }
+        .ls-text      { fill: #93c5fd; }
+        .ls-sub       { fill: #60a5fa; }
+
+        .ds-fill      { fill: #3b0764; stroke: #c026d3; }
+        .ds-text      { fill: #f0abfc; }
+        .ds-sub       { fill: #e879f9; }
+
+        .arr-local    { stroke: #60a5fa; fill: none; }
+        .arr-local-hd { fill: #60a5fa; }
+        .arr-db       { stroke: #e879f9; fill: none; }
+        .arr-db-hd    { fill: #e879f9; }
+
+        .shared-fill  { fill: #052e16; stroke: #16a34a; }
+        .shared-text  { fill: #bbf7d0; }
+
+        .divider { stroke: #333330; }
+        .muted   { fill: #6b6b65; }
+      }
+    </style>
+    <marker id="so-l" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" class="arr-local-hd"/></marker>
+    <marker id="so-d" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" class="arr-db-hd"/></marker>
+  </defs>
+
+  <rect width="580" height="224" rx="10" class="bg" stroke="none"/>
+
+  <!-- ── LOCAL PYSPARK (left) ─────────────────────── -->
+  <rect x="10" y="10" width="258" height="196" rx="7" class="local-zone" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="139" y="28" font-size="11" font-weight="700" text-anchor="middle" class="lbl local-title">Option A — Local PySpark</text>
+
+  <!-- Step 1: Install -->
+  <rect x="22"  y="38" width="100" height="44" rx="5" class="ls-fill" stroke-width="1.2"/>
+  <text x="72"  y="55" font-size="9" font-weight="700" text-anchor="middle" class="lbl ls-text">pip install</text>
+  <text x="72"  y="68" font-size="8.5" text-anchor="middle" class="lbl ls-sub">pyspark + Java 8/11</text>
+
+  <line x1="122" y1="60" x2="138" y2="60" stroke-width="1.2" class="arr-local" marker-end="url(#so-l)"/>
+
+  <!-- Step 2: Jupyter -->
+  <rect x="138" y="38" width="118" height="44" rx="5" class="ls-fill" stroke-width="1.2"/>
+  <text x="197" y="55" font-size="9" font-weight="700" text-anchor="middle" class="lbl ls-text">Jupyter / IDE</text>
+  <text x="197" y="68" font-size="8.5" text-anchor="middle" class="lbl ls-sub">notebook / script</text>
+
+  <!-- Step 3: SparkSession -->
+  <rect x="22"  y="100" width="234" height="44" rx="5" class="ls-fill" stroke-width="1.2"/>
+  <text x="139" y="117" font-size="9" font-weight="700" text-anchor="middle" class="lbl ls-text">SparkSession.builder.master("local[*]").getOrCreate()</text>
+  <text x="139" y="132" font-size="8" text-anchor="middle" class="lbl ls-sub">driver + executors on your machine</text>
+
+  <!-- Down arrow -->
+  <line x1="72"  y1="82" x2="72"  y2="100" stroke-width="1.2" class="arr-local" marker-end="url(#so-l)"/>
+  <line x1="197" y1="82" x2="197" y2="100" stroke-width="1.2" class="arr-local" marker-end="url(#so-l)"/>
+
+  <text x="22"  y="164" font-size="8" class="lbl ls-sub">✓ Free, works offline</text>
+  <text x="22"  y="177" font-size="8" class="lbl ls-sub">✓ Full control over config</text>
+  <text x="22"  y="190" font-size="8" class="lbl muted">✗ Limited to local CPU/RAM</text>
+
+  <!-- Divider -->
+  <line x1="290" y1="10" x2="290" y2="214" stroke-width="1" stroke-dasharray="4,3" class="divider"/>
+
+  <!-- ── DATABRICKS (right) ────────────────────────── -->
+  <rect x="312" y="10" width="258" height="196" rx="7" class="db-zone" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="441" y="28" font-size="11" font-weight="700" text-anchor="middle" class="lbl db-title">Option B — Databricks</text>
+
+  <!-- Step 1: Workspace -->
+  <rect x="324" y="38" width="100" height="44" rx="5" class="ds-fill" stroke-width="1.2"/>
+  <text x="374" y="55" font-size="9" font-weight="700" text-anchor="middle" class="lbl ds-text">Workspace</text>
+  <text x="374" y="68" font-size="8.5" text-anchor="middle" class="lbl ds-sub">browser — no install</text>
+
+  <line x1="424" y1="60" x2="440" y2="60" stroke-width="1.2" class="arr-db" marker-end="url(#so-d)"/>
+
+  <!-- Step 2: Cluster -->
+  <rect x="440" y="38" width="118" height="44" rx="5" class="ds-fill" stroke-width="1.2"/>
+  <text x="499" y="55" font-size="9" font-weight="700" text-anchor="middle" class="lbl ds-text">Attach Cluster</text>
+  <text x="499" y="68" font-size="8.5" text-anchor="middle" class="lbl ds-sub">DBR + auto-scaling</text>
+
+  <!-- Step 3: spark pre-created -->
+  <rect x="324" y="100" width="234" height="44" rx="5" class="ds-fill" stroke-width="1.2"/>
+  <text x="441" y="117" font-size="9" font-weight="700" text-anchor="middle" class="lbl ds-text">spark  (pre-created SparkSession)</text>
+  <text x="441" y="132" font-size="8" text-anchor="middle" class="lbl ds-sub">cluster on cloud VMs — no setup needed</text>
+
+  <!-- Down arrows -->
+  <line x1="374" y1="82" x2="374" y2="100" stroke-width="1.2" class="arr-db" marker-end="url(#so-d)"/>
+  <line x1="499" y1="82" x2="499" y2="100" stroke-width="1.2" class="arr-db" marker-end="url(#so-d)"/>
+
+  <text x="324" y="164" font-size="8" class="lbl ds-sub">✓ Managed cluster, no Java install</text>
+  <text x="324" y="177" font-size="8" class="lbl ds-sub">✓ Delta Lake, Unity Catalog built-in</text>
+  <text x="324" y="190" font-size="8" class="lbl muted">✗ Requires account / cloud cost</text>
+</svg>
