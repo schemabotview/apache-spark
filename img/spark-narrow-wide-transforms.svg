@@ -1,0 +1,158 @@
+<svg viewBox="0 0 580 220" width="580" height="220" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      /* ── Light ──────────────────────────────────────── */
+      .bg            { fill: #f9f9f8; }
+
+      /* Section labels */
+      .narrow-zone   { fill: #f0fdf4; stroke: #86efac; }
+      .wide-zone     { fill: #fff7ed; stroke: #fdba74; }
+      .narrow-title  { fill: #166534; }
+      .wide-title    { fill: #c2410c; }
+
+      /* Partition boxes */
+      .part-fill     { fill: #dbeafe; stroke: #93c5fd; }
+      .part-text     { fill: #1e40af; }
+
+      /* Result partition boxes - narrow (same colour family) */
+      .nres-fill     { fill: #d1fae5; stroke: #6ee7b7; }
+      .nres-text     { fill: #065f46; }
+
+      /* Result partition boxes - wide (mixed, showing redistribution) */
+      .wres-fill     { fill: #ffedd5; stroke: #fdba74; }
+      .wres-text     { fill: #9a3412; }
+
+      /* Transform label box */
+      .tfm-fill      { fill: #f1f5f9; stroke: #cbd5e1; }
+      .tfm-text      { fill: #334155; }
+
+      /* Arrows */
+      .arr-narrow    { stroke: #16a34a; fill: none; }
+      .arr-narrow-hd { fill: #16a34a; }
+      .arr-wide      { stroke: #f97316; fill: none; }
+      .arr-wide-hd   { fill: #f97316; }
+      .arr-grey      { stroke: #9b9b92; fill: none; }
+      .arr-grey-hd   { fill: #9b9b92; }
+
+      .divider       { stroke: #e8e8e4; }
+      .muted         { fill: #9b9b92; }
+      .lbl           { font-family: system-ui, sans-serif; }
+
+      /* ── Dark ───────────────────────────────────────── */
+      @media (prefers-color-scheme: dark) {
+        .bg            { fill: #222220; }
+
+        .narrow-zone   { fill: #052e16; stroke: #16a34a; }
+        .wide-zone     { fill: #431407; stroke: #f97316; }
+        .narrow-title  { fill: #bbf7d0; }
+        .wide-title    { fill: #fed7aa; }
+
+        .part-fill     { fill: #1e3a5f; stroke: #3b82f6; }
+        .part-text     { fill: #93c5fd; }
+
+        .nres-fill     { fill: #14532d; stroke: #22c55e; }
+        .nres-text     { fill: #dcfce7; }
+
+        .wres-fill     { fill: #7c2d12; stroke: #f97316; }
+        .wres-text     { fill: #ffedd5; }
+
+        .tfm-fill      { fill: #2a2a27; stroke: #484844; }
+        .tfm-text      { fill: #e2e8f0; }
+
+        .arr-narrow    { stroke: #22c55e; fill: none; }
+        .arr-narrow-hd { fill: #22c55e; }
+        .arr-wide      { stroke: #fb923c; fill: none; }
+        .arr-wide-hd   { fill: #fb923c; }
+        .arr-grey      { stroke: #6b6b65; fill: none; }
+        .arr-grey-hd   { fill: #6b6b65; }
+
+        .divider       { stroke: #333330; }
+        .muted         { fill: #6b6b65; }
+      }
+    </style>
+    <marker id="nw-n"  markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" class="arr-narrow-hd"/></marker>
+    <marker id="nw-w"  markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" class="arr-wide-hd"/></marker>
+    <marker id="nw-g"  markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" class="arr-grey-hd"/></marker>
+  </defs>
+
+  <rect width="580" height="220" rx="10" class="bg" stroke="none"/>
+
+  <!-- ── LEFT: Narrow transforms ───────────────────── -->
+  <rect x="10" y="10" width="268" height="200" rx="7" class="narrow-zone" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="144" y="28" font-size="10" font-weight="700" text-anchor="middle" class="lbl narrow-title">Narrow Transformation  (map / filter)</text>
+  <text x="144" y="42" font-size="8.5" text-anchor="middle" class="lbl muted">each output partition depends on one input partition — no shuffle</text>
+
+  <!-- Input partitions (narrow) -->
+  <rect x="22"  y="56" width="68" height="30" rx="4" class="part-fill" stroke-width="1.1"/>
+  <text x="56"  y="75" font-size="9" text-anchor="middle" class="lbl part-text">Partition 1</text>
+  <rect x="22"  y="98" width="68" height="30" rx="4" class="part-fill" stroke-width="1.1"/>
+  <text x="56"  y="117" font-size="9" text-anchor="middle" class="lbl part-text">Partition 2</text>
+  <rect x="22"  y="140" width="68" height="30" rx="4" class="part-fill" stroke-width="1.1"/>
+  <text x="56"  y="159" font-size="9" text-anchor="middle" class="lbl part-text">Partition 3</text>
+
+  <!-- Transform box (narrow) -->
+  <rect x="116" y="98" width="68" height="30" rx="4" class="tfm-fill" stroke-width="1.1"/>
+  <text x="150" y="114" font-size="9" font-weight="700" text-anchor="middle" class="lbl tfm-text">.filter()</text>
+  <text x="150" y="125" font-size="7.5" text-anchor="middle" class="lbl muted">same partition</text>
+
+  <!-- Straight arrows in → transform (narrow) -->
+  <line x1="90"  y1="71"  x2="116" y2="108" stroke-width="1.2" class="arr-narrow" marker-end="url(#nw-n)"/>
+  <line x1="90"  y1="113" x2="116" y2="113" stroke-width="1.2" class="arr-narrow" marker-end="url(#nw-n)"/>
+  <line x1="90"  y1="155" x2="116" y2="118" stroke-width="1.2" class="arr-narrow" marker-end="url(#nw-n)"/>
+
+  <!-- Arrows transform → output (narrow) -->
+  <line x1="184" y1="108" x2="210" y2="71"  stroke-width="1.2" class="arr-narrow" marker-end="url(#nw-n)"/>
+  <line x1="184" y1="113" x2="210" y2="113" stroke-width="1.2" class="arr-narrow" marker-end="url(#nw-n)"/>
+  <line x1="184" y1="118" x2="210" y2="155" stroke-width="1.2" class="arr-narrow" marker-end="url(#nw-n)"/>
+
+  <!-- Output partitions (narrow) -->
+  <rect x="210" y="56"  width="58" height="30" rx="4" class="nres-fill" stroke-width="1.1"/>
+  <text x="239" y="75"  font-size="8.5" text-anchor="middle" class="lbl nres-text">P1′</text>
+  <rect x="210" y="98"  width="58" height="30" rx="4" class="nres-fill" stroke-width="1.1"/>
+  <text x="239" y="117" font-size="8.5" text-anchor="middle" class="lbl nres-text">P2′</text>
+  <rect x="210" y="140" width="58" height="30" rx="4" class="nres-fill" stroke-width="1.1"/>
+  <text x="239" y="159" font-size="8.5" text-anchor="middle" class="lbl nres-text">P3′</text>
+
+  <text x="144" y="196" font-size="8" text-anchor="middle" class="lbl narrow-title">No network I/O · stays in same stage</text>
+
+  <!-- Divider -->
+  <line x1="290" y1="10" x2="290" y2="210" stroke-width="1" stroke-dasharray="4,3" class="divider"/>
+
+  <!-- ── RIGHT: Wide transforms ─────────────────────── -->
+  <rect x="302" y="10" width="268" height="200" rx="7" class="wide-zone" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="436" y="28" font-size="10" font-weight="700" text-anchor="middle" class="lbl wide-title">Wide Transformation  (groupBy / join)</text>
+  <text x="436" y="42" font-size="8.5" text-anchor="middle" class="lbl muted">output partitions depend on many inputs — requires shuffle</text>
+
+  <!-- Input partitions (wide) -->
+  <rect x="314" y="56"  width="68" height="30" rx="4" class="part-fill" stroke-width="1.1"/>
+  <text x="348" y="75"  font-size="9" text-anchor="middle" class="lbl part-text">Partition 1</text>
+  <rect x="314" y="98"  width="68" height="30" rx="4" class="part-fill" stroke-width="1.1"/>
+  <text x="348" y="117" font-size="9" text-anchor="middle" class="lbl part-text">Partition 2</text>
+  <rect x="314" y="140" width="68" height="30" rx="4" class="part-fill" stroke-width="1.1"/>
+  <text x="348" y="159" font-size="9" text-anchor="middle" class="lbl part-text">Partition 3</text>
+
+  <!-- Shuffle label -->
+  <rect x="402" y="98" width="68" height="30" rx="4" class="tfm-fill" stroke-width="1.1"/>
+  <text x="436" y="114" font-size="9" font-weight="700" text-anchor="middle" class="lbl wide-title">SHUFFLE</text>
+  <text x="436" y="125" font-size="7.5" text-anchor="middle" class="lbl muted">network I/O</text>
+
+  <!-- Crossing arrows in → shuffle (wide) -->
+  <line x1="382" y1="71"  x2="402" y2="98"  stroke-width="1.1" class="arr-wide" marker-end="url(#nw-w)"/>
+  <line x1="382" y1="113" x2="402" y2="113" stroke-width="1.1" class="arr-wide" marker-end="url(#nw-w)"/>
+  <line x1="382" y1="155" x2="402" y2="128" stroke-width="1.1" class="arr-wide" marker-end="url(#nw-w)"/>
+
+  <!-- Crossing arrows shuffle → output (wide) — intentionally crossing to show redistribution -->
+  <line x1="470" y1="98"  x2="496" y2="155" stroke-width="1.1" class="arr-wide" marker-end="url(#nw-w)"/>
+  <line x1="470" y1="113" x2="496" y2="71"  stroke-width="1.1" class="arr-wide" marker-end="url(#nw-w)"/>
+  <line x1="470" y1="128" x2="496" y2="113" stroke-width="1.1" class="arr-wide" marker-end="url(#nw-w)"/>
+
+  <!-- Output partitions (wide) -->
+  <rect x="496" y="56"  width="64" height="30" rx="4" class="wres-fill" stroke-width="1.1"/>
+  <text x="528" y="75"  font-size="8.5" text-anchor="middle" class="lbl wres-text">Group A</text>
+  <rect x="496" y="98"  width="64" height="30" rx="4" class="wres-fill" stroke-width="1.1"/>
+  <text x="528" y="117" font-size="8.5" text-anchor="middle" class="lbl wres-text">Group B</text>
+  <rect x="496" y="140" width="64" height="30" rx="4" class="wres-fill" stroke-width="1.1"/>
+  <text x="528" y="159" font-size="8.5" text-anchor="middle" class="lbl wres-text">Group C</text>
+
+  <text x="436" y="196" font-size="8" text-anchor="middle" class="lbl wide-title">Stage boundary · new stage begins after shuffle</text>
+</svg>

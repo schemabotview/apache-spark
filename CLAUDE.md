@@ -36,7 +36,7 @@ Audio is generated via `generate_audio_colab.ipynb` on Google Colab (T4 GPU):
 | Setting Up PySpark & Databricks | _(planned)_ | `setting-up-pyspark--databricks.wav` |
 | RDDs — The Foundation | _(planned)_ | `rdds--the-foundation.wav` |
 | DataFrames & Datasets | _(planned)_ | `dataframes--datasets.wav` |
-| SparkSession & Execution Model | _(planned)_ | `sparksession--execution-model.wav` |
+| SparkSession & Execution Model | `06-sparksession-execution-model.ipynb` | `06-sparksession-execution-model.wav` |
 | Reading & Writing Data | _(planned)_ | `reading--writing-data.wav` |
 | Core Transformations | _(planned)_ | `core-transformations.wav` |
 | Aggregations & Window Functions | _(planned)_ | `aggregations--window-functions.wav` |

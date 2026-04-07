@@ -1,0 +1,122 @@
+<svg viewBox="0 0 620 174" width="620" height="174" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      /* ── Light ──────────────────────────────────────── */
+      .bg           { fill: #f9f9f8; }
+
+      /* Lazy transformation boxes */
+      .lazy-fill    { fill: #f1f5f9; }
+      .lazy-stroke  { stroke: #cbd5e1; }
+      .lazy-text    { fill: #334155; }
+      .lazy-sub     { fill: #64748b; }
+
+      /* Lazy zone bracket */
+      .zone-lazy-fill   { fill: #fefce8; }
+      .zone-lazy-stroke { stroke: #fde047; }
+      .zone-lazy-text   { fill: #854d0e; }
+
+      /* Action box */
+      .act-fill    { fill: #eeeeff; }
+      .act-stroke  { stroke: #818cf8; }
+      .act-text    { fill: #3730a3; }
+
+      /* Execute zone */
+      .zone-exec-fill   { fill: #f0fdf4; }
+      .zone-exec-stroke { stroke: #86efac; }
+      .zone-exec-text   { fill: #166534; }
+
+      /* Arrows */
+      .arr-stroke  { stroke: #9b9b92; fill: none; }
+      .arr-head    { fill: #9b9b92; }
+      .arr-exec    { stroke: #6c63ff; fill: none; }
+      .arr-exec-hd { fill: #6c63ff; }
+
+      .muted { fill: #9b9b92; }
+      .lbl   { font-family: system-ui, sans-serif; }
+
+      /* ── Dark ───────────────────────────────────────── */
+      @media (prefers-color-scheme: dark) {
+        .bg           { fill: #222220; }
+
+        .lazy-fill    { fill: #2a2a27; }
+        .lazy-stroke  { stroke: #484844; }
+        .lazy-text    { fill: #e2e8f0; }
+        .lazy-sub     { fill: #94a3b8; }
+
+        .zone-lazy-fill   { fill: #1c1a05; }
+        .zone-lazy-stroke { stroke: #ca8a04; }
+        .zone-lazy-text   { fill: #fef08a; }
+
+        .act-fill    { fill: #1e1b4b; }
+        .act-stroke  { stroke: #818cf8; }
+        .act-text    { fill: #c7d2fe; }
+
+        .zone-exec-fill   { fill: #052e16; }
+        .zone-exec-stroke { stroke: #16a34a; }
+        .zone-exec-text   { fill: #bbf7d0; }
+
+        .arr-stroke  { stroke: #6b6b65; fill: none; }
+        .arr-head    { fill: #6b6b65; }
+        .arr-exec    { stroke: #818cf8; fill: none; }
+        .arr-exec-hd { fill: #818cf8; }
+
+        .muted { fill: #6b6b65; }
+      }
+    </style>
+    <marker id="le-arr"  markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" class="arr-head"/></marker>
+    <marker id="le-exec" markerWidth="7" markerHeight="7" refX="6" refY="3.5" orient="auto"><path d="M0,0 L0,7 L7,3.5 z" class="arr-exec-hd"/></marker>
+  </defs>
+
+  <rect width="620" height="174" rx="10" class="bg" stroke="none"/>
+
+  <!-- Lazy zone background -->
+  <rect x="10" y="30" width="420" height="96" rx="7" class="zone-lazy-fill zone-lazy-stroke" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="220" y="22" font-size="9" font-weight="700" text-anchor="middle" class="lbl zone-lazy-text">LAZY — recorded as DAG, nothing executes</text>
+
+  <!-- Execute zone background -->
+  <rect x="444" y="30" width="166" height="96" rx="7" class="zone-exec-fill zone-exec-stroke" stroke-width="1" stroke-dasharray="5,3"/>
+  <text x="527" y="22" font-size="9" font-weight="700" text-anchor="middle" class="lbl zone-exec-text">EAGER — triggers execution</text>
+
+  <!-- Transformation boxes -->
+  <!-- spark.read() -->
+  <rect x="20"  y="52" width="80" height="52" rx="5" class="lazy-fill lazy-stroke" stroke-width="1.3"/>
+  <text x="60"  y="74" font-size="9"  font-weight="700" text-anchor="middle" class="lbl lazy-text">spark.read()</text>
+  <text x="60"  y="88" font-size="8"  text-anchor="middle" class="lbl lazy-sub">load source</text>
+
+  <!-- arrow -->
+  <line x1="100" y1="78" x2="116" y2="78" stroke-width="1.2" class="arr-stroke" marker-end="url(#le-arr)"/>
+
+  <!-- .filter() -->
+  <rect x="116" y="52" width="80" height="52" rx="5" class="lazy-fill lazy-stroke" stroke-width="1.3"/>
+  <text x="156" y="74" font-size="9"  font-weight="700" text-anchor="middle" class="lbl lazy-text">.filter()</text>
+  <text x="156" y="88" font-size="8"  text-anchor="middle" class="lbl lazy-sub">narrow transform</text>
+
+  <!-- arrow -->
+  <line x1="196" y1="78" x2="212" y2="78" stroke-width="1.2" class="arr-stroke" marker-end="url(#le-arr)"/>
+
+  <!-- .select() -->
+  <rect x="212" y="52" width="80" height="52" rx="5" class="lazy-fill lazy-stroke" stroke-width="1.3"/>
+  <text x="252" y="74" font-size="9"  font-weight="700" text-anchor="middle" class="lbl lazy-text">.select()</text>
+  <text x="252" y="88" font-size="8"  text-anchor="middle" class="lbl lazy-sub">narrow transform</text>
+
+  <!-- arrow -->
+  <line x1="292" y1="78" x2="308" y2="78" stroke-width="1.2" class="arr-stroke" marker-end="url(#le-arr)"/>
+
+  <!-- .groupBy() -->
+  <rect x="308" y="52" width="114" height="52" rx="5" class="lazy-fill lazy-stroke" stroke-width="1.3"/>
+  <text x="365" y="74" font-size="9"  font-weight="700" text-anchor="middle" class="lbl lazy-text">.groupBy().agg()</text>
+  <text x="365" y="88" font-size="8"  text-anchor="middle" class="lbl lazy-sub">wide transform (shuffle)</text>
+
+  <!-- arrow to action -->
+  <line x1="422" y1="78" x2="444" y2="78" stroke-width="1.4" class="arr-exec" marker-end="url(#le-exec)"/>
+
+  <!-- Action box -->
+  <rect x="454" y="46" width="146" height="64" rx="5" class="act-fill act-stroke" stroke-width="1.5"/>
+  <text x="527" y="68" font-size="10" font-weight="700" text-anchor="middle" class="lbl act-text">.count()</text>
+  <text x="527" y="83" font-size="8.5" text-anchor="middle" class="lbl act-text">action — triggers</text>
+  <text x="527" y="96" font-size="8.5" text-anchor="middle" class="lbl act-text">DAG execution</text>
+
+  <!-- Footer labels -->
+  <text x="220" y="145" font-size="8" text-anchor="middle" class="lbl muted">Transformations build a logical plan — no data moves until an action is called</text>
+  <text x="527" y="145" font-size="8" text-anchor="middle" class="lbl zone-exec-text">Catalyst optimises → tasks dispatched to executors</text>
+</svg>
