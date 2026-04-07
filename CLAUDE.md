@@ -41,7 +41,7 @@ Audio is generated via `generate_audio_colab.ipynb` on Google Colab (T4 GPU):
 | DataFrames & Datasets | `05-dataframes-datasets.ipynb` | `05-dataframes-datasets.wav` |
 | SparkSession & Execution Model | `06-sparksession-execution-model.ipynb` | `06-sparksession-execution-model.wav` |
 | Reading & Writing Data | `07-reading-writing-data.ipynb` | `07-reading-writing-data.wav` |
-| Core Transformations | _(planned)_ | `core-transformations.wav` |
+| Core Transformations | `08-core-transformations.ipynb` | `08-core-transformations.wav` |
 | Aggregations & Window Functions | _(planned)_ | `aggregations--window-functions.wav` |
 | Spark SQL & Temporary Views | _(planned)_ | `spark-sql--temporary-views.wav` |
 | SQL Functions & UDFs | _(planned)_ | `sql-functions--udfs.wav` |
