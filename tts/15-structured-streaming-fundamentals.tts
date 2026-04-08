@@ -1,0 +1,131 @@
+Most data pipelines in Spark work in batches — read a file, transform it, write the result. But the real world produces data continuously: card transactions arriving every millisecond, ATM withdrawals, loan repayments, fraud alerts. Waiting for a daily batch means decisions are always stale. Structured Streaming brings Spark's DataFrame API to continuous, unbounded data.
+
+The core idea is elegant: treat the incoming stream as an infinite table. Every new record appended to the stream is a new row appended to that table. You write a query against that table — the same filters, aggregations, joins, and transformations you already know — and Spark runs it continuously as new data arrives.
+
+The Unbounded Table Model.
+
+Spark Structured Streaming represents an input stream as a table that grows indefinitely. Every trigger interval, Spark processes a micro-batch — the chunk of new rows that arrived since the last trigger. The results are written to an output table or sink according to the output mode you choose.
+
+There are several terms worth understanding before diving in. A source is where data comes from — files, Kafka, a rate generator, or a socket. A micro-batch is one chunk of new data processed in a single Spark job. A trigger defines how often Spark checks for new data and launches a micro-batch. The output mode controls which rows are written to the sink each trigger. A sink is where results are written — memory, Parquet files, Kafka, or Delta Lake. A checkpoint is the state and progress saved to disk so the stream can resume after a restart. A watermark defines how long Spark waits for late-arriving events before it considers a time window closed.
+
+The Rate Source.
+
+The rate source is the simplest streaming source available in every Spark environment. It generates rows at a fixed rate with no external dependencies. Each row has two columns: timestamp, which holds the event time assigned by Spark, and value, which is a monotonically increasing integer starting at zero. Use the rate source to understand how readStream and writeStream work, to test aggregations and window functions before connecting to Kafka, and to benchmark cluster throughput.
+
+Reading a stream looks almost identical to reading a static DataFrame. You call readStream on the SparkSession, provide the format, set options, and call load. The resulting DataFrame has isStreaming equal to true. You can call printSchema and inspect it like any DataFrame, but you cannot call show or collect on it directly — those operations require all data to be present, which is never true for a stream.
+
+Writing to a Sink — writeStream.
+
+writeStream starts the streaming query. The key choices are the format, which determines the sink type; queryName, which names the query so you can find it later; outputMode, which controls which rows are emitted each trigger; trigger, which controls how often a micro-batch runs; checkpointLocation, which is where Spark saves its progress; and start, which actually launches the query and returns a StreamingQuery handle.
+
+The memory sink writes results to an in-memory table that you can query with Spark SQL using the query name as the table name. The console sink prints each micro-batch to standard output. Both are for development and testing only — they are not fault-tolerant and lose data on restart. For production, use Parquet, Delta Lake, or Kafka as the sink.
+
+The File Source.
+
+The file source watches a directory and processes each new file that appears. Spark tracks which files have already been processed using the checkpoint and only reads new ones. This is the most common streaming source outside of Kafka — for example, an upstream process writing one JSON file per minute of transaction data.
+
+One important requirement: you must provide the schema explicitly for the file source. Spark cannot infer schema for streaming file sources because it has no guarantee that any file exists when the query starts. Use StructType to define the schema before calling readStream.
+
+Output Modes.
+
+The output mode controls which rows Spark writes to the sink in each micro-batch. There are three modes.
+
+Append mode emits only the new rows added since the last trigger. It is the default mode and works for any stateless operation — filter, select, map. It also works for windowed aggregations with a watermark, where windows are only emitted once they are finalized.
+
+Update mode emits only the rows that changed since the last trigger. It requires an aggregation. If a group's count increased, Spark emits that one updated row, not the entire result table.
+
+Complete mode emits the entire result table on every trigger. It also requires an aggregation. On each trigger, Spark rewrites the full set of aggregated results to the sink. Use this for small aggregations with a bounded key space — five categories, fifty merchants — where the full result is manageable.
+
+To make the difference concrete: imagine counting transactions per category. After the first trigger, FOOD has a count of three. After the second trigger, two more FOOD transactions arrived, so FOOD now has five. Append mode would write the number five again without removing the previous three — incorrect for aggregations. Update mode writes only the changed row: FOOD equals five. Complete mode writes the entire table: FOOD five, TRAVEL two, SHOPPING one, and so on.
+
+Triggers — Controlling Micro-Batch Cadence.
+
+A trigger defines how often Spark checks for new data and runs a micro-batch. The default trigger runs the next batch immediately as soon as the previous one finishes — as fast as possible. A fixed-interval trigger, such as every thirty seconds, runs on a schedule and skips a trigger if the previous batch is still running. The once trigger processes all currently available data in a single batch and then stops the query — useful for scheduled jobs that want streaming semantics without a continuously running process. The availableNow trigger does the same but uses multiple optimally-sized batches rather than one. The continuous trigger is an experimental low-latency mode with approximately one millisecond latency and asynchronous checkpointing.
+
+Choosing a trigger interval involves a trade-off. A shorter interval means lower end-to-end latency — data is processed soon after it arrives. But it also means more small Spark jobs with more per-job overhead. A longer interval processes more rows per job more efficiently, but data sits unprocessed longer. For most production pipelines, intervals of ten to sixty seconds are a good starting point.
+
+The once and availableNow triggers are particularly useful for turning a streaming pipeline into a scheduled micro-batch job. You get exactly-once semantics and offset tracking without keeping a cluster continuously alive.
+
+Stateful Streaming — Aggregations Over Event Time.
+
+Stateless streaming processes each row independently with no memory of previous rows. Stateful streaming accumulates state across rows — counting transactions per category across the entire stream, or summing spend within a rolling time window. Spark stores this state in an in-memory state store, checkpointed to durable storage after each micro-batch.
+
+When working with stateful aggregations it is important to understand the difference between event time and processing time. Event time is when the event actually happened, recorded as a timestamp column in your data — for example, the transaction timestamp. Processing time is when Spark processes the row, which is always the current wall-clock time. Event time is what matters for business logic. A fraud detection rule that says flag any customer with three transactions in five minutes should use the transaction timestamps, not the time Spark happened to process them. Processing time is useful only for operational metrics like throughput.
+
+Tumbling Windows.
+
+The window function groups events into fixed-duration non-overlapping buckets. You specify the event time column and the duration: for example, window of five minutes on the transaction timestamp. Every event falls into exactly one bucket. You can then aggregate within each bucket — count transactions, sum amounts, find the most active merchant.
+
+Sliding Windows.
+
+A sliding window overlaps. It is defined by two durations: how wide each window is and how often a new window starts. An event can belong to multiple overlapping windows simultaneously. For example, a ten-minute window that slides every five minutes means each event appears in two windows. Use sliding windows for rolling metrics such as total spend in the last ten minutes checked every five minutes.
+
+Watermarking — Handling Late-Arriving Data.
+
+In real systems events arrive out of order. A transaction that happened at nine-oh-five might reach Spark at nine-twenty because of network delays, mobile app buffering, or retry logic. Without a strategy for late data, Spark would need to hold state for every open window forever, since any event could still update any window — unbounded memory growth.
+
+Watermarking solves this. You declare a watermark by calling withWatermark on a streaming DataFrame, specifying the event time column and the maximum tolerable lateness. The watermark value is computed as the maximum event time seen so far minus the delay. Any event whose event time is older than the watermark is considered too late and is dropped. Any window whose end time is before the watermark is considered closed — its final result is emitted and its state is freed from memory.
+
+For example, with a ten-minute watermark: if the latest event seen has a timestamp of nine twenty-five, the watermark is nine fifteen. An event arriving with a timestamp of nine eighteen is within the watermark and is accepted. An event with a timestamp of nine twelve is older than the watermark and is dropped. Windows ending before nine fifteen are closed and their state is released.
+
+The watermark is required for windowed aggregations to use append or update output mode. Without a watermark, Spark has no way to know when a window is finished, so it must keep all state forever and can only use complete mode.
+
+Choosing the watermark duration is a business decision. It is the maximum lateness you are willing to accept. A longer watermark accepts more late data and produces more accurate results, but holds more state in memory. A shorter watermark uses less memory but drops more late events.
+
+Stateless Transformations.
+
+Most DataFrame operations work on streaming DataFrames without any changes. Filter, where, select, selectExpr, withColumn, drop, and union are all stateless — each row is processed independently. Stream-to-static joins, where a live stream is joined against a static batch DataFrame, are also stateless and always supported.
+
+Operations that require all data to be present are not supported in streaming. Sort and orderBy cannot be used because the stream never ends. Distinct requires a watermark to bound the deduplication state.
+
+The File Sink — Parquet.
+
+The file sink writes each micro-batch as one or more new Parquet files in a directory. Each trigger appends new files — existing files are never modified. This makes the file sink naturally immutable and idempotent: the checkpoint tracks which batches have been committed so already-committed batches are not re-written on restart. Use partitionBy to write Hive-style partitioned directories for efficient downstream reads.
+
+The main limitation of the file sink is that it only supports append mode. It also accumulates small files over time — one set of files per micro-batch. For mutable output or to avoid the small-file problem, use Delta Lake as the sink instead.
+
+Monitoring Streaming Queries.
+
+The StreamingQuery object returned by start provides full observability. The isActive property tells you whether the query is still running. The name property returns the query name. The status property is a dictionary with the current message, whether data is available, and whether a trigger is active. The lastProgress property contains detailed timing and metrics from the most recent micro-batch — input rows per second, processed rows per second, trigger duration, state operator metrics, and the current watermark. The recentProgress list holds the last one hundred progress dictionaries. Call stop to gracefully terminate the query or awaitTermination to block until it stops.
+
+Checkpointing and Fault Tolerance.
+
+Checkpointing is what makes Structured Streaming exactly-once and restartable. Without a checkpoint, a crashed query must restart from the beginning and may reprocess or skip data.
+
+The checkpoint directory contains three things. The offsets directory records the source position — file index or Kafka offset — for each micro-batch. The commits directory records which micro-batches have been fully written to the sink. The state directory holds the serialized state store for stateful queries.
+
+Always set checkpointLocation for any production query. On restart, Spark reads the checkpoint and resumes exactly where it left off — no data is reprocessed, no data is skipped. For truly exactly-once delivery, the sink must also support idempotent writes or transactions, such as Delta Lake or Kafka with idempotent producers.
+
+Deduplication with Watermarks.
+
+Sources like Kafka guarantee at-least-once delivery — the same message can be delivered more than once on broker failover or consumer rebalance. To achieve exactly-once semantics at the application level, use dropDuplicates with a unique key.
+
+Without a watermark, dropDuplicates holds every seen key in state forever — unbounded memory growth. With a watermark, Spark evicts keys older than the watermark. Any duplicate arriving after its key has been evicted is treated as a new event, which is an acceptable trade-off for bounded memory.
+
+foreachBatch — Custom Sink Logic.
+
+foreachBatch is the escape hatch for any logic the native streaming API does not support. You write a Python function that receives two arguments: the current micro-batch as a regular static DataFrame, and the batch identifier as a monotonically increasing integer. Inside the function you can use any Spark operation, write to multiple sinks, call REST APIs, or apply custom deduplication logic.
+
+foreachBatch is at-least-once by default. On restart, the same batch may be replayed. To make your handler exactly-once, use the batch identifier as a deduplication key in your sink logic — for example, by using a MERGE statement in Delta Lake that ignores rows with an already-committed batch identifier.
+
+Kafka Source Reference.
+
+Kafka is the most common production streaming source. The Spark-Kafka connector reads each message as a row with fixed columns: the key as raw bytes, the value as raw bytes containing your actual payload, the topic name, the partition number, the offset within the partition, and a timestamp. You must deserialize the value column yourself, typically by casting it to a string and then parsing it with fromJson against your schema. Use the payload's event-time column for windowing rather than the Kafka timestamp, which can be delayed by producer buffering.
+
+Summary.
+
+Structured Streaming treats an incoming stream as an infinite table and runs your DataFrame query continuously as new data arrives in micro-batches.
+
+Sources are rate for testing, file for directory-watching pipelines, and Kafka for production event streaming. Always provide an explicit schema for file sources.
+
+Output modes control what is written each trigger. Append emits only new rows and is the default for stateless operations. Update emits only changed rows and requires an aggregation. Complete emits the full result table every trigger and requires an aggregation with a bounded key space.
+
+Triggers control cadence. The default runs as fast as possible. Fixed interval runs on a schedule. Once and availableNow process all available data and stop, converting streaming into a scheduled batch job with streaming semantics.
+
+Windowed aggregations use the window function with an event-time column. Tumbling windows are non-overlapping. Sliding windows overlap so each event can belong to multiple windows.
+
+Watermarks bound the state for windowed aggregations and handle late data. The watermark is the maximum tolerable lateness. Events older than the watermark are dropped. Windows closed by the watermark are emitted and freed from memory.
+
+Checkpointing saves offsets and state to durable storage. Always set checkpointLocation in production. Combined with a fault-tolerant sink like Delta Lake, it provides exactly-once processing semantics.
+
+foreachBatch provides full control over micro-batch processing — use it for multi-table writes, custom sinks, and idempotent exactly-once logic using the batch identifier.

@@ -1,0 +1,133 @@
+Notebook 15 introduced the unbounded table model and micro-batch execution. This notebook goes deeper on the three pillars that connect a streaming pipeline to the real world: sources, where data enters Spark; sinks, where results go; and watermarking, the mechanism that bounds state memory, enables late-data handling, and unlocks append mode for windowed aggregations.
+
+Sources Overview.
+
+A source is the entry point of a streaming pipeline. Spark tracks source progress — called offsets — in the checkpoint so each micro-batch is processed exactly once on restart. There are five built-in sources.
+
+The rate source generates synthetic rows at a fixed rate per second. It is fully fault-tolerant and requires no external system — ideal for testing, benchmarking, and demos.
+
+The rate-per-microbatch source generates a fixed number of rows per micro-batch rather than per second. This makes the row count deterministic regardless of how fast micro-batches execute, which is useful for reproducible tests.
+
+The file source watches a directory and processes each new file as a micro-batch. It is fault-tolerant and supports JSON, CSV, Parquet, ORC, and Delta Lake formats. It is the most common streaming source outside of Kafka.
+
+The Kafka source is the production-grade option for event streaming. It is fault-tolerant through offset tracking.
+
+The socket source reads text lines from a TCP connection. It is not fault-tolerant and is only suitable for interactive demos.
+
+Rate Source.
+
+The rate source generates two columns: timestamp, which holds the event time assigned by Spark, and value, which is a monotonically increasing integer starting at zero. Three options control its behaviour. The rowsPerSecond option sets how many rows are generated per second across all partitions, defaulting to one. The rampUpTime option sets how many seconds to linearly ramp from zero to the target rate, defaulting to zero. The numPartitions option controls how many parallel tasks generate rows.
+
+The rate source is fault-tolerant. Spark tracks the highest value emitted via the checkpoint, so on restart it continues from where it left off rather than starting over from zero.
+
+Rate-Per-Microbatch Source.
+
+The rate-per-microbatch source uses the format string rate-micro-batch. Instead of a rate per second, you configure a fixed number of rows per batch with the rowsPerBatch option. This is useful when you need precise control over how many rows each trigger processes — for example, when writing deterministic tests where the same input should always produce the same output regardless of execution speed.
+
+File Source — Deep Dive.
+
+The file source watches a directory and processes each new file that appears. It compares the set of files in the directory against the set already recorded in the checkpoint and processes only the new ones. On restart, files that were already processed are skipped.
+
+Several options matter in production. The maxFilesPerTrigger option limits how many new files are processed per micro-batch — useful when files arrive faster than Spark can process them and you want to pace the pipeline. Setting it to one processes one file per trigger and makes micro-batches predictable in size. The latestFirst option, when set to true, processes the newest files before the older ones — useful when catching up after a backlog and you want the most recent data first. The maxFileAge option ignores files older than a threshold, defaulting to seven days. The cleanSource option can be set to delete or archive to automatically move or remove processed files, preventing the source directory from growing unbounded.
+
+The most important requirement of the file source is that you must provide the schema explicitly. Spark cannot infer schema at stream start because there may be no files present yet. Define a StructType and pass it to the schema method before calling load.
+
+Kafka Source — Configuration Reference.
+
+Kafka is the production-grade streaming source. The connector reads each message as one row. The value column contains the raw message payload as bytes — you must deserialize it yourself, typically by casting it to a string and then parsing it with the fromJson function against your defined schema.
+
+The full row schema produced by the Kafka connector has eight columns. The key column holds the message key as bytes. The value column holds the message body as bytes — this is your actual data. The topic column is the topic name as a string. The partition column is the Kafka partition number as an integer. The offset column is the offset within the partition as a long integer. The timestamp column is the Kafka-assigned timestamp. The timestampType column is an integer where zero means the timestamp was set by the producer and one means it was set by the broker when the message was appended to the log. The headers column holds any key-value metadata attached to the message.
+
+The essential configuration options for the Kafka source are as follows. The kafka.bootstrap.servers option takes a comma-separated list of broker addresses. The subscribe option takes a comma-separated list of exact topic names. The subscribePattern option takes a regular expression that matches multiple topic names dynamically. The assign option takes a JSON string for explicit partition and offset assignment. The startingOffsets option controls where reading begins — latest starts from the newest message, earliest starts from the beginning, or you can provide a JSON object with per-partition offsets. The maxOffsetsPerTrigger option rate-limits the pipeline by capping how many messages are read per micro-batch. The minPartitions option sets the minimum number of Spark partitions created from Kafka partitions. For production clusters secured with TLS and authentication, set kafka.security.protocol and kafka.sasl.mechanism accordingly. The failOnDataLoss option controls whether Spark throws an error if committed offsets are no longer available in Kafka — for example, if a topic was deleted or retention expired.
+
+A critical note on timestamps: prefer the event time from within the payload itself rather than the Kafka timestamp. The Kafka timestamp reflects when the broker received the message, which can be delayed by producer buffering, retries, or network issues. The payload timestamp reflects when the event actually happened in the business domain.
+
+Sinks Overview.
+
+A sink is where Spark writes the results of each micro-batch. Sinks differ in three important ways: which output modes they support, whether they provide fault-tolerance and exactly-once guarantees, and whether they are appropriate for development or production.
+
+The memory sink writes results to an in-memory table queryable by name. It supports append and complete modes. It is not fault-tolerant and is only for development and testing.
+
+The console sink prints each micro-batch to standard output. It supports all three output modes. It is not fault-tolerant and is only for debugging during development. Two options control its display: numRows sets how many rows to print per batch, defaulting to twenty, and truncate controls whether long values are cut short.
+
+The file sink writes append-only Parquet, JSON, or CSV files. It supports only append mode. It is fault-tolerant — the checkpoint prevents re-writing already-committed batches on restart. The main limitation is that it accumulates many small files over time, one set of files per micro-batch.
+
+Delta Lake is the recommended production sink. It supports all three output modes. It provides exactly-once guarantees through transactional commits. It avoids the small-file accumulation problem through background compaction. It allows downstream readers to query the table concurrently with ongoing writes through snapshot isolation. For update and complete modes, Delta uses its merge capability internally to upsert changed rows without rewriting the entire table.
+
+The Kafka sink publishes each output row as a Kafka message. The DataFrame must contain a value column with the message body as a string or bytes. An optional key column sets the message key. To route different rows to different topics, include a topic column in the DataFrame and omit the topic option in writeStream — Spark uses the column value as the target topic per row.
+
+The foreach sink applies a user-defined writer class to each row individually. The foreachBatch sink applies a user-defined function to each micro-batch as a static DataFrame. Both support all three output modes. Their fault-tolerance depends entirely on your implementation.
+
+foreachBatch Sink — Multi-Table Writes.
+
+The foreachBatch function is the most versatile sink option. It receives two arguments on each trigger: the current micro-batch as a regular static DataFrame, and the batch identifier as a monotonically increasing integer. Inside the function you can use any Spark operation.
+
+The four primary use cases are multi-table writes, where you write one batch to two different sinks simultaneously; conditional fan-out, where you route rows to different tables based on their content; custom deduplication, where you use the batch identifier in a MERGE statement to achieve exactly-once semantics; and non-Spark sinks, where you call a REST API, write to Redis, or send notifications.
+
+The idempotency pattern for exactly-once foreachBatch works as follows. Before writing, check whether the batch identifier has already been committed — for example, by looking up the identifier in a control table. If it has, skip the write. If it has not, write the data and record the batch identifier. On restart, the same batch is replayed but the check prevents duplicate writes.
+
+Watermarking — How It Works Internally.
+
+Watermarking solves two problems at once: how long Spark should wait for late-arriving events before finalizing a window, and how Spark can safely free state for windows that will never receive any more data.
+
+The watermark value is always computed with the same formula: take the maximum event time seen across all partitions in the current micro-batch and subtract the watermark delay. Any event whose event time is before this watermark is considered too late and is dropped. Any window whose end time is before this watermark is considered closed — its state is freed and its result is emitted to the sink.
+
+A concrete step-by-step example with a ten-minute watermark delay and five-minute tumbling windows makes this tangible. In the first micro-batch, events arrive with timestamps at nine-oh-one, nine-oh-three, and nine-oh-seven. The maximum event time is nine-oh-seven, so the watermark is eight-fifty-seven. Both the nine-to-nine-oh-five window and the nine-oh-five-to-nine-ten window are open because their end times are after the watermark.
+
+In the second micro-batch, events arrive at nine-twelve and nine-eighteen. The maximum event time is now nine-eighteen, so the watermark advances to nine-oh-eight. The nine-to-nine-oh-five window ends at nine-oh-five, which is before the watermark of nine-oh-eight. That window is now closed. Its result is emitted and its state is freed.
+
+In the third micro-batch, a late event arrives with a timestamp of nine-oh-two. The watermark is still nine-oh-eight. Nine-oh-two is before nine-oh-eight, so this event is dropped.
+
+In the fourth micro-batch, an event arrives with a timestamp of nine-oh-six. Nine-oh-six is also before the watermark of nine-oh-eight, so it is also dropped — even though it is only two minutes past the window's boundary.
+
+One important detail: the watermark advances based on the maximum event time seen across all Spark partitions in the batch, not the maximum per individual partition. To guarantee correctness, Spark takes the minimum watermark across all tasks. This means the watermark can only advance as fast as the slowest partition.
+
+Watermark and Output Mode Compatibility.
+
+The output mode and watermark interact to determine when results are finalized and when state is freed. This three-way interaction is one of the most important things to understand about Structured Streaming.
+
+In complete mode, no watermark is needed. The full result table is rewritten on every trigger. State is never freed — it accumulates indefinitely. Use complete mode only for small aggregations with a bounded key space, such as five spending categories or fifty merchants.
+
+In update mode with a watermark, only rows that changed in the current micro-batch are emitted. State is freed after the watermark advances past a window's end time. The window result may be updated multiple times before the watermark closes it. Use update mode with sinks that support upserts, such as Delta Lake.
+
+In append mode with a watermark, a window result is only emitted once — after the watermark passes the window's end time, guaranteeing that no more events can update that window. Once emitted, the result is final and the state is freed. Use append mode with sinks that do not support updates, such as Parquet files or Kafka.
+
+Choosing the Watermark Duration.
+
+The watermark delay is a business SLA decision, not a technical one. It answers the question: how late can data arrive and still be counted?
+
+A longer watermark accepts more late data, producing more accurate results, but it holds more state in executor memory and delays result finalization in append mode. A shorter watermark uses less memory and produces results sooner but drops more late events.
+
+Practical guidelines by scenario: for a healthy, low-latency Kafka pipeline, one to five minutes is appropriate. For Kafka with cross-datacenter replication lag, ten to thirty minutes. For mobile app events where users go offline and reconnect, one to twenty-four hours. For IoT sensors with intermittent connectivity, one to six hours. For file drops from upstream batch jobs, use the batch interval plus a safety buffer.
+
+The recommended approach for choosing the delay in a new pipeline is to run it for a day or more in update mode without a watermark. Then inspect the lastProgress output and compute the difference between the maximum event time and the minimum event time across batches at the ninety-ninth percentile. That tail latency is the minimum viable watermark for your data.
+
+Stream-Static Join.
+
+A stream-static join enriches each incoming streaming row with data from a static batch DataFrame — typically a dimension table such as customers, products, or branches. The static side is broadcast to all executors. This is a stateless operation and supports all output modes.
+
+Three rules apply. First, the static DataFrame is re-read on every micro-batch, so changes to the static data are eventually reflected in the output without restarting the stream. Second, no watermark is needed on the static side because it never generates late data. Third, left outer joins are safe with streaming on the left side, but right outer and full outer joins are not supported when the stream is the left input.
+
+Stream-Stream Join.
+
+Joining two live streams requires Spark to buffer rows from each side while waiting for a matching row to arrive on the other side. Without a bound on how long to wait, the buffers grow indefinitely. Both streams must have watermarks to tell Spark when it is safe to evict unmatched rows.
+
+For an inner join, a time range condition is also required. The condition specifies that matching rows from the two streams must have event times within a bounded interval — for example, the alert timestamp must be within five minutes of the transaction timestamp in either direction. Without this condition, Spark cannot determine when a buffered row can never be matched and cannot evict it.
+
+Supported join types for stream-stream joins are inner join, left outer join, and right outer join. Full outer join is not supported.
+
+Source and Sink Fault-Tolerance.
+
+End-to-end exactly-once delivery requires both the source and the sink to be fault-tolerant. The source must be replayable — Kafka provides this through offset tracking, and the file source provides it through checkpoint-tracked file lists. The sink must be idempotent or transactional — Delta Lake provides this through transactional commits, and Kafka provides it through its idempotent producer mode.
+
+When both source and sink are fault-tolerant, a crashed job can restart, replay the uncommitted micro-batch, and the sink's idempotence ensures no duplicate rows appear. The rate source and memory and console sinks do not provide this guarantee. The socket source is at-most-once — if the connection drops, messages are lost permanently.
+
+Summary.
+
+Sources read data into a streaming DataFrame. The rate and rate-per-microbatch sources are synthetic generators for testing with no external dependencies. The file source watches a directory, requires an explicit schema, and uses maxFilesPerTrigger to control throughput. The Kafka source is the production standard — the value column is raw bytes and must be deserialized with fromJson, maxOffsetsPerTrigger rate-limits ingestion, and you should always prefer the payload event time over the Kafka broker timestamp. The socket source is development-only and not fault-tolerant.
+
+Sinks receive results from each micro-batch. Memory and console sinks are for development and testing only. The Parquet file sink is append-only and accumulates small files over time. Delta Lake is the best production sink — it supports all output modes, provides exactly-once semantics, and avoids the small-file problem. The Kafka sink forwards results downstream and requires key and value columns. The foreachBatch sink provides full custom control per micro-batch with idempotency via the batch identifier.
+
+Watermarking declares the maximum tolerable event lateness. The watermark equals the maximum event time seen minus the delay. Events older than the watermark are dropped. Windows ending before the watermark are closed and their state is freed. Watermarking is required for append mode with windowed aggregations and recommended for update mode to prevent unbounded state growth. A longer delay accepts more late data at the cost of more memory and later result finalization. Choose the delay based on the ninety-ninth percentile event lateness measured from your actual pipeline data.
+
+The three output modes interact with the watermark as follows. Complete mode needs no watermark and rewrites the full table every trigger, but state grows forever. Update mode with a watermark emits only changed rows per trigger and frees state once windows close — best for Delta Lake. Append mode with a watermark emits finalized windows only, guaranteeing immutability — best for Parquet files and Kafka.

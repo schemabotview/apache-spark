@@ -1,0 +1,99 @@
+Notebooks fifteen and sixteen covered micro-batch execution, sources, sinks, windowed aggregations, and watermarking. All of those are forms of stateful streaming — Spark maintains intermediate state across micro-batches so that results can span more than one batch. This notebook goes beyond the built-in groupBy aggregation to explore the full spectrum of stateful patterns: running aggregations that accumulate forever, session windows that close on inactivity, arbitrary per-key state with user-defined functions, timeouts that expire idle state, stream-stream joins with bounded buffers, and stateful deduplication.
+
+Running Aggregations.
+
+The simplest form of stateful streaming is a groupBy aggregation without a time window. Spark accumulates a running total for every key since the stream started. After the first micro-batch, FOOD has three transactions. After the second, it has five. After the third, eight. The counts are cumulative and the state grows indefinitely because there is no window close event to free it.
+
+This pattern requires complete output mode — Spark rewrites the full result table on every trigger. No watermark is needed or useful because there are no windows to close. It is only suitable for small, bounded key spaces such as five spending categories or fifty merchants. Avoid it for high-cardinality keys like millions of customer identifiers — the state will eventually exhaust executor memory.
+
+Session Windows.
+
+Tumbling and sliding windows are fixed-duration — every window has the same length regardless of the data. A session window is activity-driven: it opens when the first event for a key arrives and closes after a configurable gap duration of inactivity. If a new event arrives before the gap expires, the window extends.
+
+Consider a customer with events at nine-oh-oh, nine-oh-two, and nine-oh-four, followed by a long silence, then more events at nine twenty-five and nine twenty-seven. With a ten-minute gap, the first three events form session one lasting four minutes, and the later two events form session two — separated by a gap greater than ten minutes that caused the first session to close.
+
+Session windows are ideal for user session analytics — how long did a customer browse before transacting — for fraud detection involving bursts of transactions within a short window per card, and for grouping device telemetry events between silence periods.
+
+The session window function takes two arguments: the event time column and the gap duration. It has been available since Spark 3.2. The gap duration can be a static string such as ten minutes, or a dynamic gap using a column expression that returns a different duration per row. The dynamic gap lets you apply business rules like giving high-value customers a longer session window without pre-splitting the stream.
+
+Session windows require a watermark for state cleanup. Without a watermark, session state for keys that stop sending events would accumulate in memory indefinitely.
+
+Arbitrary Stateful Processing with applyInPandasWithState.
+
+The built-in groupBy aggregation and window functions cover most use cases. But sometimes you need state that is not just a counter or sum — for example, a list of recent events, a running status machine, or custom expiry logic beyond watermarks.
+
+The arbitrary stateful API lets you write a function that receives all rows for a key in the current micro-batch plus the previous state for that key, and returns output rows plus the updated state. In PySpark the native API is applyInPandasWithState, available since Spark 3.4. For each key in each micro-batch the function is called with the key, an iterator of pandas DataFrames for the current batch, and the previous state. The function yields output DataFrames and updates the state object.
+
+A concrete example is a customer lifetime spend tracker. The state holds the total amount spent since the stream began and the number of transactions. On each batch, the function adds the new amounts to the running totals, updates the state, and yields one output row per key with the cumulative figures.
+
+Timeouts — Expiring Idle State.
+
+Without timeouts, state for inactive keys stays in the state store forever, consuming memory. Timeouts let Spark call your state function one final time for a key that has not received events for a configurable duration, giving you the chance to emit a final result and remove the state.
+
+There are two timeout types. A ProcessingTimeTimeout fires after a fixed number of milliseconds of wall-clock inactivity. You set the duration by calling set-timeout-duration on the state object. It is simpler and is not affected by event time or watermarks. An EventTimeTimeout fires when the watermark advances past a timestamp you set on the state object. It is deterministic and reproducible across replays because it uses event time rather than wall-clock time.
+
+When a timeout fires, Spark calls your state function with an empty row iterator and the hasTimedOut flag set to true. You can emit a final row — for example, a session-closed event — and call state-dot-remove to free the state. If you do not call remove, the timeout keeps firing.
+
+A fraud burst detector illustrates both timeout types. The state tracks the count of transactions in the current detection window for each card. If three or more transactions arrive within five minutes of event time, the function yields a fraud alert row and resets the state. If the EventTimeTimeout fires because the watermark advanced past the five-minute window without triggering an alert, the function removes the state silently.
+
+flatMapGroupsWithState — Emit Multiple Rows Per Key.
+
+The basic arbitrary stateful API emits exactly one row per key per batch. The variant that can emit zero or many rows per key per batch is called flatMapGroupsWithState in Scala and Java. In PySpark, applyInPandasWithState supports this through its output mode argument — using append output mode allows the function to yield any number of output DataFrames per batch, including zero.
+
+This is useful when you want to emit one row per transaction that changes the state rather than one summary row, when you want to emit nothing for most batches and a burst of rows when a threshold is hit, or when you are implementing a state machine where transitions emit events. A tier-change state machine is a clear example. The state holds the current tier for each customer — BRONZE, SILVER, or GOLD. When cumulative spend crosses a threshold, the function emits a tier-upgrade event and updates the state. Batches where no threshold is crossed yield no output rows at all.
+
+Stream-Stream Join.
+
+Joining two live streams requires both sides to buffer rows in state until a match is found on the other side. Without bounds on how long to wait, the buffers grow indefinitely. Watermarks on both sides tell Spark when it is safe to evict unmatched rows.
+
+For an inner join, a time-range condition is also required. The condition specifies that matching rows from the two streams must have event times within a bounded interval. For example, a fraud alert timestamp must be within five minutes of the corresponding transaction timestamp in either direction. This condition lets Spark determine when a buffered row from one stream can never match any remaining row from the other stream, and evict it.
+
+The state eviction rule works as follows. A row from stream A at event time T can only match rows from stream B in the range T minus the range bound to T plus the range bound. Once the watermark on stream B advances past T plus the range bound, no new stream B rows can arrive that would match this stream A row, so it is evicted safely.
+
+Supported join types for stream-stream joins are inner join, left outer join, and right outer join. Full outer join is not supported. For outer joins, unmatched rows from the non-driving side are emitted as null-padded rows after the watermark advances past their event time.
+
+Stateful Deduplication.
+
+Sources like Kafka guarantee at-least-once delivery — the same message can appear more than once on broker failover, consumer rebalance, or retry. The dropDuplicates function on a streaming DataFrame removes duplicates by a unique key.
+
+Without a watermark, dropDuplicates holds every seen key in state forever — unbounded memory growth. With a watermark, keys older than the watermark are evicted. Any duplicate arriving after its key has been evicted is treated as a new event, which is an acceptable trade-off for bounded memory.
+
+The deduplication key should include the event-time column alongside the business key so that state eviction aligns with the watermark. A typical call is withWatermark on the event time column followed by dropDuplicates on the transaction identifier and the event time column together.
+
+State Store Backends.
+
+Spark stores stateful aggregation state in a state store. Two backends are available. The HDFS-backed backend is the default. State is stored in executor memory and checkpointed to HDFS or cloud storage after each batch. It is simple and requires no extra dependencies, but it can struggle with very large state because the entire state for a partition must fit in heap memory.
+
+The RocksDB backend stores state on local disk using RocksDB, a high-performance key-value store, and checkpoints to HDFS or cloud storage. It handles much larger state with lower heap memory pressure and is available since Spark 3.2. Use RocksDB when state size per executor exceeds a few gigabytes, when you see frequent garbage collection pauses or out-of-memory errors on stateful stages, or when your key space is high-cardinality with millions of customer or device identifiers.
+
+Monitoring State.
+
+Every stateful streaming query reports state metrics in the lastProgress output under the stateOperators key. This is the primary tool for diagnosing state growth, memory pressure, and timeout behaviour.
+
+The key fields per operator are as follows. The numRowsTotal field is the total number of rows currently in the state store. The numRowsUpdated field is the number of rows added or updated in the most recent micro-batch. The numRowsRemoved field is the number of rows evicted by timeouts or watermark advancement in that batch. The memoryUsedBytes field is the state store memory in bytes. The numShufflePartitions field is the number of state partitions, which equals the shuffle partition configuration. The operatorName field names the stateful operator — for example, stateStoreSave for a windowed aggregation, or symmetricHashJoin for a stream-stream join.
+
+Steady growth in numRowsTotal with little change in numRowsRemoved indicates that state is not being freed — check your watermark configuration or timeout settings.
+
+Choosing the Right Stateful Pattern.
+
+Use these rules to select the appropriate API. If you do not need state across micro-batches, use stateless operations — filter, select, stream-static join — with append mode. If you need fixed-duration windows such as every five minutes or every hour, use groupBy with the window function and a watermark. If you need activity-driven windows that close on silence, use groupBy with session window and a watermark. If you need running totals or counts with a small, bounded key space, use groupBy aggregation with complete output mode. If you need custom per-key state that is not expressible as a counter or sum, use applyInPandasWithState — with update output mode if you emit exactly one row per key per batch, or append output mode if you emit zero or many. If you need deduplication, use withWatermark followed by dropDuplicates including the event time column. If you need to join two live streams, use a stream-stream join with watermarks on both sides and a time-range condition.
+
+The memory cost varies by pattern. Tumbling and sliding windows with a watermark have bounded state determined by the watermark duration times the key space, giving low memory risk. Session windows with a watermark have state bounded by the gap duration times the number of active sessions, giving low to medium memory risk. Running aggregations without a window grow with the number of unique keys and carry high memory risk for large key spaces. Arbitrary stateful processing with timeouts has state bounded by the timeout duration times the key space, giving medium memory risk. Deduplication with a watermark is bounded by the watermark duration times the number of unique keys seen per window. Stream-stream joins with watermarks have state bounded by the watermark duration times the join rate, giving medium to high memory risk for high-throughput joins.
+
+Summary.
+
+Stateful streaming maintains per-key state across micro-batches. Spark stores this state in the state store — HDFS-backed by default, RocksDB for large state.
+
+Running aggregations accumulate state forever. Use complete output mode and limit to small, bounded key spaces.
+
+Session windows are activity-driven and close after a configurable inactivity gap. The gap can be static or a dynamic column expression. A watermark is required for state cleanup.
+
+The applyInPandasWithState API is the arbitrary stateful API in PySpark. You receive a key, new rows as pandas DataFrames, and the previous state. You yield output DataFrames and update the state. Use it for state machines, complex accumulations, and anything groupBy aggregation cannot express.
+
+Timeouts expire idle state. A ProcessingTimeTimeout fires after a fixed wall-clock duration. An EventTimeTimeout fires when the watermark advances past a threshold. When a timeout fires, the hasTimedOut flag is true and you should call state-dot-remove to free the state.
+
+Stream-stream joins buffer both sides in state waiting for matches. Both sides need watermarks. An inner join also requires a time-range condition to enable state eviction.
+
+Stateful deduplication with withWatermark and dropDuplicates removes duplicates within the watermark window with bounded state.
+
+Monitoring state metrics through lastProgress under stateOperators shows the total rows in state, rows updated per batch, rows removed per batch, and memory used — the essential signals for diagnosing state growth and memory pressure.

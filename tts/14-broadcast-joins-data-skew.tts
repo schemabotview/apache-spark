@@ -1,0 +1,99 @@
+Joins are the most expensive operation in distributed Spark jobs. By default, both sides of a join must be shuffled across the network so that rows with matching keys land on the same executor. This shuffle is the bottleneck — it moves potentially gigabytes of data between machines before a single join row is produced. Broadcast joins eliminate that shuffle entirely. Data skew is the second major join enemy: when a small number of keys dominate the data, some tasks receive far more rows than others and stall the entire stage no matter how fast every other task runs.
+
+Join Strategies in Spark.
+
+Spark does not use one join algorithm for every situation. It chooses from four strategies depending on data size and available hints.
+
+The broadcast hash join sends the smaller table to every executor in full. Each executor builds a hash map from the small table in memory and probes it locally with rows from the large table. There is no shuffle at all — the large table moves to its output partitions normally, and the small table is replicated as a broadcast variable. This is by far the most impactful optimisation for the star-schema pattern common in banking pipelines: a large fact table joined with small dimension tables like customers or products.
+
+The sort-merge join is the default for two large tables. Both sides are shuffled so matching keys land on the same partition, then both sides are sorted and merged in one pass. It is correct and scalable but expensive — two full shuffles, one for each side.
+
+The shuffle hash join shuffles one side and builds a hash map per partition. It requires one side to fit in memory per partition and is chosen less frequently.
+
+The Cartesian join produces every combination of rows from both sides. It is only used for explicit cross joins and should almost never appear in your query plans by accident.
+
+Auto-Broadcast — The Default Threshold.
+
+Spark tracks an estimate of every DataFrame's size. When a DataFrame's estimated size falls below the auto-broadcast join threshold — ten megabytes by default — Spark automatically chooses a broadcast hash join without any hint from you. This threshold is controlled by the configuration key spark dot sql dot auto-broadcast join threshold.
+
+Spark computes size estimates from file metadata and Parquet statistics. For tables read directly from well-organized Parquet files the estimate is usually accurate. After complex transformations that change row counts significantly, the estimate can be wrong — Spark may see a large estimated size even though the actual filtered result is tiny. In those cases you override the automatic decision with an explicit hint.
+
+Forcing a Broadcast with the broadcast() Hint.
+
+Wrap the smaller DataFrame with the broadcast function before passing it to a join. Spark ignores its size estimate and always uses a broadcast hash join. You can verify this in the explain output: look for the text BroadcastHashJoin, and confirm there is no Exchange operator on the broadcast side. An Exchange operator means a shuffle is happening.
+
+You can broadcast multiple dimension tables in a single query. Each one is broadcast independently and reused for its respective join. The explain output will show one BroadcastHashJoin node per join, with no Exchange on the dimension side.
+
+The same hint is available in SQL using the comment syntax. Place the hint immediately after the SELECT keyword with a plus sign inside the comment markers, followed by BROADCAST and the table alias in parentheses. Spark reads these hints from the SQL text and applies them to the physical plan.
+
+When Not to Broadcast.
+
+Broadcasting is only safe when the table fits comfortably in executor memory. A useful size guideline is this: tables below ten megabytes are broadcast automatically. Tables between ten and one hundred megabytes are safe to force-broadcast on most clusters. Tables between one hundred and five hundred megabytes should be broadcast with caution after testing on your specific cluster configuration. Tables above five hundred megabytes should never be broadcast — use a sort-merge join or rely on Adaptive Query Execution instead.
+
+The critical rule is always broadcast the smaller side. Wrapping the large table with broadcast is one of the most common performance mistakes. Spark will attempt to ship potentially gigabytes to every executor simultaneously, exhaust their heap memory, and crash with an out-of-memory error. Always verify which side is smaller before adding a broadcast hint.
+
+You can also confirm whether Spark chose a broadcast join automatically by disabling the threshold entirely. Setting auto-broadcast join threshold to negative one forces Spark to use a sort-merge join for every join in the session. The explain output then shows Exchange operators on both sides, making the shuffle visible. Restore the threshold when you are done.
+
+Data Skew — What It Is.
+
+Data skew occurs when the distribution of rows across partitions is highly uneven. In a perfectly balanced job, every task processes roughly the same number of rows and finishes at the same time. In a skewed job, a handful of partitions contain far more rows than the rest. Because a Spark stage cannot complete until the last task finishes, a single overloaded task stalls the entire stage — even if ninety-nine percent of the tasks finished long ago.
+
+In banking data, skew on the customer identifier is the most common pattern. A handful of high-volume customers or merchants generate orders of magnitude more transactions than the average customer. When Spark shuffles by customer identifier, the partitions holding those hot keys receive a disproportionate share of the total rows.
+
+The symptoms are visible in the Spark UI. In the Stages tab, look for one task whose duration is ten to one hundred times the median. That is the skewed task. You will also see high garbage collection time or spill-to-disk on one executor while all others are idle.
+
+Detecting Skew — Partition Inspection.
+
+The simplest way to measure skew is to hash-partition your data by the join key and then count rows per partition. Add the spark underscore partition underscore id function as a column and group by it. If the row counts are roughly even across all partitions you have no skew. If one or two partitions hold several times more rows than the others, those are your hot keys.
+
+To find the hot keys themselves, group by the join key directly and count rows per key. Sort descending. The top entries are the keys that will dominate the shuffle. In a skewed dataset, the top one or two keys often account for ten to thirty percent of all rows on their own.
+
+Fix One — Salting.
+
+Salting manually breaks hot keys into multiple artificial sub-keys by appending a random integer suffix. A key that previously mapped to one partition now maps to four or eight partitions, distributing its rows evenly.
+
+The technique requires two steps. On the large side, add a random integer suffix to the join key — for example, append an underscore and a random number between zero and three. On the small side, explode each row into four copies, one per salt value, appending the corresponding suffix. Now the salted large-side key matches exactly one salted small-side row. Join on the salted key instead of the original key, then drop the salted key from the result.
+
+The number of salt buckets is a tuning parameter. Four is a reasonable starting point. Increasing it reduces skew further but multiplies the size of the small side proportionally — if you explode the small side by a factor of eight it becomes eight times larger in memory. For this reason salting is typically combined with a broadcast join on the exploded small side.
+
+Salting is the most reliable manual fix for severe skew in any version of Spark, including versions without Adaptive Query Execution.
+
+Fix Two — AQE Skew Join Handling.
+
+Adaptive Query Execution is a Spark 3 feature that optimizes query plans at runtime based on actual data statistics rather than estimates. Its skew join handling detects unbalanced partitions during execution and automatically splits them into smaller sub-tasks.
+
+AQE considers a partition skewed when two conditions are both true. First, its size must be at least as large as the skewed partition factor times the median partition size — the default factor is five. Second, its size in bytes must exceed the skewed partition threshold, which defaults to two hundred and fifty-six megabytes. You can lower both thresholds on smaller datasets to make AQE trigger more aggressively.
+
+When AQE detects a skewed partition, it reads it in multiple smaller chunks and matches each chunk against the corresponding partition on the other side. From the application perspective, you write a normal join with no hints or salting. AQE handles the split transparently at runtime.
+
+AQE has been the default since Spark 3.2 and is the preferred approach for skew in modern pipelines. It requires no code change and adapts to the actual data distribution at runtime rather than relying on upfront estimates.
+
+Fix Three — repartitionByRange Before a Join.
+
+Hash repartitioning maps each key to a partition by hashing it, so a hot key always maps to the same partition no matter how many rows it has. Range repartitioning sorts rows by the column value and divides them into equal-sized ranges. Hot keys — which have many rows — span multiple ranges and land in multiple partitions.
+
+Call repartition-by-range on the large DataFrame before the join, specifying the number of partitions and the join key column. Then join normally. Because the hot keys are now spread across many partitions, no single join task receives an outsized share of the work.
+
+Range repartitioning requires a sort across the cluster to compute the range boundaries, so it has a one-time cost. Use it when AQE is unavailable or when the skew is severe enough that you want explicit control.
+
+Skew in GroupBy Aggregations.
+
+Skew is not limited to joins. A groupBy on a skewed key has exactly the same problem: the partition holding the hot key accumulates far more rows than the others and becomes the bottleneck.
+
+Spark's groupBy plus agg already performs a two-phase aggregation internally. In the first phase, each executor partially aggregates its local data before the shuffle. In the second phase, the shuffle combines the partial results. This partial aggregation reduces the amount of data moved in the shuffle significantly.
+
+For extreme skew, you can implement the two-phase pattern manually using salting. In the first phase, add a random salt to the key, group by the salted key, and compute partial sums and counts. In the second phase, group by the original unsalted key and sum the partial results. The first phase distributes the hot key rows across many partitions; the second phase aggregates a much smaller set of partial rows.
+
+Summary.
+
+The broadcast hash join is the most impactful join optimisation for star-schema queries. It sends the smaller table to every executor so the join runs locally with no shuffle.
+
+Spark auto-broadcasts tables whose estimated size is below ten megabytes. Use the broadcast function or the SQL hint to force a broadcast when the estimate is wrong or when the table is between ten and one hundred megabytes.
+
+Never broadcast the large side of a join. Broadcasting a table that does not fit in executor memory causes out-of-memory errors.
+
+Data skew occurs when a few keys dominate partition row counts. The symptom is one task taking ten to one hundred times longer than the median in a Spark stage.
+
+Three fixes for skew. First, salting: append a random suffix to hot keys on the large side and explode the small side to match. Second, AQE skew join: enable adaptive query execution and it will detect and split skewed partitions automatically at runtime. Third, repartitionByRange: pre-balance the large table by value range before the join for explicit control.
+
+Prefer AQE in modern Spark 3.2 and above. It requires no code change and adapts to actual data distributions at runtime.
