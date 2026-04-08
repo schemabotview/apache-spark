@@ -1,0 +1,107 @@
+Notebook eighteen introduced the Delta Lake transaction log and showed how ACID guarantees and time travel work at a conceptual level. This notebook goes deep on the mutation API and the full time-travel feature set: DELETE FROM for removing rows, UPDATE SET for modifying column values in place, MERGE INTO for upserts in a single atomic operation, rollback for restoring a table to a previous version, VACUUM for controlling retention and reclaiming disk space, Change Data Feed for streaming row-level changes out of a Delta table, and optimistic concurrency for understanding how Delta handles concurrent writers.
+
+DELETE FROM.
+
+DELETE FROM removes rows matching a predicate. Under the hood Delta does not physically delete rows from Parquet files. Instead it rewrites the affected files with the matching rows omitted and records the old files as remove entries in the transaction log. The old files remain on disk until VACUUM cleans them up, which is what enables time travel back to the state before the deletion.
+
+The process has four steps. First, Delta identifies which data files contain rows matching the predicate using the per-file statistics in the log. Second, it rewrites only those files with the matching rows excluded. Third, it logs the old files as removed and the new files as added, all in one atomic transaction. Fourth, the old files remain on disk until a VACUUM run removes them.
+
+Files that contain no matching rows are not touched at all — only the files that contain at least one row matching the predicate are rewritten. This makes targeted deletes on well-partitioned tables very efficient.
+
+UPDATE SET.
+
+UPDATE modifies column values for rows matching a predicate. Like DELETE, it rewrites only the affected Parquet files. Files that contain no matching rows are not read or written. You can update multiple columns in a single statement, and the new value can be any expression. For example, you can set a status column to CLOSED and simultaneously apply a ten percent discount to an interest rate column, both in one atomic operation.
+
+Each UPDATE creates a new version in the transaction log. The old files containing the pre-update rows are recorded as removed and remain on disk for time travel. The new rewritten files are recorded as added.
+
+MERGE INTO — Upsert.
+
+MERGE INTO is the most powerful Delta mutation. It joins a source DataFrame against the target table on a match condition and then applies different actions depending on whether a row matched.
+
+The structure has three types of clauses. The WHEN MATCHED clause fires for rows that exist in both the source and the target. You can have multiple WHEN MATCHED clauses with different additional conditions — for example, update a row to FLAGGED status only when the amount exceeds a threshold, and update all other columns normally for the remaining matches. The WHEN NOT MATCHED clause fires for rows that exist in the source but not in the target — typically an insert to bring in new records. The WHEN NOT MATCHED BY SOURCE clause fires for rows that exist in the target but not in the source — typically a delete to remove records that have been removed upstream.
+
+All three clauses are optional. A typical upsert uses only WHEN MATCHED for an update and WHEN NOT MATCHED for an insert. A full sync mirror uses all three. A deduplication pattern uses only WHEN NOT MATCHED to insert records that do not already exist.
+
+The entire MERGE executes as a single atomic transaction. All matched updates, inserts, and deletes happen together or not at all.
+
+Four patterns are worth knowing. SCD Type One upsert updates existing rows if they match and inserts new rows if they do not — the most common use case for dimension table refreshes. Append if new inserts only rows that do not already exist in the target, using WHEN NOT MATCHED with no WHEN MATCHED clause — useful for deduplication. Full sync updates matching rows, inserts new rows, and deletes rows removed from the source — mirrors the source table exactly. Conditional update uses a WHEN MATCHED clause with an extra condition such as a newer timestamp to prevent overwriting a row with stale data from an out-of-order source.
+
+MERGE INTO SQL Syntax.
+
+The same MERGE operations are available directly in Spark SQL. The syntax places the target table name after MERGE INTO, the source after USING, the join condition after ON, and then lists the WHEN clauses in sequence. This is useful when building pipelines with spark.sql or when writing transformations in a SQL-first style.
+
+Time Travel — Full API.
+
+Delta retains old data files on disk until VACUUM removes them. This means you can query any past version of the table by specifying either a version number or a timestamp.
+
+To read a specific version using the DataFrame API, pass the versionAsOf option to the read call with the version number as an integer. The version numbers start at zero for the CREATE and increment by one for every committed transaction. To read at a specific timestamp, use the timestampAsOf option with a timestamp string in the format year-month-day hours-minutes-seconds. The timestamp must fall within the retention window, which defaults to thirty days and is controlled by the delta.logRetentionDuration table property.
+
+In SQL, the equivalent syntax is VERSION AS OF followed by the version number, or TIMESTAMP AS OF followed by a quoted timestamp, placed after the table name in the FROM clause.
+
+Rollback — Restoring a Previous Version.
+
+Delta does not have a single-command rollback in the base open-source library, but the pattern is straightforward: read the past version using time travel and overwrite the current table with it. This creates a new transaction — the next version number — that brings the table back to the past state. The rollback is itself recorded in the transaction log, so the history of both the mistake and the recovery is preserved.
+
+On Databricks and Delta Lake 1.2 and later, the RESTORE TABLE command provides a single-step rollback. The syntax is RESTORE TABLE followed by the table name, then either TO VERSION AS OF a version number or TO TIMESTAMP AS OF a timestamp string. RESTORE creates a new transaction that sets the table contents back to the specified past state, without rewriting any data files — it simply re-adds the file entries that were active at that version.
+
+VACUUM — Removing Old Files.
+
+When Delta writes a new version of data it marks old files as removed in the log but does not delete them from disk. Those old files are what enable time travel. VACUUM physically deletes files that meet two conditions: they are marked as removed in the log, and they are older than the retention threshold.
+
+The default retention threshold is seven days, expressed as 168 hours. Running VACUUM with RETAIN 168 HOURS deletes all removed files older than seven days. Running VACUUM first in dry-run mode with the DRY RUN keyword prints which files would be deleted without actually deleting them — always recommended before running a destructive VACUUM on a production table.
+
+After VACUUM runs, disk space is freed and time travel to any version whose files were deleted becomes impossible. The log entries for those versions still exist — the history is preserved — but the actual data files are gone, so attempting to read them raises an error.
+
+Delta blocks VACUUM with a retention period below seven days by default as a safety measure. You can override this check by setting the Spark configuration spark.databricks.delta.retentionDurationCheck.enabled to false, but this should only be done in testing environments and never in production.
+
+Table Properties — Controlling Retention.
+
+Two table properties control how long history and data files are retained. The delta.logRetentionDuration property controls how long transaction log entries are kept and defaults to thirty days expressed as an interval string. The delta.deletedFileRetentionDuration property controls how long removed data files are kept on disk before VACUUM can delete them and defaults to seven days.
+
+Set these properties per table using ALTER TABLE SET TBLPROPERTIES. A longer retention gives a larger time travel window and higher compliance coverage but increases storage costs. A shorter retention saves storage but narrows the time travel window.
+
+Change Data Feed.
+
+Change Data Feed tracks row-level changes to a Delta table — which rows were inserted, updated, or deleted — and makes them available as a readable stream or batch. CDF is the foundation for Change Data Capture pipelines: instead of re-reading the entire table every batch, downstream consumers read only what changed since the last checkpoint.
+
+Enable CDF per table using ALTER TABLE SET TBLPROPERTIES with the delta.enableChangeDataFeed property set to true. Once enabled, Delta begins recording change data from that point forward — it does not retroactively capture history before enablement.
+
+Read changes using the readChangeFeed option set to true on a Delta read, along with a startingVersion or startingTimestamp to specify where to begin, and an optional endingVersion or endingTimestamp to specify where to stop.
+
+CDF adds three system columns to each row. The underscore-change-type column contains one of four values: insert for new rows, update-preimage for the row before an update, update-postimage for the row after an update, and delete for removed rows. The underscore-commit-version column contains the table version number that this change belongs to. The underscore-commit-timestamp column contains the timestamp when that commit was made.
+
+CDF works as a batch read between two versions and also as a streaming source. When used as a streaming source with readChangeFeed set to true, Spark reads new change events as they are committed to the table, enabling real-time downstream pipelines that react to changes without polling the full table.
+
+Optimistic Concurrency — How Delta Handles Concurrent Writers.
+
+Delta Lake uses optimistic concurrency control. Multiple writers can run simultaneously without blocking each other. Each writer reads the current table version, makes its changes independently, and then attempts to commit. When a writer commits, Delta checks whether any conflicting change was committed since that writer started. If there is a conflict, the commit fails and the writer can retry with the latest version.
+
+Conflict detection follows specific rules by operation type. Appends rarely conflict because adding new files does not interfere with other operations. Updates and deletes conflict if another writer touched the same files during the same window. MERGE conflicts if another writer modified files that the MERGE needs to read or write. Schema changes conflict with any concurrent writer.
+
+Partition-level isolation makes many conflicts avoidable. If two writers update different partitions, Delta can detect that their file sets do not overlap and allow both commits to succeed. For example, one writer updating loans of type HOME and another updating loans of type VEHICLE can succeed concurrently if the table is partitioned by loan type. But if a third writer runs an update that touches all partitions — such as updating all active loans — it will conflict with any writer that overlaps its file set, and the later commit must retry.
+
+The retry is the writer's responsibility. Delta provides the conflict detection guarantee; the application code must handle the AnalysisException from a failed commit and retry the operation.
+
+Version Diff — Comparing Two Versions.
+
+A common operational task is finding exactly what changed between two table versions — which rows were added, which were modified, and which were removed. Time travel makes this straightforward: read both versions as static DataFrames and compare them. Join the two DataFrames on the primary key using a full outer join, then filter for rows where the key exists in only one version or where column values differ between versions. The result shows additions, deletions, and modifications directly.
+
+Summary.
+
+DELETE FROM removes rows matching a predicate. Delta rewrites affected files and records remove entries in the log. Old files stay on disk until VACUUM.
+
+UPDATE SET modifies column values in place. Only files containing matching rows are rewritten. Multiple columns can be updated in one statement.
+
+MERGE INTO is the upsert workhorse. WHEN MATCHED UPDATE handles existing rows, with optional additional conditions. WHEN NOT MATCHED INSERT handles new rows. WHEN NOT MATCHED BY SOURCE DELETE handles rows removed from the source. All actions execute in a single atomic transaction.
+
+Time travel reads any past table state using versionAsOf or VERSION AS OF for a specific version number, and timestampAsOf or TIMESTAMP AS OF for a specific point in time. Time travel only works while the old files are still on disk before VACUUM removes them.
+
+Rollback reads a past version and overwrites the current table. The RESTORE TABLE command on Databricks and Delta 1.2 and later does this in a single statement.
+
+VACUUM physically deletes old data files beyond the retention threshold, which defaults to seven days. After VACUUM, time travel to removed versions is impossible but the history log entries remain.
+
+The delta.logRetentionDuration and delta.deletedFileRetentionDuration table properties control how long history and data files are kept. Longer retention gives more time travel range at the cost of more storage.
+
+Change Data Feed exposes row-level changes — insert, update-preimage, update-postimage, and delete — per commit. Use readChangeFeed set to true with a starting version or timestamp. CDF works as a batch read or a streaming source and is the foundation for CDC pipelines that react to changes without re-reading the full table.
+
+Optimistic concurrency allows multiple writers to run without blocking. Conflicts are detected at commit time. Partition-level isolation allows non-overlapping partition writes to succeed concurrently. Writers must handle commit failures and retry on conflict.

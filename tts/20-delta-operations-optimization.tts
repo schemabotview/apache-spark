@@ -1,0 +1,139 @@
+Notebooks eighteen and nineteen covered the Delta Lake transaction model, mutations, and time travel. This notebook focuses on making Delta tables fast — how Spark reads less data, compacts small files, and uses indexes to skip entire file groups without scanning them.
+
+The Small-File Problem.
+
+Every Spark write job produces files — one file per output partition per task. Streaming pipelines make this worse: each micro-batch adds another set of small files. Over time a table can accumulate thousands of tiny files.
+
+Small files hurt performance in two ways. First, opening a file in object storage like S3 costs roughly ten milliseconds for the LIST call, metadata fetch, and open. A table with one thousand files each holding one megabyte of data totals one gigabyte, but incurs ten seconds of overhead before reading a single row. The same data in ten files of one hundred megabytes each costs only a tenth of a second of overhead — a one-hundred-times improvement in startup cost alone. Second, small files reduce the effectiveness of Parquet's row-group statistics. Fewer rows per file means the minimum and maximum value range per file is wider, so fewer files can be skipped at query time.
+
+OPTIMIZE — File Compaction.
+
+The OPTIMIZE command reads small files in a partition, combines their rows, and writes a smaller number of larger files targeting approximately one gigabyte each. The old files are marked as removed in the transaction log and the new compacted files are added as a new transaction. The operation is fully atomic — readers see either all old files or all new files, never a mix.
+
+OPTIMIZE can target the entire table, a specific partition by providing a WHERE predicate, or combine compaction with clustering in a single step using the ZORDER BY clause.
+
+Run OPTIMIZE after a streaming pipeline accumulates many small files, after many small append writes or MERGE operations, on a nightly schedule for tables written to continuously, and before running a large analytical query that will scan the whole table.
+
+Data Skipping — How Delta Avoids Reading Files.
+
+When Delta writes a Parquet file it records column-level statistics in the transaction log for each file. These statistics include the minimum value, the maximum value, the null count, and the total row count for each column in that file.
+
+At query time, if a filter predicate is provably false for a file based on its statistics, Spark skips that file entirely without opening it. For a query filtering where amount is greater than five hundred, a file whose maximum amount value is four hundred and ninety can be skipped immediately — no row in that file can possibly satisfy the condition. Only files whose maximum value exceeds the threshold need to be opened and scanned.
+
+Data skipping is most effective when data is physically clustered by the filter column, because clustering narrows the minimum-to-maximum range within each file. A narrow range means the statistics are precise enough to skip more files. This is exactly what ZORDER BY achieves.
+
+ZORDER BY — Multi-Dimensional Clustering.
+
+Z-ordering co-locates related data in the same files using a space-filling curve. When you run OPTIMIZE with ZORDER BY specifying one or more columns, Delta sorts rows using a Z-order key derived from those columns and packs them into files. The result is files that contain narrow value ranges for all the specified columns simultaneously, not just one.
+
+The advantage over a regular sort is significant. A regular sort on category and amount clusters data well for category filters but not for amount filters used alone, because within each category the amount values are sorted but files still span a wide amount range. Z-ordering interleaves the sort keys using a curve that preserves locality in multiple dimensions at once, so both category and amount benefit from data skipping simultaneously.
+
+Four rules guide the choice of ZORDER columns. Use columns that appear frequently in WHERE clauses — those are the predicates that benefit from skipping. Use columns with medium to high cardinality such as customer identifier or merchant name — Z-ordering on a boolean or a column with only five distinct values provides almost no benefit because the min-max range is already narrow. Limit to two to four columns — adding more columns beyond that dilutes the locality benefit without meaningful gain. Never Z-ORDER by partition columns — those already direct readers to the right directory, so clustering within the directory by the same column is redundant.
+
+Z-ORDER is not maintained incrementally. Each time OPTIMIZE runs it re-clusters the files from scratch based on the current data. For tables written to continuously, OPTIMIZE should be run on a schedule.
+
+Bloom Filter Indexes.
+
+A Bloom filter is a probabilistic data structure that answers the question of whether a given value is present in a file. The answer is one of two outcomes: definitely not, meaning the file can be skipped entirely, or possibly yes, meaning the file must be read because there is a small chance of a false positive. Bloom filters are stored per file in the delta-log directory and are extremely compact — a few kilobytes per file even for files containing millions of distinct values.
+
+Bloom filters are the right tool for high-cardinality equality lookups on columns like UUID, transaction identifier, or hash values. For such columns, Z-ordering's min-max statistics are ineffective because the minimum and maximum of a UUID column span almost the full range across every file. A Bloom filter, by contrast, can definitively rule out most files for a specific equality predicate.
+
+The CREATE BLOOMFILTER INDEX command creates the index for a table. The column is specified along with two options: the false positive probability and the number of items. The false positive probability — abbreviated fpp — controls how often the filter incorrectly says possibly yes for a value that is actually not in the file. Setting fpp to zero-point-zero-one means a one percent false positive rate: on average one file in a hundred will be opened unnecessarily. The numItems option tells the filter how many distinct values to expect, which controls the size of the filter data structure.
+
+Bloom filters only help equality predicates. They provide no benefit for range filters or IS NULL checks.
+
+Partition Strategies.
+
+Partitioning physically separates data into subdirectories, enabling Spark to skip entire directories for filtered queries. Choosing the right partition column is critical — a bad choice can hurt performance more than not partitioning at all.
+
+The rules for choosing partition columns are as follows. Choose columns with low to medium cardinality — somewhere between ten and ten thousand distinct values. Too few distinct values means all data lands in one directory with no pruning benefit. Too many distinct values means millions of tiny directories, making even a simple COUNT query slow due to listing overhead. Choose columns that appear frequently in WHERE clauses — if queries never filter on the partition column, partitioning provides no pruning benefit. Aim for at least one gigabyte of data per partition — less than that signals over-partitioning, which recreates the small-file problem at the directory level.
+
+The most common good partition columns are date, month, region, status, and category — all low-cardinality and frequently used in filters.
+
+The over-partitioning anti-pattern is partitioning by a high-cardinality column like customer identifier or transaction identifier. With ten thousand distinct customer identifiers, each partition holds only a handful of rows. The listing overhead to enumerate ten thousand directories can take longer than simply scanning all the data without partitioning.
+
+Generated Columns — Auto-Derived Partition Keys.
+
+A generated column is a column whose value is automatically computed from other columns by a deterministic expression. Delta evaluates the expression at write time — writers never need to compute the column themselves.
+
+The most common use case is extracting a date or year-month value from a timestamp column to use as the partition key. The source data provides the raw timestamp; Delta derives the date partition key automatically. This means the incoming DataFrame does not need to include the partition column — Delta computes and writes it. When a query filters on the generated partition column, Delta applies both partition pruning and the column statistics for the underlying timestamp, giving precise data skipping without any extra work from the writer.
+
+Table Constraints.
+
+Delta Lake supports two types of constraints enforced at write time. Any write that violates a constraint is rejected with an error before any files are committed to the table.
+
+The NOT NULL constraint is declared in the column definition when creating the table. It prevents any write from inserting a null value into that column.
+
+The CHECK constraint is added to an existing table using ALTER TABLE ADD CONSTRAINT with a name and a boolean expression. The expression must evaluate to true for every row in any write. CHECK constraints can express arbitrary value-level rules: amounts must be positive, status must be one of a valid set of values, an end date must be after the corresponding start date.
+
+Both constraint types are stored in the transaction log as table properties and are enforced by every writer, not just the job that created the constraint. They act as a schema-level data quality gate that prevents invalid data from ever entering the table, unlike downstream data quality checks that catch problems only after bad data has landed.
+
+ANALYZE TABLE — Collecting Statistics.
+
+The ANALYZE TABLE command computes column-level statistics — distinct count, minimum, maximum, null count, and histogram — and stores them in the metastore. These statistics are used by the Spark query optimizer, Catalyst, to choose the best physical plan for joins and to estimate result sizes for downstream operations.
+
+Without statistics, Catalyst relies on rough size estimates and may choose a sort-merge join when a broadcast join would be faster. After ANALYZE TABLE, it has accurate row count and column distribution information to make better join strategy decisions.
+
+ANALYZE TABLE can be run at three levels of detail: computing just the row count and table size, computing statistics for all columns, or computing statistics for a specific list of columns. For large tables with many columns, computing statistics only for the columns used in joins and aggregations is more efficient than computing them for all columns.
+
+Auto-Compaction and Optimized Writes.
+
+On Databricks, two Delta features manage file sizes automatically without requiring explicit OPTIMIZE calls. These features are Databricks-specific and are not available in open-source Spark.
+
+Auto-compaction monitors file sizes after each write and automatically runs a compaction in the background if enough small files have accumulated in a partition. The table stays in a reasonably compacted state without manual intervention. It can be enabled at the session level via a Spark configuration or per table via a table property.
+
+Optimized writes restructure the write path so that when data is written with a shuffle — such as when partitioning — the output files are coalesced to target one gigabyte each instead of creating one file per Spark task. This prevents the small-file problem at write time rather than fixing it after the fact. Like auto-compaction, it can be enabled at the session level or per table.
+
+On open-source Spark, the equivalent is to schedule OPTIMIZE on a regular cadence after stream checkpoints or batch writes.
+
+CLONE — Shallow and Deep Copies.
+
+The CLONE command creates a copy of a Delta table in one of two modes.
+
+A shallow clone is nearly free — it creates a new transaction log that references the same underlying data files as the source table without copying them. The clone is a fully functional Delta table with its own history. You can run DELETE, UPDATE, and MERGE on the clone without affecting the source table — Delta uses copy-on-write semantics, so only the files modified by mutations are written to the clone's own storage location. Shallow clones are ideal for development and testing environments, short-lived feature branches, and exploring data without risking production data.
+
+A deep clone copies all data files to the new location, creating a fully independent table. Changes to the source after the clone is created do not appear in the clone, and changes to the clone do not affect the source. Deep clones are appropriate for disaster recovery, archiving a table at a specific point in time, and migrating tables to a different storage location or cloud region.
+
+Both clone types support time travel — you can specify VERSION AS OF or TIMESTAMP AS OF to clone the table as it was at a past state.
+
+Optimization Decision Guide.
+
+When queries are slow on a Delta table, work through the following checks to choose the right optimization.
+
+If the table has many small files — more than one hundred files each smaller than one hundred and twenty-eight megabytes — run OPTIMIZE to compact them to approximately one gigabyte each.
+
+If queries filter on specific columns, the choice depends on cardinality. For a low-cardinality filter column like date, month, or region, use PARTITIONED BY to enable directory-level pruning. For a medium-cardinality column like customer identifier or merchant, use OPTIMIZE ZORDER BY on that column to cluster rows within partitions.
+
+If queries do point lookups by UUID or transaction identifier, create a BLOOMFILTER INDEX on that column.
+
+If the query optimizer is choosing a sort-merge join when a broadcast join would be faster, run ANALYZE TABLE COMPUTE STATISTICS FOR COLUMNS on the join columns to give Catalyst accurate size information.
+
+If you need a development or test copy of the table without paying for data duplication, use a SHALLOW CLONE.
+
+If a streaming pipeline is continuously producing small files, enable auto-compaction and optimized writes on Databricks, or schedule OPTIMIZE after each stream checkpoint in open-source Spark.
+
+If data quality issues are reaching the table, add CHECK and NOT NULL constraints to enforce value-level rules at write time.
+
+The most effective combined setup for an analytical Delta table uses four layers. First, PARTITIONED BY a date or low-cardinality column for directory-level pruning on time-range queries. Second, OPTIMIZE ZORDER BY the most common filter columns for within-partition clustering. Third, a BLOOMFILTER INDEX on high-cardinality identifier columns for point-lookup acceleration. Fourth, ANALYZE TABLE on join and filter columns so Catalyst makes accurate join strategy decisions. Add a weekly VACUUM on a retention of one hundred and sixty-eight hours to reclaim disk space while preserving seven days of time travel.
+
+Summary.
+
+OPTIMIZE compacts many small files into fewer large ones targeting approximately one gigabyte each. Run after streaming writes, many small appends, or before large scans. The operation is atomic — no reader sees a partial state.
+
+ZORDER BY co-locates rows with similar values in the same files using a space-filling curve. It maximises data skipping for multi-column filters. Use it for medium to high cardinality columns that appear in WHERE clauses. Do not Z-ORDER by partition columns. Re-runs from scratch each time OPTIMIZE is called.
+
+Data skipping uses per-file minimum, maximum, and null statistics stored in the transaction log. Spark skips files whose statistics prove no row can satisfy the filter. More effective after OPTIMIZE because fewer larger files have tighter, more precise statistic ranges.
+
+Bloom filter indexes accelerate equality point lookups on high-cardinality columns such as UUIDs and transaction identifiers. Probabilistic — eliminates files that definitely do not contain the value. Does not help range queries.
+
+Partition strategies should target low-cardinality frequently-filtered columns with at least one gigabyte of data per partition. Over-partitioning creates millions of tiny directories that slow down listing and full-table scans.
+
+Generated columns compute partition keys automatically from raw columns — for example, a date from a timestamp — so writers never need to supply the derived column.
+
+Table constraints enforce value-level data quality at write time. NOT NULL prevents null values. CHECK enforces arbitrary boolean expressions. Any write violating a constraint is rejected atomically.
+
+ANALYZE TABLE collects column statistics for Catalyst, enabling accurate join strategy selection and cardinality estimates.
+
+CLONE creates a copy of a Delta table. Shallow clone is metadata-only and free, referencing source files with copy-on-write semantics on mutation. Deep clone copies all files for full independence.
+
+The combined best practice for an analytical Delta table is partitioning by date, OPTIMIZE ZORDER BY on common filter columns, a BLOOMFILTER INDEX on identifier columns, ANALYZE TABLE for column statistics, and a weekly VACUUM to reclaim disk space.

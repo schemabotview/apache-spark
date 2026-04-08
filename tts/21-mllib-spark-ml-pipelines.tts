@@ -1,0 +1,117 @@
+Spark's machine learning library — MLlib — brings machine learning to large-scale, distributed data. Instead of collecting data to a single machine for training, Spark trains models in parallel across the cluster using the same DataFrames and transformations you already know. In a banking context, MLlib powers fraud detection for card transactions, credit risk scoring for loan applicants, customer segmentation by spend behaviour, and churn prediction for customers likely to close accounts.
+
+The Two APIs.
+
+There are two generations of the MLlib API and it is important to know which one to use. The original API, found at spark.mllib, is RDD-based and has been in maintenance-only mode since Spark 2.0. No new features are added to it. The current API, found at spark.ml, is DataFrame-based, supports composable pipelines, and is actively developed. Always use spark.ml for new code. The import path is pyspark.ml.
+
+Core Abstractions — Transformer, Estimator, Pipeline.
+
+The spark.ml library is built around three abstractions.
+
+A Transformer has a transform method that takes a DataFrame and returns a new DataFrame with one or more additional columns. Transformers require no training — they apply a fixed, stateless computation. Examples include OneHotEncoder, VectorAssembler, and Binarizer.
+
+An Estimator has a fit method that takes a DataFrame and returns a fitted Model, which is itself a Transformer. The fit method learns parameters from the data. Examples include StringIndexer, StandardScaler, LogisticRegression, and RandomForestClassifier.
+
+A Pipeline chains Transformers and Estimators into a single object. Calling fit on a Pipeline trains every Estimator stage in sequence, feeding the output of each stage as the input to the next. The result is a PipelineModel, which is a Transformer that applies every stage's transform in the same sequence. A PipelineModel is serialisable — you can save it to disk and load it later without re-fitting.
+
+To make the chaining concrete: calling fit on a pipeline containing StringIndexer, OneHotEncoder, VectorAssembler, and LogisticRegression calls StringIndexer.fit to learn the label-to-index mapping, then transforms the training data with the fitted StringIndexerModel, then calls OneHotEncoder.fit to learn the category count, then transforms again, then passes the result through VectorAssembler, which requires no fitting, and finally calls LogisticRegression.fit on the assembled features. The resulting PipelineModel wraps all four fitted stages.
+
+Feature Engineering.
+
+ML algorithms require numeric input. Feature engineering transforms raw DataFrame columns into the numeric vectors algorithms expect. Four transformers handle the most common cases.
+
+StringIndexer — Encoding Categorical Columns.
+
+StringIndexer maps each distinct string value in a column to a numeric index. The most frequent value gets index zero, the second most frequent gets index one, and so on. The handleInvalid option controls behaviour when a value is seen at transform time that was not present during fit. Setting it to keep assigns an extra index for unseen values instead of raising an error — the right choice for production models that may encounter new categories. Setting it to error raises an exception, and skip drops the offending rows.
+
+The fit step scans the data and learns the mapping. The transform step applies it, producing a new column of type double. StringIndexer is an Estimator — fit must be called before transform.
+
+OneHotEncoder — Removing Ordinal Relationships.
+
+Raw numeric indexes carry an implicit ordering. An index of two appears mathematically greater than an index of one, but FOOD is not greater than TRAVEL — the ordering is meaningless. OneHotEncoder converts each index into a sparse binary vector where only one position is one and all others are zero.
+
+For a column with N distinct categories, the resulting vector has length N minus one. The last category is dropped as the reference level to avoid perfect multicollinearity in linear models. This is controlled by the dropLast option, which defaults to true.
+
+In Spark 3, OneHotEncoder is an Estimator — it needs to call fit to learn the number of categories before it can produce correctly sized vectors. The fitted OneHotEncoderModel then applies the transform.
+
+VectorAssembler — Combining Features into One Vector.
+
+ML algorithms in spark.ml expect all features in a single vector column, named features by convention. VectorAssembler takes a list of input columns — numeric scalars, boolean values, and sparse OHE vectors — and concatenates them into one dense or sparse vector per row. It is a pure Transformer and requires no fitting.
+
+The handleInvalid option controls rows with null values in any input column. Setting it to skip drops those rows. Setting it to keep replaces nulls with zero. Setting it to error raises an exception.
+
+StandardScaler — Normalising Feature Magnitudes.
+
+Some algorithms are sensitive to the absolute scale of features. A transaction amount ranging from zero to fifty thousand dominates an hour-of-day column ranging from zero to twenty-three. StandardScaler normalises each feature independently to zero mean and unit standard deviation.
+
+Two options control the normalisation. Setting withStd to true divides each feature by its standard deviation. Setting withMean to true subtracts the mean from each feature. Both default to true when using StandardScaler with dense input. However, withMean must be set to false when the input contains sparse vectors from OneHotEncoder, because subtracting the mean from a sparse vector produces a dense vector and inflates memory use dramatically.
+
+Note that LogisticRegression has a standardization option that defaults to true, which normalises features internally. When using LogisticRegression, a separate StandardScaler stage is optional.
+
+Classification — Fraud Detection Pipeline.
+
+The is_fraud column in card_transactions is the label for a binary classification task. The goal is to predict whether a transaction is fraudulent based on the transaction amount, the hour of day extracted from the transaction timestamp, and the spending category.
+
+The label must be a double type — zero-point-zero for legitimate and one-point-zero for fraud. The amount column, stored as a decimal type, must be cast to double. The hour is extracted from the timestamp and cast to double.
+
+Fraud detection datasets are almost always highly imbalanced. Fraud transactions typically represent a fraction of a percent of all transactions. Because of this imbalance, raw accuracy is a misleading metric — a model that predicts every transaction as legitimate would score above ninety-nine percent accuracy while being completely useless. AUC-ROC, the area under the receiver operating characteristic curve, is the appropriate primary metric for imbalanced binary classification.
+
+Building the Pipeline.
+
+A complete fraud detection pipeline has four stages. The first stage is a StringIndexer that encodes the category string column to a numeric index. The second stage is a OneHotEncoder that converts the index to a sparse binary vector. The third stage is a VectorAssembler that combines the amount, hour, and category vector into a single features column. The fourth stage is a LogisticRegression configured with the features column, the label column, a regularisation parameter, and standardization enabled.
+
+The pipeline is created by passing the four stages as a list. Calling randomSplit on the prepared DataFrame with a ratio of eighty to twenty and a fixed seed produces reproducible train and test sets. Calling fit on the pipeline with the training data trains all four stages in sequence and returns a PipelineModel. Calling transform on the PipelineModel with the test data applies all four stages and produces a DataFrame with added columns: rawPrediction containing the raw model output, probability containing the class probabilities as a vector, and prediction containing the predicted class as a double.
+
+Model Evaluation.
+
+Four evaluators cover the most common metrics. BinaryClassificationEvaluator with the areaUnderROC metric computes the AUC-ROC score, the standard metric for imbalanced binary classification. BinaryClassificationEvaluator with the areaUnderPR metric computes the area under the precision-recall curve, which is useful when the cost of false positives and false negatives differ significantly. MulticlassClassificationEvaluator with the accuracy metric computes the fraction of correctly classified rows. MulticlassClassificationEvaluator with the f1 metric computes the harmonic mean of precision and recall.
+
+After evaluating, inspect the confusion matrix by grouping predictions by the actual label and the predicted label and counting. This shows separately how many legitimate transactions were correctly classified, how many were incorrectly flagged as fraud, how many fraud transactions were correctly caught, and how many were missed.
+
+Inspecting the fitted LogisticRegression model reveals the coefficient assigned to each feature. Features with larger absolute coefficients have more influence on the prediction. The intercept is the model's baseline log-odds when all features are zero.
+
+Cross-Validation — Hyperparameter Tuning.
+
+CrossValidator finds the best hyperparameter combination by training the full pipeline multiple times and selecting the combination with the best average metric across held-out folds.
+
+ParamGridBuilder constructs a grid of parameter combinations. For example, specifying numTrees as twenty and fifty combined with maxDepth as three and five produces four combinations. With three folds, the CrossValidator fits the pipeline twelve times in total — four combinations times three folds.
+
+CrossValidator takes four arguments: the estimator, which is the pipeline to train; the estimatorParamMaps, which is the grid of combinations; the evaluator, which defines the metric to optimise; and the numFolds setting. The parallelism option controls how many parameter combinations are evaluated simultaneously.
+
+The bestModel property of the fitted CrossValidator returns the PipelineModel trained on the full training set with the best-performing parameter combination. The avgMetrics list contains the average metric score for each combination across all folds.
+
+RandomForestClassifier is a useful alternative to LogisticRegression for cross-validation because the fitted model exposes a featureImportances property — a vector giving each feature's relative contribution to the model's predictions. Features with higher importance values had more influence on the split decisions across all trees in the forest.
+
+Regression — Loan Interest Rate Prediction.
+
+Regression predicts a continuous numeric value rather than a class label. Predicting a loan's interest rate from the loan type, principal amount, and tenure demonstrates a complete regression pipeline.
+
+The pipeline structure mirrors the classification pipeline. A StringIndexer encodes the loan type, a OneHotEncoder converts it to a vector, and a VectorAssembler combines the encoded loan type with the numeric principal and tenure columns into a single features vector. LinearRegression is the final stage, configured with the features column, the label column, a regularisation parameter, and the elasticNetParam option. Setting elasticNetParam to zero applies L2 regularisation, also called Ridge. Setting it to one applies L1 regularisation, also called Lasso. Values between zero and one combine both.
+
+Three metrics evaluate regression models. RMSE — root mean squared error — is the average prediction error in the same units as the label. It penalises large errors more heavily than small ones. MAE — mean absolute error — is the average absolute deviation and is less sensitive to outliers. R-squared, the coefficient of determination, measures what fraction of the label's variance is explained by the model. A value of one means perfect fit. A value of zero means the model explains no more variance than predicting the mean.
+
+The fitted LinearRegressionModel exposes the learned coefficients for each feature and the intercept. The model's summary object contains the training RMSE and R-squared, giving a view of in-sample fit before evaluating on the test set.
+
+Saving and Loading ML Pipelines.
+
+Fitted PipelineModel objects are fully serialisable. All stage parameters — the StringIndexerModel label mapping, the OneHotEncoderModel category count, the LogisticRegressionModel coefficients — are saved together in a single directory as JSON metadata and Parquet files.
+
+To save a PipelineModel, call write followed by overwrite to allow overwriting an existing path, then save with the target path. To load it back, call PipelineModel.load with the same path. The loaded model is ready to call transform immediately — no re-fitting is needed. This makes it straightforward to train a model in a batch job and serve predictions in a separate application or streaming pipeline.
+
+To verify correctness, transform the same test set with both the original and loaded models and compare the evaluation metrics. They should be numerically identical.
+
+Summary.
+
+Use spark.ml, the DataFrame-based API, not the legacy spark.mllib RDD-based API.
+
+The three core abstractions are Transformer, Estimator, and Pipeline. A Transformer applies a stateless transform. An Estimator learns parameters via fit and returns a fitted Model. A Pipeline chains stages and produces a PipelineModel from fit.
+
+Feature engineering relies on four key transformers. StringIndexer encodes string categories to numeric indexes — use handleInvalid set to keep for production models. OneHotEncoder converts indexes to sparse binary vectors of length N minus one. VectorAssembler combines all feature columns into a single features vector. StandardScaler normalises to zero mean and unit standard deviation — use withMean set to false for sparse OHE input.
+
+For classification, LogisticRegression is the standard binary baseline with internal feature standardisation. RandomForestClassifier is an ensemble alternative that also provides feature importances. BinaryClassificationEvaluator with areaUnderROC is the right metric for imbalanced datasets. MulticlassClassificationEvaluator provides accuracy and F1.
+
+For hyperparameter tuning, ParamGridBuilder defines the parameter combinations and CrossValidator evaluates them using k-fold cross-validation. The bestModel property returns the top-performing pipeline.
+
+For regression, LinearRegression minimises squared error. Control regularisation with regParam and elasticNetParam. Evaluate with RegressionEvaluator using rmse, mae, and r2 metrics.
+
+Save a fitted pipeline with model.write().overwrite().save(path). Load it back with PipelineModel.load(path). All stage parameters are preserved and the loaded model is immediately ready for inference.

@@ -1,0 +1,111 @@
+Plain data lakes store files — Parquet, JSON, CSV — in object storage like S3 or ADLS. They are cheap and scalable, but they have no built-in mechanism for atomicity, consistency, or schema enforcement. A failed write leaves partial data behind. Two concurrent writes corrupt each other. There is no way to undo a mistake. Delta Lake is an open-source storage layer that adds a transaction log on top of Parquet files, and that log is what makes a Delta table fundamentally different from a folder of Parquet files.
+
+The Problems with Plain Data Lakes.
+
+Object storage is cheap and infinitely scalable, and Parquet is an efficient columnar format. Together they make a compelling foundation, but without a transaction layer, five painful failure modes emerge.
+
+The first is no atomicity. A job writing one hundred files crashes after sixty. Sixty files are committed and forty are missing. Readers see incomplete data with no way to know which rows are present without re-processing everything.
+
+The second is no isolation. Job A overwrites a partition while Job B reads that same partition at the same time. Job B sees a mix of old and new files — an inconsistent snapshot.
+
+The third is no schema enforcement. An upstream pipeline adds a new column with the wrong data type. New files land in the folder and existing readers break at runtime. There is no gate at write time to catch the mismatch.
+
+The fourth is no versioning — mistakes are permanent. An overwrite with the wrong filter destroys data with no way to undo.
+
+The fifth is slow metadata queries, sometimes called the listing problem. A query like counting rows for a single date partition requires S3 LIST calls for every partition directory — thousands of API calls and minutes of latency for large tables.
+
+Delta Lake solves all five problems with a single addition: the transaction log.
+
+The Transaction Log.
+
+Every Delta table has a directory called underscore-delta-log alongside its data files. This directory is the source of truth for the entire table.
+
+The log contains a sequence of JSON files, one per committed transaction. The files are named with twenty-digit zero-padded numbers: the first transaction is zero through nineteen zeros followed by json, the second increments to one, and so on. Every ten commits by default, Delta writes a checkpoint Parquet file that compresses the full log state into a single file for faster recovery.
+
+Each log entry records which data files were added and which were removed in that transaction. An add entry contains the file path, its size in bytes, and per-column statistics — the minimum value, maximum value, and null count for each column in the file. These statistics are what enable data skipping, which is covered later. A remove entry marks a file as deleted from the logical table even though the physical file remains on disk until vacuumed.
+
+Readers use the log in three steps. First, read the latest checkpoint file if one exists to get the table state up to that point. Second, read the subsequent JSON log files to pick up the latest transactions. Third, compute the set of active data files as all add entries minus all remove entries, and read only those files. No directory listing is required. This is why Delta reads are fast even on tables with millions of files — Spark reads the compact log and knows exactly which files to open before touching any data.
+
+Creating a Delta Table.
+
+Writing to Delta is identical to writing Parquet — just change the format string to delta. Spark creates the data files and the underscore-delta-log directory automatically. The first write generates transaction zero in the log, recording the initial set of files as add entries.
+
+Reading a Delta table is equally familiar. Spark reads the log to find the current active files, then opens only those files. The schema is stored in the log rather than inferred from files, so it is always consistent.
+
+Writing to a Delta Table.
+
+Delta supports the same mode options as any Spark write, but with ACID guarantees. Append mode adds new rows and leaves existing rows untouched. All new files are committed atomically — either all of them appear in the log or none of them do. Overwrite mode replaces the entire table. New files are committed before the old ones are removed from the log, so readers always see a complete snapshot. Replace-where mode overrides only the rows matching a predicate — useful for partition-level refreshes without touching the rest of the table.
+
+Each write is a new transaction and a new JSON entry in the log. If the write fails mid-way, none of the new files appear in the log and the table remains in its previous state.
+
+ACID Transactions in Practice.
+
+Delta Lake guarantees all four ACID properties.
+
+Atomicity means a write either commits all its files or commits nothing. If a job crashes after writing sixty of one hundred files, those sixty files exist on disk but are never referenced in the log. Readers never see them. The table remains in its previous state.
+
+Consistency means schema enforcement ensures every committed row conforms to the declared schema. The table is always in a valid state.
+
+Isolation means Delta uses optimistic concurrency control. Each writer reads the current table version, makes its changes, and then attempts to commit. If another writer committed a conflicting change in the meantime, the commit fails and the writer can retry. Readers always see a consistent snapshot regardless of concurrent writes.
+
+Durability means once the log JSON file is written to object storage, the transaction is permanent. Object storage itself provides the durability guarantee.
+
+Schema Enforcement.
+
+Delta Lake rejects writes that do not match the table schema. This is enforced at write time, not at read time, so data quality problems are caught at the source rather than propagating downstream and breaking readers.
+
+Schema enforcement catches four categories of mismatch: new columns not present in the table schema; missing columns that are declared non-nullable; a wrong data type for an existing column; and extra columns with the same name but a different type. All four are rejected with an error before any files are written.
+
+Schema Evolution with mergeSchema.
+
+Schema enforcement blocks accidental schema changes. But sometimes you intentionally want to add a new column to an existing table — for example, when a new data source starts producing an additional field.
+
+Setting the mergeSchema option to true on a write allows additive schema changes. New columns in the incoming data are added to the table schema. Existing rows get null for the new column. Existing columns are not removed. Type changes — for example, an integer column becoming a string — are still rejected unless the types are compatible.
+
+The mergeSchema option is an opt-in safety valve. You must explicitly request it for each write. It never triggers silently.
+
+Time Travel — Querying Past Versions.
+
+Because every transaction is preserved in the log, Delta Lake lets you query the table as it was at any point in time — by version number or by timestamp. This is called time travel.
+
+To read a specific version, pass the versionAsOf option to the read call with the version number as an integer. To read at a specific point in time, use the timestampAsOf option with a timestamp string. Both produce a snapshot of the table exactly as it was when that transaction was committed — the same schema, the same rows, and the same file set that the log recorded at that version.
+
+Time travel enables audit queries — what did this table look like before yesterday's bad write — as well as rollback, reproducibility for ML training data snapshots, and debugging by comparing two versions to find what changed.
+
+Table History.
+
+The DESCRIBE HISTORY SQL command and the DeltaTable.history method in Python return an audit trail of every operation committed to the table. Each row in the history represents one transaction and includes the version number, the timestamp, the operation type such as WRITE, DELETE, MERGE, or OPTIMIZE, the user who ran it, the parameters used, and the metrics — how many files were added, how many were removed, and how many rows were affected.
+
+The history is useful for understanding what changed between two versions, finding the timestamp of a bad write before a rollback, and satisfying compliance and data lineage auditing requirements.
+
+Table Details.
+
+The DESCRIBE DETAIL SQL command returns the current table properties in a single row: the format, the storage location, the number of active data files, the total size in bytes, the list of partition columns, and any user-defined table properties. This is the quickest way to confirm a table's state without reading all its data.
+
+Converting Parquet to Delta.
+
+If you already have a Parquet table, you can convert it to Delta in place without rewriting the data files. The CONVERT TO DELTA command generates an underscore-delta-log directory by scanning the existing Parquet files and recording them as the initial transaction. No data is moved or rewritten. The conversion is fast and the result is a fully functional Delta table with time travel and schema enforcement from that point forward.
+
+For partitioned Parquet tables, provide the partition schema in the conversion command so Delta can record the partition column types in the log. Without it, Delta cannot validate partition columns during writes.
+
+Delta versus Plain Parquet.
+
+The differences between a plain Parquet lake and Delta Lake span the full data engineering stack. Plain Parquet has no ACID writes, no atomic multi-file commits, no concurrent write isolation, no schema enforcement, no built-in schema evolution, no time travel, no audit history, no upsert capability, no row-level deletes or updates, and only partition-level data skipping through directory pruning.
+
+Delta Lake adds all of these. ACID writes through the transaction log. Atomic multi-file commits where all files land or none do. Concurrent write isolation through optimistic concurrency. Schema enforcement at write time. Schema evolution through the mergeSchema option. Time travel by version or timestamp. Full audit history through DESCRIBE HISTORY. Upserts through MERGE INTO. Row-level deletes through DELETE FROM. Row-level updates through UPDATE SET. File compaction through the OPTIMIZE command. Column-level data skipping using the per-file statistics stored in the log. Full streaming support with exactly-once guarantees as both a source and a sink. And zero-copy conversion from Parquet through CONVERT TO DELTA.
+
+Summary.
+
+Delta Lake is an open-source storage layer that adds a transaction log on top of Parquet files, turning a plain file directory into a reliable, queryable table.
+
+The transaction log in the underscore-delta-log directory is the core of Delta Lake. It is a sequence of JSON files, one per committed transaction. Each entry records which files were added and removed. Readers compute the active file set from the log without any directory listing. Checkpoints compress the log every ten commits for faster startup.
+
+The four ACID guarantees are as follows. Atomicity means a write commits all files or none. Consistency means schema enforcement rejects invalid data at write time. Isolation means optimistic concurrency keeps readers on a consistent snapshot regardless of concurrent writes. Durability means committed transactions are permanent in object storage.
+
+Schema enforcement rejects extra columns, wrong types, and missing non-nullable columns. Use the mergeSchema option for intentional additive schema changes when you need to add new columns.
+
+Time travel lets you read any past version by version number with the versionAsOf option or by timestamp with the timestampAsOf option. Every transaction is permanently preserved in the log until VACUUM removes the underlying files.
+
+DESCRIBE HISTORY gives a full audit trail of every operation with its timestamp, parameters, and metrics. CONVERT TO DELTA upgrades an existing Parquet table to Delta in place with no data copied.
+
+The next notebook covers MERGE, UPDATE, DELETE, rollback, and retention policies in depth.
