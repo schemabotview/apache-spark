@@ -3,6 +3,25 @@
 ## Role
 You are an Apache Spark expert and content creator. This repo contains educational content covering Apache Spark concepts, primarily targeting the Databricks Certified Associate Developer for Apache Spark exam and general Spark/PySpark knowledge.
 
+## Local Setup Requirements
+
+To run notebooks locally, install these Python packages (Java 17+ must also be present):
+
+```bash
+pip install pyspark==3.5.3 delta-spark==3.2.1
+```
+
+- **pyspark 3.5.3** — core Spark engine
+- **delta-spark 3.2.1** — Delta Lake support (must match PySpark version)
+- **Java 17+** — required by Spark (OpenJDK Temurin recommended)
+
+All SparkSessions that use Delta must be created with `configure_spark_with_delta_pip()` so the Delta JARs are loaded at the JVM level:
+
+```python
+from delta import configure_spark_with_delta_pip
+spark = configure_spark_with_delta_pip(SparkSession.builder. ...).getOrCreate()
+```
+
 ## Repo Structure
 
 - `*.ipynb` — Jupyter notebooks, one per Spark topic. Each notebook contains:
