@@ -47,13 +47,13 @@ Audio is generated via `generate_audio_colab.ipynb` on Google Colab (T4 GPU):
 | SQL Functions & UDFs | `11-sql-functions-udfs.ipynb` | `11-sql-functions-udfs.wav` |
 | Partitioning, Shuffles & Catalyst | `12-partitioning-shuffles-catalyst.ipynb` | `partitioning-shuffles--catalyst.wav` |
 | Caching & Persistence | `13-caching-persistence.ipynb` | `caching--persistence.wav` |
-| Broadcast Joins & Data Skew | _(planned)_ | `broadcast-joins--data-skew.wav` |
-| Structured Streaming Fundamentals | _(planned)_ | `structured-streaming-fundamentals.wav` |
-| Sources, Sinks & Watermarking | _(planned)_ | `sources-sinks--watermarking.wav` |
-| Stateful Stream Processing | _(planned)_ | `stateful-stream-processing.wav` |
-| What is Delta Lake? | _(planned)_ | `what-is-delta-lake.wav` |
-| ACID & Time Travel | _(planned)_ | `acid--time-travel.wav` |
-| Delta Operations & Optimization | _(planned)_ | `delta-operations--optimization.wav` |
+| Broadcast Joins & Data Skew | `14-broadcast-joins-data-skew.ipynb` | `broadcast-joins--data-skew.wav` |
+| Structured Streaming Fundamentals | `15-structured-streaming-fundamentals.ipynb` | `structured-streaming-fundamentals.wav` |
+| Sources, Sinks & Watermarking | `16-sources-sinks-watermarking.ipynb` | `sources-sinks--watermarking.wav` |
+| Stateful Stream Processing | `17-stateful-stream-processing.ipynb` | `stateful-stream-processing.wav` |
+| What is Delta Lake? | `18-what-is-delta-lake.ipynb` | `what-is-delta-lake.wav` |
+| ACID & Time Travel | `19-acid-time-travel.ipynb` | `acid--time-travel.wav` |
+| Delta Operations & Optimization | `20-delta-operations-optimization.ipynb` | `delta-operations--optimization.wav` |
 | MLlib & Spark ML Pipelines | _(planned)_ | `mllib--spark-ml-pipelines.wav` |
 | Databricks Certified Spark Developer Exam Guide | _(planned)_ | `databricks-certified-spark-developer-exam-guide.wav` |
 
