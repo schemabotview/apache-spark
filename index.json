@@ -1,0 +1,60 @@
+{
+  "sections": [
+    {
+      "title": "Getting Started",
+      "notebooks": [
+        "01-what-is-apache-spark",
+        "02-spark-architecture",
+        "03-setting-up-pyspark-databricks"
+      ]
+    },
+    {
+      "title": "Core APIs",
+      "notebooks": [
+        "04-rdds-the-foundation",
+        "05-dataframes-datasets",
+        "06-sparksession-execution-model",
+        "07-reading-writing-data",
+        "08-core-transformations"
+      ]
+    },
+    {
+      "title": "Spark SQL",
+      "notebooks": [
+        "09-aggregations-window-functions",
+        "10-spark-sql-temporary-views",
+        "11-sql-functions-udfs"
+      ]
+    },
+    {
+      "title": "Performance",
+      "notebooks": [
+        "12-partitioning-shuffles-catalyst",
+        "13-caching-persistence",
+        "14-broadcast-joins-data-skew"
+      ]
+    },
+    {
+      "title": "Structured Streaming",
+      "notebooks": [
+        "15-structured-streaming-fundamentals",
+        "16-sources-sinks-watermarking",
+        "17-stateful-stream-processing"
+      ]
+    },
+    {
+      "title": "Delta Lake",
+      "notebooks": [
+        "18-what-is-delta-lake",
+        "19-acid-time-travel",
+        "20-delta-operations-optimization"
+      ]
+    },
+    {
+      "title": "Machine Learning",
+      "notebooks": [
+        "21-mllib-spark-ml-pipelines"
+      ]
+    }
+  ]
+}
