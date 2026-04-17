@@ -3,17 +3,15 @@
 ## Role
 You are an Apache Spark expert and content creator. This repo contains educational content covering Apache Spark concepts, primarily targeting the Databricks Certified Associate Developer for Apache Spark exam and general Spark/PySpark knowledge.
 
-## Local Setup Requirements
+See `../CLAUDE.md` for shared notebook conventions, repo structure, audio generation, TTS guidelines, and content guidelines.
 
-To run notebooks locally, install these Python packages (Java 17+ must also be present):
+## Local Setup
+
+To run notebooks locally (Java 17+ must also be present):
 
 ```bash
 pip install pyspark==3.5.3 delta-spark==3.2.1
 ```
-
-- **pyspark 3.5.3** — core Spark engine
-- **delta-spark 3.2.1** — Delta Lake support (must match PySpark version)
-- **Java 17+** — required by Spark (OpenJDK Temurin recommended)
 
 All SparkSessions that use Delta must be created with `configure_spark_with_delta_pip()` so the Delta JARs are loaded at the JVM level:
 
@@ -22,31 +20,12 @@ from delta import configure_spark_with_delta_pip
 spark = configure_spark_with_delta_pip(SparkSession.builder. ...).getOrCreate()
 ```
 
-## Repo Structure
+`generate_bank_data.ipynb` — one-time setup that writes the `data/` folder (8 tables, 5 formats). Run before any topic notebook. `data/` is gitignored.
 
-- `*.ipynb` — Jupyter notebooks, one per Spark topic. Each notebook contains:
-  - **Markdown cells** — theory, explanations, diagrams (in text), definitions
-  - **Code cells** — hands-on examples, PySpark snippets, or demos
-- `generate_bank_data.ipynb` — One-time setup notebook that writes the `data/` folder (8 tables, 5 formats). Run before any topic notebook.
-- `tts/` — Plain-text `.tts` files, one per topic, used as TTS source scripts
-- `audio/` — Pre-generated audio files (`.wav`) for each topic, generated from `.tts` files using ChatterboxTTS on Colab GPU
-- `data/` — Generated sample data (gitignored). Created by `generate_bank_data.ipynb`.
+## Content Guidelines
 
-## Notebook Conventions
-
-- Filename: `01-what-is-apache-spark.ipynb`, `02-spark-architecture.ipynb` — leading numbers control sort order
-- Each notebook covers a single topic
-- First cell must be a markdown cell that introduces the topic
-- Use markdown cells for explanations and theory, code cells for runnable PySpark examples
-- Outputs (stdout, etc.) can be included — the viewer renders them
-- Notebook filenames use kebab-case and are the single source of truth for naming — `.tts` and `.wav` files use the exact same stem (e.g., `01-spark-architecture.ipynb` → `tts/01-spark-architecture.tts` → `audio/01-spark-architecture.wav`)
-
-## Audio Generation
-
-Audio is generated via `generate_audio_colab.ipynb` on Google Colab (T4 GPU):
-1. Reads `.tts` files from `tts/`
-2. Generates `.wav` files using ChatterboxTTS
-3. Pushes each `.wav` to `audio/` via git commit
+- Prefer PySpark (Python) for code examples unless Scala is more illustrative
+- Use real-world analogies to explain Spark concepts
 
 ## Topics Covered
 
@@ -75,12 +54,3 @@ Audio is generated via `generate_audio_colab.ipynb` on Google Colab (T4 GPU):
 | Delta Operations & Optimization | `20-delta-operations-optimization.ipynb` | `delta-operations--optimization.wav` |
 | MLlib & Spark ML Pipelines | `21-mllib-spark-ml-pipelines.ipynb` | `mllib--spark-ml-pipelines.wav` |
 | Databricks Certified Spark Developer Exam Guide | _(planned)_ | `databricks-certified-spark-developer-exam-guide.wav` |
-
-## Content Guidelines
-
-- Write theory in clear, beginner-friendly language
-- Use real-world analogies to explain Spark concepts
-- Keep code examples practical and minimal — demonstrate the concept, not the full API
-- Prefer PySpark (Python) for code examples unless Scala is more illustrative
-- Each notebook should be self-contained and readable top-to-bottom
-- `.tts` files should be plain prose (no markdown, no code) — they are read aloud by TTS
