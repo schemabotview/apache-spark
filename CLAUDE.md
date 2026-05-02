@@ -52,11 +52,11 @@ spark = configure_spark_with_delta_pip(SparkSession.builder. ...).getOrCreate()
 | What is Delta Lake? | `18-what-is-delta-lake.ipynb` | `what-is-delta-lake.wav` |
 | ACID & Time Travel | `19-acid-time-travel.ipynb` | `acid--time-travel.wav` |
 | Delta Operations & Optimization | `20-delta-operations-optimization.ipynb` | `delta-operations--optimization.wav` |
-| MLlib & Spark ML Pipelines | `21-mllib-spark-ml-pipelines.ipynb` | `mllib--spark-ml-pipelines.wav` |
 | Databricks Certified Spark Developer Exam Guide | _(planned)_ | `databricks-certified-spark-developer-exam-guide.wav` |
 
 ## Miscellaneous
 
 | Topic | Notebook | Audio |
 |---|---|---|
+| MLlib & Spark ML Pipelines | `21-mllib-spark-ml-pipelines.ipynb` | `mllib--spark-ml-pipelines.wav` |
 | Pandas API on Spark | `22-pandas-api-on-spark.ipynb` | `22-pandas-api-on-spark.wav` |
