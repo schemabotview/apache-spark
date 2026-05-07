@@ -51,9 +51,10 @@
       ]
     },
     {
-      "title": "Machine Learning",
+      "title": "Miscellaneous",
       "notebooks": [
-        "21-mllib-spark-ml-pipelines"
+        "21-mllib-spark-ml-pipelines",
+        "22-pandas-api-on-spark"
       ]
     }
   ]

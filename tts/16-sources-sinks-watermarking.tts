@@ -108,14 +108,6 @@ A stream-static join enriches each incoming streaming row with data from a stati
 
 Three rules apply. First, the static DataFrame is re-read on every micro-batch, so changes to the static data are eventually reflected in the output without restarting the stream. Second, no watermark is needed on the static side because it never generates late data. Third, left outer joins are safe with streaming on the left side, but right outer and full outer joins are not supported when the stream is the left input.
 
-Stream-Stream Join.
-
-Joining two live streams requires Spark to buffer rows from each side while waiting for a matching row to arrive on the other side. Without a bound on how long to wait, the buffers grow indefinitely. Both streams must have watermarks to tell Spark when it is safe to evict unmatched rows.
-
-For an inner join, a time range condition is also required. The condition specifies that matching rows from the two streams must have event times within a bounded interval — for example, the alert timestamp must be within five minutes of the transaction timestamp in either direction. Without this condition, Spark cannot determine when a buffered row can never be matched and cannot evict it.
-
-Supported join types for stream-stream joins are inner join, left outer join, and right outer join. Full outer join is not supported.
-
 Source and Sink Fault-Tolerance.
 
 End-to-end exactly-once delivery requires both the source and the sink to be fault-tolerant. The source must be replayable — Kafka provides this through offset tracking, and the file source provides it through checkpoint-tracked file lists. The sink must be idempotent or transactional — Delta Lake provides this through transactional commits, and Kafka provides it through its idempotent producer mode.

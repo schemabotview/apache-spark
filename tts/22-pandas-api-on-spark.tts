@@ -1,0 +1,109 @@
+The Pandas API on Spark, found at pyspark dot pandas, lets you write familiar pandas code that runs on a distributed Spark cluster. Instead of learning an entirely new API, you import pyspark dot pandas as ps and use the same DataFrame and Series interfaces you already know — but backed by Spark's execution engine.
+
+In a banking context this matters when a pandas workflow that worked fine on a sample of one hundred thousand transactions breaks down on five hundred million rows. The Pandas API on Spark scales the same code without a full rewrite.
+
+The Three DataFrame APIs.
+
+It helps to see the three APIs side by side. The standard pandas library runs on a single machine, evaluates eagerly, and guarantees row ordering. The native Spark DataFrame API runs on a distributed cluster, evaluates lazily, and does not guarantee row order — but gives you full control and the best performance. The Pandas API on Spark sits in between: it runs on a distributed cluster and evaluates lazily, but exposes a pandas-style interface. Under the hood, every pyspark dot pandas call is translated into a Spark logical plan and executed by Spark.
+
+Creating Pandas-on-Spark DataFrames.
+
+There are three common ways to create a pyspark dot pandas DataFrame.
+
+The first is from a plain pandas DataFrame. You call ps dot from pandas and pass the pandas DataFrame. The result looks and behaves like a pandas DataFrame but runs on Spark.
+
+The second is from a Spark DataFrame. You call dot to underscore pandas underscore on underscore spark on any existing Spark DataFrame. This is the idiomatic bridge when you already have data loaded in Spark.
+
+The third is directly from Python data, using ps dot DataFrame with a dictionary — identical to the pd dot DataFrame syntax you already know.
+
+Common Operations.
+
+Column selection, boolean filtering, and descriptive statistics all use the same syntax as pandas. You pass a list of column names to select columns. You use bracket notation with a boolean condition to filter rows. You call dot describe to get summary statistics — but remember that each of these triggers a distributed Spark job on the full dataset, not just a local computation.
+
+Value counts work the same way: call dot value underscore counts on a Series to get a frequency table. Internally this becomes a groupBy and count in Spark.
+
+GroupBy and Aggregation.
+
+GroupBy syntax is identical to pandas. You chain dot groupby, a column selection, and dot agg with a list of aggregation names such as count, sum, and mean. Dot reset underscore index promotes the group key back to a regular column, just as in pandas.
+
+The transform method is also supported — it lets you broadcast a group-level statistic back to each row. For example, dividing each transaction amount by the group total gives each row its percentage share of the status group.
+
+Merge.
+
+ps dot merge supports the same join types as pd dot merge: inner, left, right, and outer. You pass the two DataFrames, the key column with the on parameter, and the join type with the how parameter. Internally this becomes a Spark join.
+
+Converting Between APIs.
+
+Moving data between pandas, pandas-on-Spark, and native Spark DataFrames is explicit and uses a small set of methods you should memorise.
+
+To go from a plain pandas DataFrame to a Spark DataFrame, use spark dot createDataFrame and pass the pandas DataFrame. Spark infers the schema from the pandas dtypes.
+
+To go from a plain pandas DataFrame to a pandas-on-Spark DataFrame, use ps dot from pandas.
+
+To go from a pandas-on-Spark DataFrame to a native Spark DataFrame, call dot to underscore spark. This gives you a pyspark dot sql dot DataFrame — useful when you need a Spark SQL function that pyspark dot pandas does not expose.
+
+To go from a pandas-on-Spark DataFrame to a plain pandas DataFrame, call dot to underscore pandas. This collects all the data to the driver, so only do this for small results.
+
+To go from a Spark DataFrame to plain pandas, call dot to pandas or dot toPandas — both collect to driver.
+
+Index Behaviour and the Default Index Type Setting.
+
+Pandas guarantees a meaningful integer index. Distributed DataFrames do not — rows live across partitions with no natural global order. pyspark dot pandas offers three index strategies.
+
+The sequence strategy assigns zero, one, two in order. This requires a full sort across the cluster and is expensive.
+
+The distributed dash sequence strategy assigns consecutive integers computed per partition in parallel. Cheaper than sequence but still requires one pass over the data.
+
+The distributed strategy assigns non-consecutive partition-local identifiers at zero extra cost. This is the recommended setting.
+
+You set it globally with ps dot set underscore option, the key "compute dot default underscore index underscore type", and the value "distributed". You can also pin a natural key as the index when converting from Spark by passing the index underscore col parameter to to underscore pandas underscore on underscore spark.
+
+Execution Model.
+
+Every pyspark dot pandas operation is translated into a Spark logical plan and executed lazily. A Spark job fires only when you call an action — head, to underscore pandas, count, or any aggregation that returns a scalar. Chaining transformations is free. Only the final action triggers computation.
+
+When to Use Each API.
+
+Use standard pandas when the data fits in memory on one machine — it has the full feature set and no Spark overhead.
+
+Use the native pyspark dot sql API for new Spark code where performance is the priority — full control over the execution plan and best throughput.
+
+Use pyspark dot pandas when you are migrating an existing pandas pipeline to Spark scale and want to minimise code changes.
+
+Use a pandas underscore U D F, covered in notebook eleven, when you need vectorised row-wise transformations inside a native Spark DataFrame pipeline.
+
+On Databricks, pyspark dot pandas is the official replacement for the legacy Koalas package. The import and behaviour are the same.
+
+Limitations.
+
+Not every pandas operation is supported or behaves identically in pyspark dot pandas, and it is important to know the key restrictions for the exam.
+
+Row order is not guaranteed. Sort values produces a correct sort, but the index is not stable across runs unless you pin a natural key with index underscore col.
+
+The inplace equals True parameter is not supported. Always assign the result to a new variable.
+
+Iterrows and itertuples are not supported. They collect to the driver and defeat the purpose of distributed processing.
+
+Row-wise apply, that is apply with axis equals one, works but is slow. Internally each row is serialised to Python. Prefer column-wise apply or rewrite using a pandas U D F.
+
+Multi-index support is limited. Prefer flat indexes.
+
+When you hit an unsupported operation, the recommended pattern is to convert to a native Spark DataFrame, apply the Spark SQL function, and convert back.
+
+Summary.
+
+Import pyspark dot pandas as ps to get a pandas-compatible API backed by Spark — scale without a full rewrite.
+
+Create ps dot DataFrame from plain pandas using ps dot from underscore pandas, from a Spark DataFrame using dot to underscore pandas underscore on underscore spark, or directly from Python data.
+
+Convert back with dot to underscore spark for a native Spark DataFrame, or dot to underscore pandas to collect to plain pandas on the driver.
+
+Use spark dot createDataFrame to go from a plain pandas DataFrame straight to a native Spark DataFrame.
+
+Set the default index type to distributed to avoid expensive global sorting.
+
+Operations are lazy — only actions trigger a Spark job.
+
+Avoid inplace equals True, iterrows, and row-wise apply — use native Spark functions or a pandas U D F instead.
+
+On Databricks, pyspark dot pandas replaces the legacy Koalas library.
