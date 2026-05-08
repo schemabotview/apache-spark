@@ -1,0 +1,209 @@
+The unbounded table model.
+
+Most data work is batch — read a file, transform, write a result. The world produces data continuously. Card transactions every millisecond. Fraud alerts. A-T-M withdrawals. Sensor readings. Waiting for tomorrow's batch means decisions are always stale. Structured streaming brings the dataframe ay-pee-eye to continuous, unbounded data.
+
+The mental model — treat the input stream as an infinite table that grows row by row. You write a query against that table, using the same select, filter, group by, and join you already know, and Spark runs it continuously as new data arrives in micro-batches.
+
+Key vocabulary. A source is where data comes from — rate, files, kafka, socket. A micro-batch is one chunk of new data processed in a single Spark job. A trigger is how often Spark checks for new data. An output mode controls which rows are written each trigger — append, update, or complete. A sink is where results go — memory, console, file, delta, kafka, or for-each-batch. A checkpoint persists state and offsets to disk so the query can restart. A watermark controls how long to wait for late events before closing a window.
+
+The capstone project — folder slash project slash zero six, stream fraud detect — builds this end to end on bank transactions. This notebook teaches the primitives.
+
+Setup.
+
+Streaming demos need a scratch area for source files, sinks, and checkpoints. We use data slash underscore streaming.
+
+In code, build a spark session with the delta config, set the log level to error, and set spark dot sql dot shuffle dot partitions to four — smaller than the two-hundred default for local demos. Wipe the scratch directory and recreate it. Define a helper called scratch that returns subdirectory paths, and a helper called drop transactions that writes a JSON file of fake bank transactions to a watched directory. Print the scratch path so you know where artifacts will land.
+
+Your first streaming query — rate source to memory sink.
+
+The rate source generates rows at a fixed rate with two columns — timestamp and value. The memory sink collects results into an in-memory temp view you can query with SQL. Together, they are the simplest end-to-end streaming demo, with no external system needed.
+
+Write stream chains four important calls. Dot format with "memory" sets the sink type. Dot query name with a name registers the result as a SQL view. Dot output mode with "append" emits new rows only. And dot start actually starts the query and returns a streaming-query handle.
+
+We call dot await termination with five seconds to let the query run, then dot stop.
+
+In code, read from rate at five rows per second, filter to even values, write to the memory sink with the name "even values," append mode, and start. Wait five seconds, stop the query, then run a SQL count over the memory table to see how many rows landed.
+
+Sources — rate, file, and kafka by reference.
+
+A source is the entry point of a streaming pipeline. Spark tracks source progress — file lists or kafka offsets — in the checkpoint, so each micro-batch is processed exactly once on restart.
+
+Five built-in sources. Rate, with format string "rate" — fault-tolerant; used for testing, benchmarking, and demos. Rate per microbatch, with format string "rate-micro-batch" — fault-tolerant; used for deterministic testing. File, with a format string like "json," "c-s-v," "parquet," "orc," or "delta" — fault-tolerant; used for file-drop pipelines and E-T-L. Kafka, with format string "kafka" — fault-tolerant; used for production event streaming. Socket, with format string "socket" — not fault-tolerant; used only for interactive demos.
+
+The file source has key options. Max files per trigger rate-limits files per micro-batch. Latest first processes newest files first, useful for catch-up. Clean source set to "delete" or "archive" manages already-processed files. The schema must be provided explicitly — Spark cannot infer schema for streaming file sources, because there is no guarantee that any file exists when the query starts.
+
+Kafka is the production-grade source. The connector reads each kafka message as one row, with binary key and value, plus topic, partition, offset, and timestamp metadata. The value column contains your raw payload — deserialize it with from-json. Useful options include subscribe with a topic name, subscribe pattern with a regex, starting offsets set to "earliest" or "latest," and max offsets per trigger to rate-limit. Kafka is referenced here but not run; you need a broker.
+
+In code, the file-source demo. Create a landing directory the stream will watch. Define an explicit transactions schema with six fields — transaction ID, customer ID, merchant category, amount, status, transaction at. Drop two JSON files into the landing directory before starting the query — three transactions total. Then build the read stream with the explicit schema, max files per trigger ten, and JSON format, pointed at the landing path. Start a query with the memory sink, query name "file transactions," append mode, a checkpoint location, and trigger available now — which processes all available files and stops. After await termination, query the memory table to confirm all three transactions arrived.
+
+Sinks — memory, console, file, delta, kafka, and for-each-batch.
+
+A sink is where each micro-batch's output goes. Sinks differ in supported output modes and fault-tolerance guarantees.
+
+Memory — append and complete modes; not fault-tolerant; use for development and testing.
+
+Console — all three output modes; not fault-tolerant; use for debugging.
+
+File, in parquet or another format — append only; fault-tolerant; use for immutable file pipelines.
+
+Delta — all three output modes; fault-tolerant; the production default. Supports mutable tables, exactly-once via transactional commits, and avoids the small-file problem.
+
+Kafka — all three output modes; fault-tolerant; use for forwarding events downstream.
+
+For-each, with a custom for-each writer class — supports all modes; fault-tolerance depends on the writer. Row-level custom logic. Java and Scala mostly.
+
+For-each-batch, with a function that takes the batch dataframe and a batch ID — all modes; fault-tolerance depends on the function. Batch-level custom logic, multi-table writes, calling external ay-pee-eyes per batch.
+
+For-each-batch is the escape hatch when one micro-batch needs to fan out into multiple destinations, or when you need to call a non-Spark service per batch.
+
+In code, two demos. First, the delta sink. Read the file stream, filter to approved transactions, write stream with delta format, append mode, a checkpoint location, trigger available now, and start at the delta output path. After termination, read the delta table back as a batch query and print the row count.
+
+Second, for-each-batch. Define a function called route by status that takes a batch dataframe and a batch ID. Inside the function, split the batch into approved and declined rows, write each to its own delta path, and print the per-batch counts. Hook the function into write stream via dot for each batch, with a checkpoint location, available now trigger, and start. The print output shows you the routing per micro-batch.
+
+Output modes — append, update, and complete.
+
+The output mode controls which rows Spark writes to the sink in each micro-batch.
+
+Append — the default — emits only new rows added since the last trigger. Use for stateless operations always, or for windowed aggregations with a watermark, where closed windows are emitted once.
+
+Update — emits only rows that changed since the last trigger. Use for aggregations where you want incremental updates.
+
+Complete — emits the entire result table, rewritten each trigger. Use for small aggregations written to memory or an overwrite sink.
+
+Three rules. Append works for stateless operations always; for windowed aggregations it requires a watermark, so Spark knows when a window is "done." Complete requires an aggregation; state grows forever, because Spark must hold the full result. Update requires an aggregation; not all sinks support it — file sinks reject it, delta accepts it.
+
+Triggers — controlling micro-batch cadence.
+
+A trigger defines how often Spark checks for new data and runs a micro-batch.
+
+The default — unspecified — runs the next batch as soon as the previous one finishes.
+
+Fixed interval — dot trigger with processing time equal to "thirty seconds" — runs every thirty seconds, skipping if the previous batch is still running.
+
+Once — dot trigger with once equal to true — processes all available data in one batch, then stops.
+
+Available now — dot trigger with available now equal to true — processes all available data in multiple optimally-sized batches, then stops.
+
+Continuous — dot trigger with continuous equal to "one second" — experimental, around one-millisecond latency.
+
+Once and available now turn a streaming query into a self-terminating batch job. You keep streaming semantics — exactly-once, offset tracking, idempotent restart — but the job exits once caught up. Most cells in this notebook use available now for that reason.
+
+In code, drop two more files into the landing directory, then run a stream against it with available now. Print the row count after await termination — all three batches of files have been processed, and the query has stopped.
+
+Checkpointing and fault tolerance.
+
+Checkpointing is what makes structured streaming exactly-once and restartable. Without it, a crashed query restarts from scratch and may double-process data.
+
+What's stored in the checkpoint directory. A commits subfolder lists which batches are committed to the sink. An offsets subfolder records source positions, like file index or kafka offset, per batch. A metadata file holds query metadata. And a state subfolder holds state-store contents for stateful queries.
+
+Always set checkpoint location on any production query. On restart, Spark resumes exactly where it left off — no data is reprocessed or skipped.
+
+End-to-end exactly-once requires both source and sink to support it. Kafka with delta lake — exactly-once. Kafka with kafka, using an idempotent producer — exactly-once. File source with parquet or delta sink — exactly-once. Rate source with memory or console sink — at-least-once, because the sinks are not durable. Socket source with any sink — at-most-once, because the source is not replayable.
+
+Monitoring streaming queries.
+
+The streaming-query handle returned by dot start exposes everything you need to observe a running stream.
+
+Query dot is active is true if the query is still running.
+
+Query dot ID and query dot run ID are stable and per-run universally unique identifiers.
+
+Query dot status is a dictionary with message, is data available, and is trigger active.
+
+Query dot last progress is a dictionary with timing, input rates, state rows, and watermark information.
+
+Query dot recent progress holds the last one hundred progress dictionaries.
+
+Query dot await termination, with a timeout, blocks until stopped or the timeout fires.
+
+Query dot stop stops gracefully.
+
+Query dot exception returns the exception if the query failed.
+
+Spark dot streams dot active returns all active queries in the session.
+
+In code, start a rate-source query at ten rows per second with a memory sink. Sleep three seconds. Read last progress and print five fields — name, batch ID, input rows per second, num input rows, and duration milliseconds. Then stop the query.
+
+Time and windows — tumbling, sliding, and session.
+
+Two clocks in any streaming pipeline.
+
+Processing time — when Spark sees the row.
+
+Event time — when the event actually happened in the source system. The honest clock for analytics, and what with-watermark operates on.
+
+Three window types over event time.
+
+Tumbling. Window with the timestamp column and a duration string like "five minutes." Fixed, non-overlapping windows.
+
+Sliding. Window with the timestamp column, a window duration, and a slide duration. Fixed-size, overlapping windows that advance every slide.
+
+Session. Session window with the timestamp column and a gap duration. Activity-driven; the window opens on the first event for a key and closes after the gap duration of silence.
+
+Use session windows for "did the customer have a burst of activity?" patterns — fraud detection, user session analytics, device heartbeats. Available since Spark three point two.
+
+In code, run a tumbling one-minute window over event time on the file stream. Filter to approved transactions. Group by window of transaction at one minute, plus merchant category. Aggregate with count star and sum amount. Write to the memory sink in complete mode — which works without a watermark — with available now trigger. After termination, query the result and order by window start and merchant category.
+
+Watermarking — how it works.
+
+Late events break windowed aggregations. A window that closed five minutes ago cannot quietly accept a row that drifts in three minutes late. Watermarking is the mechanism for handling this.
+
+The formula. Watermark equals the maximum event time seen so far, minus a delay.
+
+Events whose event time is before the watermark are dropped. Windows whose end time is before the watermark are closed. State is freed, and the result is emitted.
+
+Set with dot with watermark — the column name and a duration string like "ten minutes" — placed before the group by.
+
+Output mode interaction. With complete — watermark is optional; the result is emitted every trigger as the full table; state is never freed. With update — watermark is recommended; the result is emitted every trigger if changed; state is freed after the watermark passes the window end. With append — watermark is required for windowed aggregations; the result is emitted only after the window closes; state is freed after emission.
+
+Choosing the duration is a business service-level decision. A longer delay accepts more late data, but costs more memory and delays finalization. A shorter delay frees state faster and finalizes results sooner, but drops more stragglers. The practical floor — measure the ninety-ninth-percentile event-time spread per micro-batch in your real pipeline, and use that as your minimum.
+
+In code, run a watermarked windowed aggregation on the file stream. Filter to approved, with-watermark on transaction at with a ten-minute delay, group by window of transaction at one minute and merchant category, count. Write to the memory sink in update mode, with available now trigger. After termination, query the watermarked demo table and order by window. Update mode emits incrementally as each batch processes, which is more reliable than append for a finite-data demo.
+
+Joins — stream-static and stream-stream.
+
+Stream-static join. Enrich each streaming row with a static dimension table. The static side is broadcast; no watermark needed; supports all output modes. The static dataframe is re-read every micro-batch, so changes to the static data eventually propagate.
+
+Stream-stream join. Both sides are live; both must have watermarks so unmatched rows can be evicted from state. Typically also a time-range condition — for example, A dot timestamp between B dot timestamp minus five minutes and B dot timestamp plus five minutes — so Spark knows when matches become impossible.
+
+Supported join types. Inner — yes; watermarks plus a range condition required. Left outer — yes; right unmatched rows emitted after the watermark advances. Right outer — yes; left unmatched rows emitted after the watermark advances. Full outer — not supported.
+
+In code, a stream-static join. Read the static customers c-s-v as a regular batch dataframe. Read transactions as a stream from the landing directory. Left-join on customer ID. Project transaction ID, customer ID, full name, city, amount, status. Write to the memory sink in append mode, with available now trigger. After termination, query the enriched demo table — every transaction now has the customer's name and city attached.
+
+Arbitrary stateful — apply in pandas with state, timeouts, and deduplication.
+
+Built-in group by plus agg, and window, cover most cases. When you need arbitrary per-key state — a state machine, a custom expiry policy, a counter that does not map cleanly to an aggregate — reach for apply in pandas with state, available since Spark three point four.
+
+The function receives the key, a pandas iterator of new rows for this key in this micro-batch, and the current state for this key. It returns updated state and zero or more output rows. The pattern: a fraud-burst detector counts transactions per customer in the state, and yields a pandas dataframe with a burst event when the count crosses a threshold.
+
+Timeouts. Without them, state for inactive keys lives forever. Two kinds. Processing time timeout — uses wall clock; fires N milliseconds after set timeout duration is called. Event time timeout — uses the watermark; fires when the watermark passes the timestamp set by set timeout timestamp.
+
+Stateful deduplication. Kafka and most sources are at-least-once — the same message can arrive more than once. Drop duplicates with a watermark drops re-delivered messages within the watermark window without growing state forever. The pattern is with-watermark on transaction at, ten minutes, then drop duplicates on transaction ID and transaction at. The deduplication key should include the event-time column so state eviction aligns with the watermark.
+
+The capstone in folder slash project slash zero six, stream fraud detect, uses the same pattern — a watermark plus a velocity rule per customer.
+
+In code, the dedup demo. Drop a JSON file with two identical rows for transaction DUP zero one, and one row for DUP zero two. Read as a stream, with-watermark transaction at ten minutes, drop duplicates on transaction ID and transaction at. Write to memory in append mode with available now trigger. After termination, query the deduped demo — only two rows survive; the duplicate has been removed.
+
+State store backends, and monitoring state.
+
+Spark stores stateful streaming state in a state store. Two backends are available.
+
+The H-D-F-S-backed provider — the default — keeps state in the java virtual machine heap and checkpoints it to durable storage each batch. Simple, no extra dependencies. Bound by the heap.
+
+The rocks-D-B provider keeps state in an on-disk rocks-D-B key-value store and checkpoints it to durable storage each batch. Handles gigabytes of state with low heap pressure. Switch to rocks-D-B when state exceeds a few gigabytes per executor, or when stateful stages show garbage-collector pressure or out-of-memory errors. Set it via a config — spark dot sql dot streaming dot state store dot provider class — pointing to the rocks-D-B state store provider class.
+
+Monitoring state. Every stateful query reports state operators in last progress.
+
+Num rows total — rows currently in the state store.
+
+Num rows updated — rows added or updated this micro-batch.
+
+Num rows removed — rows evicted by timeout or watermark this micro-batch.
+
+Memory used bytes — state memory in bytes.
+
+Num shuffle partitions — the state partition count.
+
+Operator name — for example, state store save, symmetric hash join, or dedupe.
+
+In code, print the configured state store provider and shuffle partition count. Then run a quick stateful query — rate source at fifty rows per second, with-watermark on timestamp ten seconds, group by a five-second window, count. Sleep four seconds, grab last progress, and stop. Pretty-print the state operators dictionary — you will see num rows total grow as the rate source produces events, and num rows updated reflect each micro-batch's activity.
