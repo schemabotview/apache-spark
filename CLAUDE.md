@@ -29,34 +29,25 @@ spark = configure_spark_with_delta_pip(SparkSession.builder. ...).getOrCreate()
 
 ## Topics Covered
 
-| Topic | Notebook | Audio |
-|---|---|---|
-| Fintech Bank Domain Reference | `bank-domain.ipynb` | _(no audio)_ |
-| What is Apache Spark & Why Use It | `01-what-is-apache-spark.ipynb` | `01-what-is-apache-spark.wav` |
-| Spark Architecture | `02-spark-architecture.ipynb` | `02-spark-architecture.wav` |
-| Setting Up PySpark & Databricks | `03-setting-up-pyspark-databricks.ipynb` | `03-setting-up-pyspark-databricks.wav` |
-| RDDs — The Foundation | `04-rdds-the-foundation.ipynb` | `04-rdds-the-foundation.wav` |
-| DataFrames & Datasets | `05-dataframes-datasets.ipynb` | `05-dataframes-datasets.wav` |
-| SparkSession & Execution Model | `06-sparksession-execution-model.ipynb` | `06-sparksession-execution-model.wav` |
-| Reading & Writing Data | `07-reading-writing-data.ipynb` | `07-reading-writing-data.wav` |
-| Core Transformations | `08-core-transformations.ipynb` | `08-core-transformations.wav` |
-| Aggregations & Window Functions | `09-aggregations-window-functions.ipynb` | `09-aggregations-window-functions.wav` |
-| Spark SQL & Temporary Views | `10-spark-sql-temporary-views.ipynb` | `10-spark-sql-temporary-views.wav` |
-| SQL Functions & UDFs | `11-sql-functions-udfs.ipynb` | `11-sql-functions-udfs.wav` |
-| Partitioning, Shuffles & Catalyst | `12-partitioning-shuffles-catalyst.ipynb` | `partitioning-shuffles--catalyst.wav` |
-| Caching & Persistence | `13-caching-persistence.ipynb` | `caching--persistence.wav` |
-| Broadcast Joins & Data Skew | `14-broadcast-joins-data-skew.ipynb` | `broadcast-joins--data-skew.wav` |
-| Structured Streaming Fundamentals | `15-structured-streaming-fundamentals.ipynb` | `structured-streaming-fundamentals.wav` |
-| Sources, Sinks & Watermarking | `16-sources-sinks-watermarking.ipynb` | `sources-sinks--watermarking.wav` |
-| Stateful Stream Processing | `17-stateful-stream-processing.ipynb` | `stateful-stream-processing.wav` |
-| What is Delta Lake? | `18-what-is-delta-lake.ipynb` | `what-is-delta-lake.wav` |
-| ACID & Time Travel | `19-acid-time-travel.ipynb` | `acid--time-travel.wav` |
-| Delta Operations & Optimization | `20-delta-operations-optimization.ipynb` | `delta-operations--optimization.wav` |
-| Databricks Certified Spark Developer Exam Guide | _(planned)_ | `databricks-certified-spark-developer-exam-guide.wav` |
+Curriculum is consolidated into 10 thematic notebooks for retention. Each notebook is self-contained, uses inline code cells (concept → tiny demo → next concept), and skips filler sections like "what's covered" and end-of-notebook summaries.
 
-## Miscellaneous
+| # | Topic | Notebook | Audio | Merges (old) |
+|---|---|---|---|---|
+| — | Fintech Bank Domain Reference | `bank-domain.ipynb` | _(no audio)_ | — |
+| 01 | Spark Foundations | `01-spark-foundations.ipynb` | `01-spark-foundations.wav` | what is Spark + architecture + setup |
+| 02 | RDDs — The Foundation | `02-rdds.ipynb` | `02-rdds.wav` | RDDs |
+| 03 | DataFrames & Execution Model | `03-dataframes-execution-model.ipynb` | `03-dataframes-execution-model.wav` | DataFrames/Datasets + SparkSession/execution |
+| 04 | Reading & Writing Data | `04-reading-writing-data.ipynb` | `04-reading-writing-data.wav` | I/O |
+| 05 | Transformations & Aggregations | `05-transformations-aggregations.ipynb` | `05-transformations-aggregations.wav` | core transformations + aggregations/windows |
+| 06 | Spark SQL & UDFs | `06-spark-sql-udfs.ipynb` | `06-spark-sql-udfs.wav` | SQL/views + functions/UDFs |
+| 07 | Performance & Tuning | `07-performance-tuning.ipynb` | `07-performance-tuning.wav` | partitioning/shuffles/catalyst + caching + broadcast/skew |
+| 08 | Structured Streaming | `08-structured-streaming.ipynb` | `08-structured-streaming.wav` | streaming fundamentals + sources/sinks/watermarking + stateful |
+| 09 | Delta Lake | `09-delta-lake.ipynb` | `09-delta-lake.wav` | intro + ACID/time travel + ops/optimization |
+| 10 | Databricks Spark Developer Exam Guide | `10-exam-guide.ipynb` | `10-exam-guide.wav` | capstone — exam-focused recap + practice |
+
+## Extras (optional track)
 
 | Topic | Notebook | Audio |
 |---|---|---|
-| MLlib & Spark ML Pipelines | `21-mllib-spark-ml-pipelines.ipynb` | `mllib--spark-ml-pipelines.wav` |
-| Pandas API on Spark | `22-pandas-api-on-spark.ipynb` | `22-pandas-api-on-spark.wav` |
+| MLlib & Spark ML Pipelines | `extras/mllib-spark-ml-pipelines.ipynb` | `mllib--spark-ml-pipelines.wav` |
+| Pandas API on Spark | `extras/pandas-api-on-spark.ipynb` | `22-pandas-api-on-spark.wav` |
