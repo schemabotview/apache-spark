@@ -1,0 +1,221 @@
+The Spark ay-pee-eye hierarchy.
+
+There are three structured-data ay-pee-eyes in Spark, in increasing order of abstraction.
+
+The lowest is RDD — functional, row-by-row. No Catalyst optimization, no Tungsten code generation. Fast access to the engine, but the slowest ay-pee-eye for structured data.
+
+In the middle is the dataframe — a distributed table with a schema. This is the everyday ay-pee-eye.
+
+At the top is dataset of T — a typed dataframe with compile-time type safety. Scala and java only. Python users do not see this layer directly.
+
+In PySpark you only get dataframes. Internally, a dataframe is just an alias for a dataset of row — same engine, no static type parameter.
+
+Here is the practical fact that matters most. SQL, dataframe, and the Scala dataset ay-pee-eye all compile through Catalyst and produce identical execution plans. RDD bypasses Catalyst — that is why it is slower for structured data.
+
+What a dataframe really is.
+
+A dataframe is a distributed table — one schema, meaning column names plus types, shared across the whole dataset, plus rows partitioned across executor memory.
+
+Picture five columns — transaction ID, card ID, merchant category, amount, status. The schema applies to every partition. The rows split across partitions horizontally. Partition one might hold the first three transactions on executor one. Partition two might hold the next three on executor two. Each partition holds a subset of rows with all columns. Partitioning is always horizontal, by row, never vertical, by column.
+
+Four properties to memorize.
+
+Immutable — every transformation returns a new dataframe. The original is untouched.
+
+Lazy — transformations build a plan; actions execute it.
+
+Schema-enforced — every row matches the same column types.
+
+Partitioned — rows split across partitions for parallel processing.
+
+Spark session, the unified entry point.
+
+Spark session was introduced in Spark two point oh to merge three older entry points — sql context and hive context — into one object, while still wrapping the underlying spark context.
+
+The methods you reach for most often.
+
+Spark dot read returns a dataframe reader — load files, j-d-b-c sources, delta tables.
+
+Spark dot sql, with a SQL string in quotes, runs the SQL and returns a dataframe.
+
+Spark dot range, with a number, returns a dataframe of integers from zero to that number minus one. Useful for testing.
+
+Spark dot create dataframe builds a dataframe from a Python list or a pandas dataframe, with an optional schema.
+
+Spark dot catalog lets you inspect or manage tables, databases, and functions.
+
+Spark dot conf lets you read or set runtime configuration.
+
+Spark dot spark context drops down to the RDD-level ay-pee-eye when you need it.
+
+In code, build a spark session with the delta config, set the log level to error, then read three useful properties — the version, whether adaptive query execution is enabled (we will come back to this), and the default value of spark dot sql dot shuffle dot partitions, which is two hundred.
+
+Schemas, struct type versus the data-definition string.
+
+There are two ways to define a dataframe schema. Both produce the exact same result. Pick the one that reads better in your code.
+
+The programmatic form uses struct type containing struct fields. Each struct field gets a name, a type, and a nullability flag. Verbose, explicit, easy to build from code.
+
+The data-definition string form looks like a SQL column list — column name, then type, all in one quoted string. Compact, SQL-flavored, easy to paste from a create-table statement.
+
+Always prefer explicit schemas in production. Schema inference works, but it triggers a full scan of the data to decide types. That is slow on large datasets, and it can guess wrong — for example, a sparse "is flagged" column inferred as a string when you wanted a boolean.
+
+In code, define the bank's card-transactions schema both ways. The programmatic version is a struct type containing seven struct fields, including a decimal type with eighteen digits and two decimal places for the amount, and a boolean type for "is flagged." The data-definition version is the same schema written as one quoted string.
+
+Creating dataframes.
+
+Five common ways. The first three are workhorses for tests; the last two are everyday.
+
+First, spark dot create dataframe with a Python list and an explicit schema. This is the preferred form.
+
+Second, spark dot create dataframe with a Python list and a list of column names — Spark infers the types.
+
+Third, spark dot range, with a number — fast integer-sequence dataframe for testing.
+
+Fourth, spark dot create dataframe with a pandas dataframe — round-trip from pandas.
+
+Fifth, spark dot read dot format dot load with a path — from real files. We cover this in notebook four.
+
+In code, create the bank-transactions dataframe four ways and confirm each one's row count.
+
+Exploring a dataframe.
+
+The cheatsheet for "what does this dataframe contain?"
+
+Df dot count returns the number of rows. It is an action — it triggers a job.
+
+Df dot columns returns the column names as a Python list.
+
+Df dot dtypes returns a list of name and type-string tuples.
+
+Df dot schema returns the full struct type object.
+
+Df dot print schema pretty-prints the schema.
+
+Df dot describe returns count, mean, standard deviation, minimum, and maximum for numeric columns.
+
+Df dot summary returns the same statistics as describe, plus quartiles.
+
+Df dot show, with a row count and the truncate-equals-false argument, prints rows with full content.
+
+In code, run all of these on the same dataframe — the row count and column count, the columns list, the dtypes, then a printed schema, then three rows shown without truncation, then describe on the amount column.
+
+Column references, the four ways.
+
+PySpark accepts four styles for naming a column. They are mostly interchangeable, but each has a place.
+
+A bare string — the column name in quotes — works for simple select, group-by, and sort calls. It cannot apply functions or build expressions.
+
+The col function, wrapping the column name, is the safest default. Use it whenever you build an expression — passing to "when," to "coalesce," to sum, or to any column-level function.
+
+Square-bracket lookup on the dataframe itself — df bracket "col-name" — is most useful when you have two dataframes in a join and need to disambiguate which side a column comes from.
+
+The expr function takes a SQL-style snippet — for instance, "amount times zero point oh two" — and returns a column. Convenient for pasting from SQL, but error-prone, because the string is parsed at runtime.
+
+The rule of thumb: use a bare string when the ay-pee-eye just needs a name. Use the col function when you build an expression. Use the square-bracket form for joins. Use expr sparingly.
+
+In code, the same projection — picking out merchant category and amount — written four ways, then one expression that actually requires col — multiplying amount by zero point oh two and aliasing the result as processing fee.
+
+Common dataframe operations.
+
+The day-to-day toolkit. Five families.
+
+Select and project — the select method takes one or more columns. Select-expr takes SQL-style strings.
+
+Add, rename, and drop columns — with-column adds a new column or replaces an existing one. With-column-renamed renames in place. Drop removes a column.
+
+Filter — filter and where are identical. Combine conditions with ampersand, pipe, and tilde — the bitwise operators. Always parenthesize each condition. Python operator precedence will mislead you otherwise.
+
+Nulls — is-null and is-not-null check for missing values. Drop-na drops rows with nulls. Fill-na fills them with a default. The coalesce function returns the first non-null value across a list of columns.
+
+Cast, sort, and dedupe — cast changes a column's type. Order-by with desc sorts descending. Distinct removes whole-row duplicates. Drop-duplicates with a list of column names dedupes on just those columns.
+
+In code, work through all five families on the bank transactions. Select transaction ID, merchant category, and amount. Add an "amount double" column with cast, replace status with its uppercase form, add a tier column using when-otherwise, rename merchant category to category, and drop "is flagged." Filter to approved transactions over a thousand. Inject a null into one row, then show is-null, fill-na, and coalesce. Finally, cast amount to double, sort by amount descending, and dedupe by card ID.
+
+Dataframe interop with pandas and RDD.
+
+Three escape hatches you should know.
+
+Df dot to-pandas pulls every row into a single pandas dataframe on the driver. Convenient for plotting and final-mile analysis. Dangerous on large data — it will out-of-memory the driver. Always sample or aggregate first.
+
+Spark dot create dataframe with a pandas dataframe is the reverse direction — useful for tiny test fixtures.
+
+Df dot rdd drops down to an RDD of row objects when you need RDD-only operations like map-partitions. The reverse round-trip is rdd dot to-d-f with a schema.
+
+In code, take three approved transactions, call to-pandas — the result type is a pandas dataframe. Then call dot rdd dot first on the dataframe — the result is a row object, and you can read its merchant category and amount fields.
+
+Lazy evaluation, in depth.
+
+Notebook one introduced the rule — transformations are recipes; actions trigger cooking. Here is the why in one sentence: Catalyst can only optimize what it can see, and it can only see the whole pipeline because nothing has run yet.
+
+Same split as before, dataframe edition. Transformations — select, filter, with-column, group-by, join, order-by — are lazy. They append to the plan and return another dataframe. Actions — show, count, collect, take, first, write — are eager. They trigger directed-acyclic-graph execution and return a value, a file, or printed output.
+
+Because it is lazy, Spark gets four wins for free.
+
+It can push filters early — a filter declared at the end of the chain may execute right next to the data scan, reading far less data.
+
+It can prune projections — columns you never reference are dropped before they are even read off disk.
+
+It can fuse operations — multiple narrow transformations collapse into one tight loop. We come back to this when we cover whole-stage code generation.
+
+And it can skip everything — if you define transformations but never call an action, no work runs.
+
+The four Catalyst plans.
+
+When you call an action, your dataframe chain travels through Catalyst as four distinct plans before hitting the cluster.
+
+First, the parsed logical plan. Your code as a tree of unresolved references. Column names are still strings. Types are unknown.
+
+Second, the analyzed logical plan. Catalyst resolves column names against the schema, checks types, and binds function calls. Errors at this stage look like an analysis exception.
+
+Third, the optimized logical plan. Rule-based rewrites — predicate pushdown, where filters move toward the scan; projection pruning, where unused columns are dropped; constant folding, where expressions like "one plus two" become "three"; reordering; eliminating redundant projects.
+
+Fourth, the physical plan. Catalyst picks operators — hash aggregate versus sort aggregate, broadcast hash join versus sort merge join — and a physical strategy. The output is what actually runs on executors.
+
+You can inspect every one of these plans with df dot explain, passing extended-equals-true. We do that in the next section.
+
+Tungsten, making the java virtual machine go fast.
+
+Catalyst gives you the right plan. Tungsten makes that plan run fast on the java virtual machine. Two ideas.
+
+Off-heap memory management. Spark allocates structured binary buffers off the java virtual machine heap, bypassing the garbage collector. Less garbage-collector pause, more cache-friendly memory layouts.
+
+Whole-stage code generation. For each stage, Catalyst generates a single tightly-fused java virtual machine method that processes a row through every operator at once — filter, project, aggregate — in one loop, instead of one method call per operator per row.
+
+This is why dataframes beat RDDs on structured data. RDDs have no schema, so Tungsten cannot lay them out efficiently or generate per-stage code. With dataframes, the schema is a contract Tungsten can compile against.
+
+You will see the proof in the next section. The physical plan for a dataframe query is wrapped in a whole-stage-codegen block.
+
+The explain modes, seeing inside Catalyst.
+
+Df dot explain with a mode argument exposes the plans Catalyst built. Five modes.
+
+Simple — the default — shows just the physical plan.
+
+Extended shows all four plans, parsed through analyzed through optimized through physical.
+
+Codegen shows the generated java virtual machine code per stage.
+
+Cost shows the optimized plan with row-count estimates per node.
+
+Formatted shows the physical plan plus a separate operator-details section.
+
+Same query, multiple lenses.
+
+Build a small but representative query — filter to approved transactions, group by merchant category, sum amount. Then call explain with each mode. The simple mode prints just the physical plan tree. The extended mode prints all four plans in sequence — you can see the predicate pushdown happen between the parsed plan and the optimized plan. The formatted mode prints the same physical plan with an extra block of operator details below.
+
+Adaptive query execution.
+
+Before Spark three point oh, Catalyst made all decisions upfront using estimated statistics. Adaptive query execution — A-Q-E for short — re-optimizes the plan at runtime, after each shuffle, using real partition statistics.
+
+Three things AQE actually does.
+
+Dynamic coalescing. After a shuffle produces, say, two hundred partitions but most are tiny, AQE merges them into a smaller number of right-sized partitions. Fewer task-startup overheads.
+
+Dynamic join strategy switch. A sort-merge join can be promoted to a broadcast join at runtime if one side turns out small enough.
+
+Skew join handling. Splits oversized partitions so one slow task does not block a stage. We cover this in detail in notebook seven.
+
+AQE is enabled by default since Spark three point two.
+
+To make the difference visible, run the same group-by aggregation twice — once with AQE on, once with AQE off — and ask each result for its partition count. With AQE on, the post-shuffle count is a small number, because dynamic coalescing has merged the tiny shuffle partitions. With AQE off, the count stays at the default of two hundred — most of those partitions empty, but Spark still scheduled tasks for them.
