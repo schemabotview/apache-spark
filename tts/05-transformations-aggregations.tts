@@ -1,0 +1,215 @@
+The function library, pyspark dot sql dot functions.
+
+Most of the data work in this notebook calls into pyspark dot sql dot functions — Spark's library of column-level functions for strings, dates, arrays, conditionals, and aggregations.
+
+A few rules.
+
+Import explicitly. From pyspark dot sql dot functions, import col, when, sum as underscore-sum, and so on. Or alias the whole module as F. Either is fine.
+
+Java-virtual-machine-resident functions beat Python u-d-fs. Every function in this module runs inside the Spark java virtual machine and benefits from Tungsten code generation. A Python u-d-f — short for user-defined function — requires a serialization round-trip per row through a Python worker. That is orders of magnitude slower.
+
+Watch for builtin collisions. Sum, min, max, round, and filter all clash with Python builtins. Import them with an alias — for example, sum as underscore-sum — so a stray sum call does not quietly hit the Python builtin instead.
+
+Notebook three already covered select, filter, with column, with column renamed, drop, cast, sort, distinct, drop duplicates, and null handling. This notebook builds on top of those.
+
+Setup.
+
+Two real bank tables from the data folder — customers, in c-s-v, and card transactions, in parquet. If you have not yet, run generate-bank-data to populate the data folder.
+
+In code, build a spark session with the delta config, set the log level to error, declare the customers schema as a struct type with ten struct fields, and read both tables. Print the row counts and the card-transactions schema as a sanity check.
+
+String functions.
+
+Vectorized string operations, all running on the java virtual machine.
+
+The case-change pair — upper and lower.
+
+The whitespace trio — trim, l-trim, r-trim — strip leading or trailing whitespace.
+
+Length, with a column, returns the string length.
+
+Substring, with a column, a one-based starting position, and a length, extracts characters by position.
+
+Concat joins strings end to end. Concat with separator — concat-w-s for short — inserts a separator between every pair.
+
+Split, with a column and a regex pattern, returns an array.
+
+Regex replace, with a column, a pattern, and a replacement, does a regex substitution.
+
+Regex extract, with a column, a pattern, and a capture-group index, returns just the captured group.
+
+L-pad and r-pad pad to a fixed width.
+
+In-string, with a column and a substring, returns the one-based index of the substring, or zero if it is not found.
+
+In code, take card transactions and project six string-formatted columns. The merchant name as is. Upper-cased merchant name. Length of the merchant name. The merchant name with whitespace replaced by underscores using regex replace. The first four characters of the transaction ID using substring one comma four. And a category-status display string using concat with separator.
+
+Date and timestamp functions.
+
+Date type stores days since the epoch. Timestamp type stores microseconds. The functions below work on both.
+
+For extracting parts — year, quarter, month, day of month, day of week, week of year, hour, minute.
+
+For formatting — date format, with a column and a format pattern that follows the Java simple-date-format conventions.
+
+For parsing — to date and to timestamp, each with a column and a format pattern.
+
+For time arithmetic — date diff, with two columns, gives the difference in days. Months between, with two columns, gives months, including a fractional part. Date add and date sub, with a column and an integer, shift by N days. Add months shifts by N calendar months.
+
+For "now" — current date and current timestamp.
+
+For epoch conversion — unix timestamp turns a column into seconds since the epoch. From unix time goes the other way.
+
+For truncation — trunc, with a column and a unit string like "month," resets to the start of the unit. Date trunc does the same thing with the unit and column in reverse order.
+
+In code, take card transactions and project the transaction-at column along with year, month, day of month, a formatted string in year-month-day hour-minute form, the days-ago count using date diff against current date, and the month-start using trunc.
+
+Array functions.
+
+Array-type columns are first-class. The function library has both array-builders and array-flatteners.
+
+Array, with a list of columns or literals, builds an array.
+
+Array contains, with a column and a value, is a boolean — does the array contain the value?
+
+Size returns the number of elements.
+
+The set ops — array distinct, array union, array intersect, array except — operate as you would expect.
+
+Explode produces one row per element of the array. Rows whose array column is null are dropped entirely.
+
+Explode outer is the same, but null arrays survive as one null-valued row instead of disappearing.
+
+Pos explode adds an index alongside each value.
+
+Inline flattens an array of structs into rows.
+
+In code, tag each transaction with a list of risk reasons. Use a chain of when expressions. If the transaction is flagged and the amount is over fifty thousand, the array is "high amount" and "fraud flag." If only flagged, just "fraud flag." If only over fifty thousand, just "high amount." If declined, "declined transaction." Otherwise, "clean." Every transaction ends up with at least one tag, so the array is never empty.
+
+Then three demonstrations. Size returns the number of risk reasons per transaction. Array contains finds transactions whose array contains "fraud flag." And explode fans out each transaction into one row per reason — group those by reason and count, and you see how many transactions matched each tag.
+
+Conditional columns — when and otherwise.
+
+The dataframe equivalent of the SQL "case when" expression. Chain a dot-when call for each branch, and finish with dot-otherwise for the default. Always provide otherwise — without it, unmatched rows become null silently.
+
+In code, bucket each transaction's amount into a spend tier. Over fifty thousand is high. Over ten thousand is standard. Over one thousand is low. Otherwise micro. Group by spend tier and count to see the distribution.
+
+Joins, types, syntax, and the duplicate-column trap.
+
+The pattern is df one dot join, with df two, the join key, and the join type as the third argument. Six join types are worth knowing.
+
+Inner — the default — returns rows where the join key matches in both sides.
+
+Left returns all rows from df one, with null columns where df two has no match.
+
+Right returns all rows from df two, with null columns where df one has no match.
+
+Full — also written as outer — returns all rows from both, with null where the other side is missing.
+
+Left semi returns rows from df one that have a match in df two, but with no columns from df two added. Useful for "filter df one to records that also exist in df two."
+
+Left anti returns rows from df one that have no match in df two. Also no df two columns added. Useful for "find what is missing."
+
+Cross is the cartesian product. Use it with caution.
+
+There are two ways to specify the key. If both sides have the column with the same name, pass it as a string — Spark de-duplicates the join column automatically. If the names differ, pass a boolean expression — for example, df one dot x equals df two dot y — and both columns survive in the result. That is the duplicate-column trap. Drop or rename one side after the join.
+
+Broadcast joins, sort-merge versus hash strategy, and skew handling all live in notebook seven, performance and tuning.
+
+In code, two demos. First, an inner join of customers and card transactions on customer ID, filtered to approved transactions, grouped by city, summed and counted — total spend per city. Second, a left-anti join of customers against card transactions to find customers with zero card transactions.
+
+Group by, plus agg.
+
+Group by partitions rows by one or more keys. Agg applies one or more aggregate functions to each partition. Both steps are lazy. Execution waits for an action.
+
+In code, two queries. The first is a single-key group — spend per merchant category, filtered to approved transactions, with the count of transactions, total spend rounded to two decimals, average amount, max amount, and a count distinct of customer IDs to see how many unique customers spent in each category. The second is a multi-key group — spend per merchant category and status, ordered by category and then status.
+
+Aggregate function reference.
+
+Count, with a column, counts non-null values. Count-star counts every row.
+
+Sum, with a column. Import as underscore-sum to dodge Python's builtin.
+
+Average — written as avg or mean — gives the mean. Nulls are ignored.
+
+Min and max — also import as underscore-min and underscore-max for the same reason as sum.
+
+Count distinct gives the exact distinct count, but it requires a full shuffle.
+
+Approx count distinct, with an optional relative-standard-deviation parameter, uses the hyper-log-log algorithm. Much cheaper than count distinct on large data, and the answer is approximate.
+
+Collect list returns all values for the group as an array, preserving duplicates.
+
+Collect set returns the unique values as an array.
+
+Standard deviation and variance return sample standard deviation and variance.
+
+First and last, with an optional ignore-nulls flag, return the first or last value in the group. They are only meaningful when an order-by has been established upstream.
+
+Filtering groups — Spark's "having" equivalent.
+
+Spark has no "having" keyword. Chain a filter call after the agg call to filter by an aggregated column.
+
+In code, find customers with more than five approved transactions. Group card transactions by customer ID, count the rows, then filter where the count is greater than five. That filter on the aggregated column is the having. Sort by count and show the top.
+
+Pivot tables.
+
+Pivot rotates a column's distinct values into separate columns. Always pass the value list explicitly. Df dot pivot, with the column name and an explicit list of values, skips the discovery scan that Spark would otherwise run to find distinct values, and it locks the column order in the output.
+
+In code, build a monthly transaction count by status. Add a month column extracted from transaction at. Group by month. Pivot on status with the explicit list — approved, declined, reversed. Aggregate with count-star. The result is one row per month, with three count columns, one per status.
+
+Window functions, concept and spec.
+
+A window function computes a value for each row, using a frame of neighboring rows. Unlike group by, the original rows survive — there is no collapse.
+
+A window spec has three parts.
+
+First, partition by — a list of columns that group rows. The frame resets at each partition boundary.
+
+Second, order by — a column or columns that define row order within each partition.
+
+Third, the frame — either rows between, with start and end as physical row offsets, or range between, with start and end as value offsets along the order-by column. Defaults differ by function. Ranking functions ignore the frame; aggregate functions default to the running frame, from the start of the partition through the current row.
+
+The boundary constants — window dot unbounded preceding, window dot current row, window dot unbounded following — name the start of the partition, the current row, and the end of the partition.
+
+Ranking — row number, rank, dense rank, and n-tile.
+
+How each function handles ties on a sequence like first, first, third.
+
+Row number assigns a unique sequential number. Ties are broken arbitrarily. The output is one, two, three.
+
+Rank lets tied rows share the same rank, then skips. The output is one, one, three.
+
+Dense rank lets tied rows share the same rank, with no gap. The output is one, one, two.
+
+N-tile, with a number n, assigns each row to one of n quantile buckets — useful for splitting customers into quartiles or deciles by some metric.
+
+In code, two demos. First, the top approved transaction per customer, using row number. Build a window partitioned by customer ID, ordered by amount descending. Add a row-number column. Filter to row number equals one. Now you have one transaction per customer — their largest. Second, quartile bucketing. Group card transactions by customer ID and sum amount to get total spend per customer. Then build a window ordered by total spend descending, and use n-tile of four. Each customer is now labeled one through four — quartile one is the top spenders, quartile four the bottom.
+
+Lag and lead.
+
+Within a partition, lag, with a column, an offset n, and an optional default, looks back n rows. Lead, with the same arguments, looks forward n rows. Both return the default — or null — at the partition boundary.
+
+Useful for delta calculations — days since previous transaction, time-to-next-event, running differences.
+
+In code, compute days since the customer's previous approved transaction. Build a window partitioned by customer ID, ordered by transaction at. Use lag of transaction at, offset one, to grab the previous transaction's timestamp. Then date diff between the current transaction's date and the previous one's date gives the gap in days. The first transaction per customer has a null gap, because there is no previous row in the partition.
+
+Running aggregates — rows between versus range between.
+
+Both define the frame, but in different units.
+
+Rows between, with start and end, counts physical row positions relative to the current row.
+
+Range between, with start and end, counts the value range of the order-by column. Useful when the order-by column is numeric or a date — for example, "all rows within plus-or-minus seven days of the current row."
+
+The boundary constants again — window dot unbounded preceding from the start of the partition, window dot current row for the current row, window dot unbounded following to the end of the partition.
+
+Three frames worth memorizing.
+
+The cumulative frame — rows between window-dot-unbounded-preceding and window-dot-current-row — gives a running total from the start of the partition through the current row.
+
+The N-row trailing frame — rows between negative N and window-dot-current-row — gives an aggregate over the current row plus the N preceding rows. A three-row trailing average uses negative two through current row.
+
+The centered frame — rows between negative N and N — gives a symmetric window around the current row.
+
+In code, two windows on card transactions. The cumulative window — partition by customer ID, order by transaction at, frame as rows between unbounded preceding and current row. Add a column that sums amount over that window — the running total per customer over time. The trailing window — same partition and order, but rows between negative two and current row. Add a column that averages amount over that window — the trailing three-row average per customer. Show both columns side by side, and you see how the cumulative grows monotonically while the trailing average smooths over a small window.
