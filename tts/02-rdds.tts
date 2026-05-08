@@ -1,0 +1,159 @@
+What an RDD actually is.
+
+An RDD — short for resilient distributed dataset — is the original Spark data abstraction. Every dataframe you write today eventually compiles down to RDD operations under the hood, so understanding RDDs explains why Spark behaves the way it does. Lazy evaluation, fault tolerance through lineage, partition-level parallelism — they all originate at the RDD layer.
+
+Read the three letters of the name.
+
+Resilient means fault-tolerant. Lost partitions are recomputed from the recipe — what we call lineage — not retrieved from a replica.
+
+Distributed means partitioned across executor memory on multiple machines.
+
+Dataset means a collection of records. A record can be any object — a string, a tuple, a custom class. Unlike a dataframe, an RDD has no schema and no column names.
+
+Four more properties worth memorizing.
+
+First, immutable. You never mutate an RDD. Every transformation produces a new RDD.
+
+Second, lazy. Transformations are recorded; nothing actually runs until an action.
+
+Third, schema-free. There are no columns, just elements. You handle structure yourself in code.
+
+Fourth, typed. In Scala, every RDD carries its element type at compile time — an RDD of integers, or an RDD of strings. In Python, types are not declared at the language level, but they are still real at runtime.
+
+Partitions, the unit of parallelism.
+
+An RDD is split into partitions — chunks of data that can be processed independently. Each partition is processed by exactly one task, on one executor core. So the number of partitions equals the degree of parallelism for that RDD.
+
+If you have more partitions than cores, some tasks queue, but the cluster stays busy. If you have fewer partitions than cores, some cores sit idle.
+
+After a shuffle, the number of output partitions defaults to a config called spark dot sql dot shuffle dot partitions, which is two hundred unless you change it. For RDDs created with parallelize, the default partition count is whatever spark context dot default parallelism returns — usually the total number of cores available.
+
+Lineage, how Spark recovers from failure.
+
+Spark does not replicate RDD data the way the hadoop file system does. Instead, it remembers the recipe — the sequence of transformations that produced each RDD. This recipe is the lineage graph.
+
+If a partition is lost — an executor crashes, a machine dies — Spark replays just the relevant slice of the lineage to rebuild that partition. Cheap if the lineage is short, expensive if it is long.
+
+This is also why caching matters. Without a cache call, every action re-runs the full lineage from the source. If you reuse an RDD twice, you recompute it twice.
+
+Spark context, the entry point for RDDs.
+
+In notebook one we used spark session. RDDs predate spark session and have a different entry point — spark context, which everyone abbreviates as s-c. Spark session owns one. You grab it with spark dot spark context.
+
+Mental model: spark is the high-level door — that is where dataframes and sql live. s-c is the low-level door — that is where RDDs, broadcast variables, and accumulators live. Same java virtual machine, same cluster, just two ay-pee-eyes.
+
+To set up, build a spark session the same way as before, with the delta config in place, then grab the spark context off the session and print its default parallelism. The number you see is the number of cores Spark has decided to use for parallel work — typically the total core count of your laptop in local mode.
+
+Creating RDDs.
+
+Three common ways to create one.
+
+The first is parallelize. Pass it a Python list — already in the driver — and Spark distributes that list across the executors as an RDD. Useful for tests and tiny demos.
+
+The second is text file. Pass it a path — a single file or a directory — and Spark reads each line as one element of the RDD.
+
+The third is dot rdd. Every dataframe has an underlying RDD of row objects. You access it with df dot rdd when you need low-level control that the dataframe ay-pee-eye does not give you.
+
+The bank capstone in the project folder reads real csv, json, and parquet files via the dataframe ay-pee-eye. Here, we lean on parallelize so the focus stays on RDD mechanics, not input output.
+
+In code, picture a small list of card transactions. Each transaction is a tuple — transaction ID, card ID, customer ID, merchant category, amount, and status. Twelve transactions, parallelized into four partitions. Asking the RDD for its partition count returns four. Asking for its count returns twelve. Both calls are actions — they trigger execution.
+
+Transformations and actions, RDD edition.
+
+Same lazy model as dataframes. Two categories.
+
+Transformations build the recipe. They are lazy. Common ones: map, which is one in, one out — apply a function to each element. Flat map — one in, zero or more out, then flatten. Filter — keep elements where the predicate is truthy. Distinct — drop duplicates, with a shuffle. Union — concatenate two RDDs. And the partition control methods, repartition and coalesce.
+
+Actions trigger execution. Count returns the number of elements. Take n returns the first n elements. First returns the first element. Collect pulls all elements into the driver as a Python list — careful with that on large RDDs. Reduce aggregates pairwise using a function. Count by value returns a dictionary mapping each unique element to its count. For each runs a function on each element on the executors, for side effects only. Save as text file writes one file per partition.
+
+To make the laziness concrete: keep only approved transactions, then project each transaction down to a tuple of merchant category and amount. That is two transformations chained together — filter, then map. Up to that point, no work happens. Spark has just recorded the recipe. Then call take three, which is an action, and Spark finally runs the chain and returns the first three results.
+
+Narrow versus wide transformations.
+
+This is the single most important distinction for reasoning about Spark performance.
+
+A narrow transformation is one where each output partition depends on exactly one input partition. No data crosses the network. Map, filter, flat map, map partitions, union — all narrow. They pipeline together inside a single stage.
+
+A wide transformation is one where each output partition depends on many input partitions. Data must be shuffled across the network. Reduce by key, group by key, join, distinct, repartition — all wide. Each wide transformation creates a new stage boundary.
+
+Wide transformations are expensive. That is the rule of thumb you carry forward into the rest of the curriculum.
+
+You can see this in code by asking Spark to print the lineage with the to debug string method. On a narrow chain — map, then filter — you see one stage, no shuffle. On a wide chain — map, then reduce by key — you see a new entry called shuffled RDD in the output. That marks the shuffle boundary.
+
+Pair RDDs, the key-value view.
+
+A pair RDD is just an RDD where each element is a tuple of key and value. Pair RDDs unlock a family of grouping and aggregation operations that mirror sql's group by.
+
+Reduce by key combines values per key using a function, with a map-side combine before shuffling. Group by key collects all values per key into an iterable, shuffling every value. Map values applies a function to values while keeping the keys — this one is narrow. Flat map values applies a function and flattens the result. Keys and values project to one side of the pair. Sort by key sorts by key, with a shuffle. Join is an inner join on key.
+
+To build a pair RDD, you map your records into key-value tuples — pick the field you want to group on as the key.
+
+In code, picture this. Filter to approved transactions. Then map each transaction to a tuple of merchant category and the constant one. Then reduce by key with addition. Then sort by key. The result is a sorted list of category and count, one entry per merchant category.
+
+Reduce by key versus group by key, the exam classic.
+
+Both can compute "sum amount per merchant category." They are not equivalent.
+
+Reduce by key combines values locally on each executor first — a map-side combine — then ships the partial results across the network. Less data crosses the wire.
+
+Group by key ships every value for every key across the network, then aggregates on the reducing side. Much more shuffle traffic. On skewed data — where one key has hugely more records than the others — group by key can cause an out-of-memory error on the executor that owns the heavy key.
+
+The rule: if your goal is an aggregate — a sum, a count, a max, an average — and the ay-pee-eye has a "by key" form, prefer reduce by key, or one of its cousins like aggregate by key or combine by key, over group by key.
+
+To make the difference visible, sum approved transaction amounts per merchant category two ways. Way one uses reduce by key with addition. Way two uses group by key followed by map values applied to the Python sum function. Both produce the same answer. But when you print the lineage of each, you see that the group-by-key version ships the full list of values across the network for every category, while the reduce-by-key version ships only the partial sum per category per partition. Same answer, very different shuffle volume.
+
+Persistence — cache, persist, and storage level.
+
+Default behavior: every action re-executes the entire lineage from the source. Call count and then collect on the same RDD and you computed it twice.
+
+The cache method materializes the RDD on the first action and reuses it after. Persist gives you the same idea but lets you pick the storage policy.
+
+The storage levels you should know.
+
+Memory only — keep the RDD in executor ram. This is the default for cache on RDDs. If a partition does not fit, recompute it on miss.
+
+Memory and disk — keep in ram if it fits, spill to disk otherwise. This is the default for cache on dataframes.
+
+Disk only — always to disk. Cheap on memory, slow to read.
+
+The serialized variants — store the data as serialized bytes. Less ram used, more see-pee-you to deserialize on read.
+
+The replicated-twice variants — keep each partition on two executors instead of one. Survives a single executor failure without recomputation.
+
+Use unpersist when you are done. Caches are not free; they hold executor memory.
+
+To see the effect, time a small experiment. Take an expensive pipeline — parallelize five million numbers, square each one, keep only the squares divisible by seven. Run count twice without caching, and you pay the full pipeline cost twice. Now run the same pipeline with cache called on it, run count twice, and the second call hits memory and finishes almost instantly.
+
+Partition-level operations.
+
+Three RDD methods that operate at the partition level rather than the record level.
+
+Map partitions takes a function that receives an iterator over one partition's records and returns an iterator. Use it when per-record setup is wasteful — opening a database connection, loading a model, calling an external ay-pee-eye in batches. With map partitions, you do the setup once per partition instead of once per row.
+
+Repartition does a full shuffle to exactly the number of partitions you ask for. Use it to increase parallelism or to rebalance skewed data.
+
+Coalesce merges down to fewer partitions without a full shuffle. It is only safe when reducing partition count. It is cheap, but it cannot rebalance.
+
+The rule of thumb: shrinking, use coalesce; growing or rebalancing, use repartition.
+
+In code, picture three quick checks on the same transactions RDD. First, ask each partition how many records it has using map partitions. Second, ask the partition count after a repartition to eight — the answer is eight. Third, ask the partition count after a coalesce to two — the answer is two.
+
+Shared variables — broadcast and accumulators.
+
+Spark gives you two ways to share values across executors that are not regular RDD elements.
+
+Broadcast variables ship a read-only value to every executor exactly once, then every task on that executor reuses it. Without broadcast, the value would be serialized into every task closure — wasteful for anything bigger than a few kilobytes. Use broadcasts for small lookup tables — a merchant-category to spend-tier map, an exchange-rate dictionary, a banned-merchant set.
+
+Accumulators are write-only-from-executors, read-only-from-driver counters. Use them for diagnostics — counting bad records, suspicious transactions, parse failures — without breaking the lazy model. Accumulators are eventually consistent. Only updates from successfully completed tasks are guaranteed. A task that fails and re-runs may double-count, so do not use accumulators for correctness, only for telemetry.
+
+To make this concrete, broadcast a small dictionary that maps each merchant category to a spend tier — essential, lifestyle, or discretionary. Then create an accumulator initialized to zero, used to count high-value transactions over ten thousand. Run a map over the transactions RDD that tags each row with its tier from the broadcast dictionary, and bumps the accumulator if the amount is high. After the action runs, you read the accumulator's value on the driver — it tells you how many high-value transactions appeared.
+
+RDD versus dataframe, when to actually reach for each.
+
+Two views of the same engine, with very different ergonomics.
+
+The RDD ay-pee-eye is functional and row-by-row. There is no optimizer; your code is the plan. There is no code generation; Python lambdas serialize across to executors with java virtual machine round-trips. There is no schema. RDDs are slower for structured data. They are best for unstructured data, custom serialization, and per-partition input-output patterns.
+
+The dataframe ay-pee-eye is declarative and column-based. Catalyst rewrites your plan. Tungsten generates java virtual machine bytecode for hot paths. The schema is required. Dataframes are faster for structured data and best for almost everything else.
+
+The honest guideline for the rest of this curriculum and for the bank capstone in the project folder: prefer dataframes. Drop to RDDs when you need something the dataframe ay-pee-eye genuinely cannot express — a custom map-partitions pattern, a non-tabular input, or a closure that does not fit spark sql.
