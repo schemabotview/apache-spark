@@ -1,0 +1,197 @@
+SQL is a first-class citizen.
+
+Spark dot sql, with a query string, accepts any ansi SQL string and routes it through the same Catalyst optimizer as the dataframe ay-pee-eye. SQL and dataframe paths produce identical execution plans. Choose whichever form is more readable; mix them freely in the same application.
+
+A note on ansi SQL mode. Spark three point oh and later ship a stricter SQL semantics. Integer overflow throws instead of silently wrapping. Casts are stricter. Divide-by-zero raises an error. Enable it with spark dot conf dot set, with the key spark dot sql dot ansi dot enabled and the value true. It is off by default for backward compatibility, but recommended for new pipelines.
+
+Setup, register all eight tables as views.
+
+We register every bank table from the data folder as a session-scoped temp view. From here on, any spark dot sql call works without re-loading.
+
+In code, build a spark session with the delta config. Declare explicit schemas only for the c-s-v files — customers and loan repayments — because parquet, orc, and delta have schemas embedded in their files. Read all eight tables into a dictionary, then loop over the dictionary and call create or replace temp view on each one. After the loop, all eight bank tables are addressable by name from any spark dot sql call.
+
+Temporary views — session, global, and managed tables.
+
+Three lifetimes for a name in the catalog.
+
+The first is create or replace temp view. The view lives only for this spark session. Address it by its plain name. Dropped automatically when the session ends.
+
+The second is create or replace global temp view. The view lives for the entire java virtual machine — every session in the same java virtual machine can see it. Address it as global temp dot the name.
+
+The third is save as table, which we covered in notebook four. The table is persisted in the metastore, survives the session, and is addressed by its plain name.
+
+The SQL-to-dataframe round-trip pattern. Register a dataframe as a view, query it with SQL, take the result back as a dataframe, continue chaining with the dataframe ay-pee-eye. Spark routes each hop through the same optimizer, so the plans stay merged into one query.
+
+In code, two demos. First, register a global temp view of Mumbai customers, then query it with select count star from global temp dot mumbai customers. Second, run a SQL query that returns customers with more than five approved transactions, then continue in the dataframe ay-pee-eye — filter and order by — without ever touching SQL again.
+
+Basic SQL queries.
+
+Select, where, group by, having, order by, limit — all standard ansi. Spark's SQL does support having, even though there is no dot-having method on dataframes. If you want a having-style filter in the dataframe ay-pee-eye, you chain a filter call after the agg call — that pattern was covered in notebook five.
+
+In code, two queries. First, a simple select with where and order by — pull the top five approved transactions over ten thousand. Second, a group-by with having — merchant categories that have more than one hundred approved transactions, sorted by total spend descending.
+
+C-T-Es, the with clause.
+
+A common table expression — abbreviated C-T-E — names an intermediate result so a complex query reads top-to-bottom instead of inside-out. Spark supports full ansi with-as chains, and you can chain multiple C-T-Es in a single query.
+
+In code, find the top spender per city. The first C-T-E sums approved spend per customer. The second C-T-E joins customers to that aggregate, attaching city and full name. The final select runs row number partitioned by city and ordered by total spend descending, then keeps only row number equal to one — the highest-spending customer in each city.
+
+SQL joins.
+
+All six SQL join types Spark supports — same semantics as the dataframe how-argument from notebook five, just SQL syntax.
+
+Inner join returns rows matching in both tables.
+
+Left join returns all left rows, with nulls for unmatched right.
+
+Right join returns all right rows, with nulls for unmatched left.
+
+Full outer join returns all rows from both, with nulls where there is no match.
+
+Left semi join returns left rows that have a match in right, but with no columns from the right side added.
+
+Left anti join returns left rows that have no match in right.
+
+In code, build a customer-360 query that joins three tables. Customers as the left side. Card transactions joined on customer ID, filtered to approved transactions. Loan accounts joined on customer ID. Group by customer and aggregate — count distinct transactions, sum spend, count distinct loans, sum loan principal. Order by total card spend descending, with nulls last.
+
+Subqueries.
+
+Spark SQL supports correlated and uncorrelated subqueries in the where clause, the from clause, and the select clause.
+
+A scalar subquery returns a single value. Useful inside select or where — for example, "transactions above the overall average."
+
+An "in" subquery is set membership. The outer row passes if its column appears in the inner query's result set.
+
+An "exists" subquery is correlated. The outer row passes if the inner query has any matching row.
+
+In code, three demos. First, a scalar subquery — transactions whose amount is greater than the average approved transaction amount. Second, an "in" subquery — payments from customers who have an active loan. Third, an "exists" subquery — customers who have at least one declined transaction.
+
+Window functions in SQL.
+
+The dataframe window ay-pee-eye from notebook five, in SQL syntax. Use the over keyword, then in parentheses partition by, order by, and a frame clause like rows between unbounded preceding and current row. Same semantics — row number, rank, dense rank, n-tile, lag, lead, plus running aggregates over a frame.
+
+In code, one query that combines two window functions. Per-customer transaction rank, using row number partitioned by customer ID and ordered by amount descending. And a per-customer cumulative spend, using sum of amount over a window partitioned by customer ID, ordered by transaction at, with the frame from unbounded preceding to current row. Limit ten rows.
+
+The catalog ay-pee-eye.
+
+Spark dot catalog lets you list and inspect databases, tables, views, and columns programmatically — useful for discovery and for cleanup.
+
+List databases returns all databases.
+
+List tables returns tables and views in the current database.
+
+List columns, with a table name, returns the columns of that table.
+
+Table exists, with a name, returns a boolean.
+
+Drop temp view and drop global temp view remove a session view or a global view, respectively.
+
+In code, list the databases, list the temporary views — there will be eight, one per bank table we registered — and confirm that customers exists. Then drop the global temp view we created earlier for Mumbai customers, to keep the catalog clean across reruns.
+
+Dataframe ay-pee-eye versus SQL — same plan.
+
+The same query, written both ways. Catalyst rewrites both into the same physical plan. The proof is in the explain output.
+
+In code, write a "spend per merchant category" query two ways. The dataframe form chains spark dot table, filter on status approved, group by merchant category, agg with count star and round of sum amount, order by total descending. The SQL form is the equivalent select with where, group by, and order by. Show the first three rows of each — same answer. Then call explain on each — same plan.
+
+Numeric functions.
+
+Beyond the obvious arithmetic, the function library has a handful of numeric helpers worth knowing for financial work.
+
+Abs returns the absolute value.
+
+Ceil and floor round up or down to the nearest integer.
+
+Round, with a column and a decimal-place count, rounds half up.
+
+B-round, also called banker's rounding, rounds half to even — useful when you want unbiased rounding across a large number of values.
+
+Pow raises a column to a power.
+
+Sqrt, log, and exp are the usual exponential and logarithm functions.
+
+Signum returns negative one, zero, or positive one by sign.
+
+Greatest, with a list of columns, returns the row-wise maximum across those columns. Least returns the row-wise minimum. Useful for caps and floors — for example, "principal floored at fifty thousand and capped at two million."
+
+In code, two demos. First, take card-transaction amounts and project ceil, floor, round half up, and round half to even side by side. You will see how round half to even differs on a value like one point five — which rounds to two — versus two point five — which also rounds to two. Second, on loan accounts, use greatest and least to apply a floor of fifty thousand and a cap of two million to the principal amount.
+
+Advanced date functions.
+
+Building on notebook five's date basics, these handle reporting periods and calendar tricks.
+
+Date trunc, with a unit string like "hour" or "day" or "month" and a column, truncates a timestamp to the start of that unit.
+
+Last day, with a column, returns the last day of the month containing the column.
+
+Next day, with a column and a weekday name like "MON," returns the next named weekday on or after the column.
+
+Months between, with two columns, returns months, including a fractional part — useful for tenure calculations.
+
+Quarter, with a column, returns the calendar quarter, one through four.
+
+Week of year, with a column, returns the i-s-o week number.
+
+In code, two demos. First, on card transactions, project the transaction-at column along with the hour-bucket using date trunc, the month end using last day, the calendar quarter, and the i-s-o week number. Second, on active loans, use months between current date and the disbursed-at date to compute tenure elapsed in months.
+
+Higher-order array functions.
+
+Higher-order functions take a lambda as an argument and apply it to array elements on the java virtual machine — no u-d-f serialization overhead. They turn many would-be u-d-fs into one-liners.
+
+Transform, with an array column and a lambda, maps over each element.
+
+Filter, with an array column and a lambda, keeps only elements where the lambda returns true.
+
+Aggregate, with an array column, a zero value, and a merge lambda, folds an array to a scalar. Like a left fold or reduce.
+
+Exists, with an array column and a lambda, returns true if any element matches.
+
+Forall returns true if every element matches.
+
+Zip-with, with two array columns and a lambda, combines them element by element.
+
+In code, build a tiny one-row playground with two array columns — a list of risk reasons and a list of amounts. Then four higher-order calls. Transform applies lower to each reason. Filter keeps only reasons containing "FRAUD." Exists asks whether any reason contains "FLAG" — true. Forall asks whether every reason contains an underscore — also true. Then aggregate folds the amounts array into a single sum, with zero as the starting value and "accumulator plus x" as the merge lambda.
+
+Python u-d-fs — the u-d-f decorator, and spark dot u-d-f dot register.
+
+Python u-d-fs — short for user-defined functions — give you an escape hatch when no built-in expresses your logic. There are two registration paths.
+
+The u-d-f decorator, with a return type, wraps a Python function for dataframe use. Use the result as a regular column function.
+
+Spark dot u-d-f dot register, with a name, the function, and a return type, makes the same u-d-f callable from spark dot sql.
+
+The cost is real. Every row crosses the java-virtual-machine to Python boundary twice — once to send the value to a Python worker, once to bring the result back. Ten to one hundred times slower than equivalent built-ins on large data. Always exhaust built-ins first. Reach for u-d-fs only when nothing else expresses your logic.
+
+In code, write a tiny mask-card function that takes a card id, keeps the first four and last four characters, and replaces the middle with stars. Wrap it as a u-d-f and apply it on the card-accounts dataframe via select — every card id is now masked. Then register the same plain function under the name "mask card" using spark dot u-d-f dot register, and call it from a spark dot sql query — same masking, called from SQL.
+
+Pandas u-d-fs — vectorized via Apache Arrow.
+
+Pandas u-d-fs, also called vectorized u-d-fs, transfer data in columnar Arrow batches rather than row by row. Inside the u-d-f, you operate on a pandas Series — or a pandas dataframe for the grouped variants. Numpy and pandas vectorization apply, and Arrow eliminates most of the serialization overhead.
+
+Three flavors worth knowing.
+
+The Series-to-Series flavor — the default scalar form — takes one pandas Series per column and returns one pandas Series. Use it for most row-wise transformations.
+
+The iterator-of-Series flavor takes an iterator of pandas Series and returns an iterator. Use it when there is expensive setup per worker — loading a model, opening a database connection — that you want to do once and then reuse across many batches.
+
+The apply-in-pandas flavor — accessed as group-by dot apply-in-pandas, with a function and a schema — takes one pandas dataframe per group and returns one pandas dataframe. Use it for custom aggregations that need full pandas, like median or a quantile.
+
+In code, two demos. First, a Series-to-Series pandas u-d-f that converts i-n-r amounts to u-s-d at a fixed rate of eighty-three. Apply it to approved transactions and project the original i-n-r amount alongside the converted u-s-d amount. Second, an apply-in-pandas demo. Define a function that takes a per-customer pandas dataframe and returns a one-row pandas dataframe with the customer ID, transaction count, total amount, and median amount. Call it as group by customer ID dot apply in pandas, with the function and an explicit output schema. The result has one row per customer, including the median — which is awkward to express in pure SQL.
+
+Performance tiers — when to use each.
+
+A decision table, ordered from fastest to slowest.
+
+For string, date, array, conditional, or numeric work — use the built-in functions in pyspark dot sql dot functions. Tungsten code generation, no serialization.
+
+For element-wise work on array or map columns — use higher-order functions like transform, filter, and aggregate. The lambda runs on the java virtual machine.
+
+For numpy, pandas, or scikit-learn vectorized work — use a pandas u-d-f, Series to Series. Arrow columnar batches keep the cost low.
+
+For setup-once patterns — loading a model, opening a database connection — use a pandas u-d-f, iterator of Series. One setup per batch instead of per row.
+
+For custom group-level logic that needs full pandas — use apply-in-pandas. One pandas dataframe per group.
+
+For simple custom logic on small data with no built-in alternative — a plain u-d-f decorator is acceptable. Avoid it in hot paths.
+
+For a plain u-d-f on billions of rows — avoid entirely. Rewrite as built-ins or as a pandas u-d-f. The plain u-d-f will be ten to one hundred times slower, and the per-row Python boundary will produce serious garbage-collector pressure.
