@@ -1,0 +1,103 @@
+The problem Spark solves.
+
+Imagine a CSV with two hundred gigabytes of bank transactions and a laptop with sixteen gigabytes of ram. Pandas crashes the moment you try to load it. You could split the file into chunks and loop through them, but you now own a small distributed system. Which chunks finished, which failed, how do you do a group-by that spans the whole file?
+
+Spark exists because this pattern keeps appearing past a few hundred gigabytes. Data too big for one machine, work that needs to be coordinated across many. Instead of writing your own chunking and coordination layer, Spark gives you one engine that handles it, behind a familiar table-shaped ay-pee-eye.
+
+What Spark actually is.
+
+Apache Spark is a distributed compute engine. You write code as if you have one giant table. Spark slices the data into pieces called partitions, ships those pieces to many machines, runs your code on each in parallel, and brings the result back.
+
+Here is the mental shift from pandas. Pandas runs your code in one process, on one machine, against memory it owns directly. Spark runs a plan you describe — across many processes, on many machines, against memory those processes own. You never move data between machines by hand. Spark does that for you.
+
+The cluster.
+
+Whenever Spark runs, there are three roles in play.
+
+First, the driver. This is the process running your Python script. It owns the SparkSession, builds the execution plan, and decides what work to send out. Think of the driver as the project manager — it never lifts a box itself.
+
+Second, the executors. These are worker processes that hold partitions of data in memory and run the actual computations. Picture them as the delivery drivers, each handling their own route.
+
+Third, the cluster manager. The cluster manager allocates machines to your Spark application. It does not understand your job; it just hands out resources. Common options include Standalone, yarn, kubernetes, or local mode — where the driver and executors collapse into one java virtual machine on your laptop.
+
+Memory-first execution.
+
+The big leap over the previous generation, hadoop mapreduce, comes down to one design choice. Keep intermediate results in executor ram instead of writing them to disk between every step. A multi-step pipeline used to do a full disk round-trip per step. In Spark, data stays in memory until something forces it out.
+
+That single decision is most of Spark's speed advantage. Caching, broadcast joins, and the rest are details on top of it. We come back to those in notebook seven.
+
+From your code to distributed work.
+
+When you write a chain like filter, then group-by, then count, here is what happens behind the scenes.
+
+The driver builds a logical plan from your dataframe chain. The Catalyst optimizer rewrites it — pushing filters down, reordering joins, dropping unused columns. The plan becomes a physical plan, then a directed acyclic graph of stages. Each stage splits into tasks — one task per partition. Tasks ship to executors and run in parallel across their see-pee-you cores.
+
+Three vocabulary words to lock in now, because they show up on the exam.
+
+A job is what one action triggers. One count call equals one job.
+
+A stage is a slice of work between shuffles. A new shuffle starts a new stage.
+
+A task is the smallest unit of work. One partition, processed by one executor core.
+
+Deployment modes.
+
+Now, how do the driver and executors actually get placed onto machines?
+
+Local mode means everything runs in one java virtual machine on your laptop. This is the mode the notebook uses. Writing local in square brackets with an asterisk means use all available cores.
+
+Standalone is Spark's built-in cluster manager. Simple, no external dependency.
+
+Yarn runs on hadoop clusters. You will see this in legacy on-premise stacks.
+
+Kubernetes runs the driver and executors as pods. This is the modern cloud-native default.
+
+Databricks is a managed Spark platform. The cluster manager is hidden behind the platform itself.
+
+For learning, local mode is plenty. For the exam, you should at minimum recognize each name and what it runs on.
+
+Setup, and your first SparkSession.
+
+To run the notebook locally, you need java seventeen or higher installed. Then pip install pyspark version three point five point three, and delta-spark version three point two point one.
+
+This repo standardizes on a helper called configure spark with delta pip. It loads the delta jars into the java virtual machine when the session starts, so every notebook in the series can use delta lake without separate setup.
+
+In code, you build a SparkSession builder, give it an app name, point it at local mode, add two delta config entries, and pass the builder through configure spark with delta pip. The result is a live SparkSession bound to your Python process. When you ask for spark dot version, it prints the running version number — a quick sanity check that everything wired up.
+
+Lazy evaluation, the first taste.
+
+Spark operations split into two kinds.
+
+Transformations — like filter, select, group-by, and join — build the recipe. Nothing actually runs.
+
+Actions — like count, show, collect, and write — trigger execution against the recipe.
+
+Why does this matter? By the time you call an action, Spark sees the entire chain of transformations and can plan the most efficient execution. If transformations ran eagerly, each step would commit before the next, and the optimizer would have nothing to optimize.
+
+To make this concrete, picture five bank customers in a small in-memory dataframe — customer id, full name, city, and credit score. You chain a filter, keeping only customers with credit score seven hundred or higher, then a select narrowing down to three columns. At this point, nothing has executed. Spark has just recorded the recipe.
+
+You can ask Spark to print the plan it built, using the explain method. The plan will already show that Catalyst pushed the filter close to the data scan — a free optimization Spark made on your behalf.
+
+Then you call show. Show is an action. That is the moment Spark actually runs the job and brings rows back to the driver to print.
+
+Hello Spark, a multi-step query.
+
+The lazy-evaluation walkthrough already proved the install — a SparkSession started, a dataframe was built, an action ran. One more pass to confirm a multi-step query works end to end.
+
+Register the same dataframe of five customers as a temporary sql view called customers. Then run a sql query that groups by city, counts the number of customers, computes the average credit score rounded to a whole number, and orders the result by average credit score from highest to lowest. Spark plans the entire query, executes it, and returns one row per city.
+
+The point: the same engine that runs the dataframe ay-pee-eye also runs sql, and they compile down to the exact same execution plan.
+
+When not to use Spark.
+
+Spark is the wrong tool in four situations.
+
+First, when your data fits comfortably in pandas. Below roughly ten gigabytes on a modern laptop, pandas is faster, simpler, and has no cluster overhead.
+
+Second, when you need single-row, sub-millisecond lookups. Spark is throughput-optimized, not latency-optimized. For that workload, reach for postgres, dynamodb, or redis.
+
+Third, when you need online transaction processing semantics — transactions across many concurrent writers. Spark is for analytical workloads, read-heavy and write-batched. It is not a transactional database.
+
+Fourth, when you only need a scheduled script. A cron job plus a Python script can be the right answer. Reach for Spark when scale or fault tolerance actually demand it.
+
+The honest rule: Spark earns its complexity when single-machine tools stop working.
