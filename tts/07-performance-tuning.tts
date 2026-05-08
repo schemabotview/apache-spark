@@ -1,0 +1,201 @@
+Partition sizing, the unit of parallelism.
+
+A partition is processed by exactly one task on one executor core. There are two failure modes.
+
+Too few partitions — cores sit idle, one slow task stalls the stage, and you risk an out-of-memory error if a partition is huge.
+
+Too many partitions — task scheduling overhead dominates. Tiny tasks finish in milliseconds, while the scheduler spends longer setting them up than the work itself.
+
+Three rules of thumb.
+
+For production on a real cluster — target one hundred twenty-eight to two hundred fifty-six megabytes per partition.
+
+For local mode — two to four times the number of see-pee-you cores is plenty.
+
+After a shuffle — the count is controlled by spark dot sql dot shuffle dot partitions, which defaults to two hundred. We tune it in section three.
+
+You can ask a dataframe how many partitions it currently has via df dot rdd dot get num partitions, and inspect the row distribution with the spark partition ID function.
+
+Setup.
+
+Build a spark session with the delta config, set log level to error, and read three bank tables — card transactions in parquet, customers in c-s-v, and loan accounts in JSON. Print the row count and partition count for card transactions, then run a per-partition row count using spark partition ID grouped by partition ID. The output shows you whether the rows are evenly distributed across the partitions Spark assigned at read time.
+
+Repartition versus coalesce, dataframe edition.
+
+Notebook two covered these on RDDs; the same idea applies to dataframes.
+
+Repartition, with a number, does a full shuffle. It can increase or decrease partition count, gives evenly distributed output, but is slow.
+
+Coalesce, with a number, is a narrow transformation — no shuffle. It can only decrease partition count, may produce unequal sizes, and is fast.
+
+There is a third form — repartition with a number and a column name. This hash-partitions by the column. All rows with the same key value land in the same partition. Use it before a join on that column to eliminate the shuffle at join time.
+
+In code, three reshapes of the same card-transactions dataframe — original partition count, then repartition to sixteen, then coalesce to two. After that, repartition by customer ID into eight partitions, then run a per-partition count to see the keyed distribution.
+
+Tuning spark dot sql dot shuffle dot partitions.
+
+The default — two hundred — is sized for large clusters. On local mode with eight cores, that is one hundred ninety-two mostly-empty partitions and a lot of scheduling overhead. A-Q-E coalesces empty post-shuffle partitions automatically — we covered that in notebook three — but on large datasets you may still want to set the upstream count explicitly.
+
+Rule of thumb. Two to four times the total core count for local. For a real cluster, target the one-hundred-twenty-eight to two-hundred-fifty-six megabytes per partition rule on the largest expected post-shuffle dataset.
+
+In code, time the same group-by query at two settings. First with two hundred shuffle partitions — the default. Then with eight. Print the elapsed time and the number of output partitions for each. The eight-partition version is faster on local mode because there is much less scheduling overhead. Restore the default at the end so downstream cells are unaffected.
+
+What triggers a shuffle.
+
+A shuffle happens when Spark must redistribute data across partitions. Three steps every time.
+
+First, shuffle write. Each task writes intermediate output to local disk.
+
+Second, network transfer. Data moves to target executors.
+
+Third, shuffle read. The receiving tasks read and deserialize.
+
+Operations that always shuffle — group by, join, distinct, order by, repartition, drop duplicates, and union with the distinct flag set.
+
+Operations that never shuffle — filter, select, with column, coalesce when reducing, map, and flat map. These are narrow.
+
+Reading shuffles in the explain output.
+
+Each shuffle shows up as an exchange operator in the physical plan. Counting exchange nodes is the fastest way to estimate the network cost of a query.
+
+In code, two demos. First, a single-table group by — the explain shows one exchange operator. Second, a join followed by a group by — the explain shows two exchanges for the join, one per side, plus one more for the group by.
+
+Catalyst's free wins — predicate pushdown and column pruning.
+
+For columnar formats — parquet and ORC, short for optimized row columnar — Catalyst applies two optimizations automatically. No code change required.
+
+Predicate pushdown. Filters travel into the file reader. The reader skips entire row groups whose statistics cannot match the predicate, without ever decoding them.
+
+Column pruning. Catalyst tracks which columns are actually referenced and tells the file reader to skip the rest. Unread columns are never decoded.
+
+Together, these turn a "read ten gigabytes and filter" query into a "read one hundred megabytes" query, without any user-side change.
+
+You can confirm both via df dot explain with mode equal to "extended." Look for two things in the output. Pushed filters lists the predicates the reader pushed into parquet or ORC. Read schema shows only the columns Catalyst actually needs.
+
+In code, build a query that filters on status equals approved and amount greater than ten thousand, then projects just transaction ID and amount. Call explain with extended mode. The pushed-filters line will include "greater than amount, ten thousand," and the read schema will list only the columns we projected — not the full schema.
+
+A-Q-E in depth — runtime re-optimization.
+
+Notebook three introduced adaptive query execution — A-Q-E for short — with dynamic coalescing of post-shuffle partitions. Two more behaviors round out the set.
+
+Dynamic join strategy switch. At runtime, after a shuffle's stats are known, Spark can promote a sort-merge join to a broadcast hash join if one side turns out small enough. The threshold is the spark adaptive auto-broadcast-join-threshold config.
+
+Skew join handling. Spark detects oversized partitions and splits them into sub-tasks, so one slow task does not stall the stage. A partition is considered skewed when two conditions both hold. Its size is at least the skewed-partition-factor times the median partition size — default five times. And its size is at least the skewed-partition-threshold-in-bytes — default two hundred fifty-six megabytes.
+
+A-Q-E is on by default in Spark three point two and later. We use skew handling end-to-end in section thirteen.
+
+In code, read the four relevant configs — A-Q-E enabled, skew join enabled, skew factor, and skew threshold in bytes — and print them so you know the starting point.
+
+Caching dataframes — cache and persist.
+
+Spark's lazy evaluation re-runs the full lineage on every action. If you reuse a dataframe, you pay the cost twice.
+
+Df dot cache is shorthand for df dot persist with storage level memory-and-disk. It is lazy — calling cache alone does nothing. The next action materializes the result, and subsequent actions read the cached copy.
+
+Df dot persist, with a level, lets you pick the storage policy explicitly.
+
+A subtle but important note. Dataframe cache defaults to memory-and-disk. RDD cache, which we covered in notebook two, defaults to memory-only. The dataframe default safely spills to disk if it does not fit in ram. The RDD default just recomputes on miss.
+
+In code, build an "expensive" pipeline — read parquet, filter on status approved, filter on amount over one thousand, project three columns. Run two count calls without caching, and you pay the full pipeline twice. Then run the same pipeline with cache called on it. Run two count calls again — the first materializes, the second hits memory. Print is-cached and the storage level. Then unpersist.
+
+Storage levels — reference.
+
+Persist accepts a storage level to control where the data lives.
+
+Memory only — keeps the data in executor ram, no disk fallback, no serialization, one replica. Best for small dataframes that fit in ram. This is the RDD default.
+
+Memory and disk — keeps in ram, spills to disk on eviction, no serialization, one replica. The default for dataframes. Safe for any size.
+
+Memory only serialized — like memory only, but the data is stored as serialized bytes. Saves ram at the cost of see-pee-you to deserialize on read.
+
+Memory and disk serialized — the safe-for-any-size variant of the serialized form. Use for large dataframes when you also want disk safety.
+
+Disk only — always to disk. Cheap on memory, slow to read.
+
+Memory and disk replicated twice — keeps each partition on two executors instead of one. Survives a single executor failure without recomputation.
+
+Off heap — stores serialized bytes off the java virtual machine heap. Avoids garbage-collector pressure. Advanced; rarely needed.
+
+Rule of thumb. Start with memory and disk. Switch to memory only when you know the data fits and want the fastest reads. Use the replicated-twice variant only when recomputing from lineage is genuinely expensive — multi-hour aggregations.
+
+In code, persist loan accounts with the explicit memory-and-disk-serialized level, materialize with count, print is-cached and the storage level, then unpersist.
+
+Cache table, unpersist, and anti-patterns.
+
+Catalog-level caching. Spark dot catalog dot cache table, with a name in quotes, caches a registered view at the catalog level. Any query against that view name reads from the cached copy.
+
+Unpersist. Always call it when you are done. Cached data stays in memory until the session ends, the L-R-U eviction policy removes it, or you release it explicitly. Do not rely on L-R-U.
+
+Anti-patterns — when not to cache.
+
+A dataframe used in only one action — memory consumed but never reused.
+
+A very large dataframe that exceeds ram — constant eviction and recompute thrashing.
+
+A dataframe whose source changes between actions — cached data becomes stale.
+
+A simple scan with no transformations — source input-output is already cheap.
+
+An intermediate step in a long chain that is only used once — cache the final result instead.
+
+The right rule. Cache the result of expensive transformations, not raw reads.
+
+In code, register customers as a temp view, call spark dot catalog dot cache table on it, print is-cached, run a SQL query against the cached view, then call uncache table and print is-cached again to confirm release.
+
+Checkpointing — truncating long lineage.
+
+Caching keeps the lineage. Spark can still recompute from the source if a cached partition is lost. Checkpointing goes further. It writes the dataframe to reliable storage and breaks the lineage. Spark forgets how the data was produced and just reads the saved files.
+
+When to checkpoint. Iterative algorithms — machine-learning training loops with one hundred or more iterations — where the plan itself becomes a memory and performance problem. Streaming jobs with stateful operations that accumulate lineage over time. Any directed acyclic graph longer than roughly twenty shuffle stages.
+
+Unlike cache, checkpointing is eager. It executes immediately when called.
+
+In code, set a checkpoint directory using spark dot spark context dot set checkpoint dir. Build a derived dataframe with a non-trivial plan — filter approved, join customers, group by city, count. Print the explain output before the checkpoint — you see the full lineage. Then call checkpoint, with the eager flag set to true. Print explain after the checkpoint — the plan is now just a simple file scan of the checkpoint directory. Spark has forgotten the upstream operations entirely.
+
+Join strategies, broadcast, and when not to broadcast.
+
+Spark picks a join algorithm based on table sizes and hints. Four strategies to know.
+
+Broadcast hash join — when one side is at or below the auto-broadcast-join-threshold, defaulting to ten megabytes, or when forced with a broadcast hint. No shuffle. Best for small dimension tables.
+
+Sort merge join — when both sides are large and no broadcast is possible. Both sides shuffle. Best for large fact-to-fact joins.
+
+Shuffle hash join — when one side fits in memory per partition. Only one side shuffles. Best for medium tables.
+
+Cartesian or nested-loop join — when there is a cross join or no join key. Full cross product. Use only when you actually intend to cross-join.
+
+The broadcast hash join is the single biggest win for star-schema queries — joining a large fact table with small dimension tables. The small side is shipped to every executor. The join runs locally with no shuffle.
+
+To force a broadcast, wrap the small side with the broadcast function from pyspark dot sql dot functions. In SQL, a broadcast hint with the table alias does the same thing.
+
+When not to broadcast. Below ten megabytes — auto-broadcast handles it. Ten to one hundred megabytes — force broadcast with the hint, safe on most clusters. One hundred to five hundred megabytes — broadcast with caution; test on your cluster's executor memory. Above five hundred megabytes — do not broadcast. Use sort merge or A-Q-E.
+
+Broadcasting a table that does not fit in executor memory causes an out-of-memory error.
+
+In code, three demos. First, force a broadcast — wrap customers with the broadcast function and join with card transactions. The explain output shows broadcast hash join in the physical plan. Second, the SQL form using the broadcast hint — same plan. Third, disable auto-broadcast by setting the threshold to negative one. The same join now flips to a sort merge join with two exchange operators, one per side. Restore the default afterward.
+
+Detecting and fixing data skew.
+
+Data skew occurs when a few keys dominate the partition distribution. Because a stage cannot complete until the last task finishes, one oversized partition stalls the entire stage.
+
+Symptoms. One task runs ten to one hundred times longer than the median — visible in Spark U-I, stages tab. One executor shows garbage-collector pressure or disk spill while others sit idle. The stage finishes quickly except for the last one or two tasks.
+
+Three fixes — pick one based on Spark version and severity.
+
+Fix one — A-Q-E skew join. The modern default. Spark three point two and later ship with skew join enabled set to true. A-Q-E detects skewed partitions at runtime and splits them into sub-tasks. Try this first.
+
+Fix two — salting. Manually break hot keys. Append a random suffix to the join key on the large side. Explode the small side into N copies, one per salt value, so the join still matches. The most reliable fix when A-Q-E is not enough.
+
+Fix three — repartition by range. Sort by the column and split into equal-sized ranges. Partitions are balanced regardless of key frequency. Useful when A-Q-E is not available, or when skew is severe enough to need explicit control.
+
+Skew also appears in group by. Same disease, same medicine. Salt the key, aggregate twice — partial then final.
+
+In code, four cells.
+
+The first cell builds a synthetically skewed dataframe. Two hundred thousand rows, where eighty percent map to a single hot key called CUST hot, and the remaining twenty percent spread across one hundred regular customers — CUST zero through CUST ninety-nine. Each row gets a random amount, with a fixed random seed for reproducibility. Two distributions are then printed. The per-key counts show the hot key dominating. The per-partition counts after a shuffle by customer ID show one big partition holding most of the rows.
+
+The second cell demonstrates fix one — A-Q-E skew join. Print the A-Q-E settings. Build a small dimension covering the one hundred regular customer IDs plus the hot one. Run the join. A-Q-E detects the skewed partition at runtime and splits it. On a real cluster, Spark U-I stages would show split tasks for the hot key.
+
+The third cell demonstrates fix two — salting. Pick a number of salts — ten in the demo. On the large side, append a random salt of zero through nine to each row, forming a salted key like "CUST hot underscore three." On the small side, explode each row into ten rows, one per salt value, producing CUST hot underscore zero through CUST hot underscore nine. The join on the salted key now distributes hot-key rows across ten partitions. Project the original customer ID, amount, and credit limit out of the join.
+
+The fourth cell demonstrates fix three — repartition by range. Take the skewed dataframe and call repartition by range with eight partitions on customer ID. The per-partition counts now look balanced — hot keys are split across multiple partitions automatically.
