@@ -32,13 +32,14 @@ spark = configure_spark_with_delta_pip(SparkSession.builder. ...).getOrCreate()
 `.tts` files are read aloud by ChatterboxTTS (typically via `generate_audio_colab.ipynb` on a T4 GPU). They must be plain spoken prose — what a teacher would say at a whiteboard.
 
 - **Plain prose only** — no markdown, no `#` headings, no bullets, no backticks, no asterisks. Write section titles as a plain sentence ending with a full stop (e.g. `Lazy evaluation.`).
-- **No raw code** — describe what code does conceptually or in pseudo-code form. Never paste code blocks. Variable names like `credit_score` become "credit score"; method chains like `df.filter(...).select(...)` become "filter, then select."
+- **No raw code** — describe what code does conceptually or in pseudo-code form. Never paste code blocks. Method chains like `df.filter(...).select(...)` become "filter, then select."
 - **Spell out symbols and shorthand:**
   - Operators: `//` → "floor division", `%` → "modulo", `->` → "returns", `=>` → "maps to", `===` → "strict equality", `.` (in `spark.version`) → "dot"
   - Acronyms: RAM → "ram", CPU → "see-pee-you", API → "ay-pee-eye", JVM → "java virtual machine", GC → "garbage collector", DAG → "directed acyclic graph" (spell out on first use), OLTP → "online transaction processing"
   - Hex / addresses: `0xFF` → "hex F-F", `0x0000` → "memory address zero"
   - Complexity: O(1) → "constant time", O(n) → "linear time", O(n log n) → "n log n time"
   - Versions: `3.5.3` → "three point five point three"
+  - Variable names: underscores become spaces and common abbreviations get expanded — `list_a` → "list A", `left_ptr` → "left pointer", `idx` → "index", `len` → "length", `df` → "dataframe", `credit_score` → "credit score"
 - **Natural spoken flow** — write as a teacher explains at a whiteboard. Use transitional phrases: "notice that", "the key insight here is", "to put it another way", "picture this".
 - **Skip visual-only content** — never narrate diagrams, tables, or `.show()` outputs. Describe what the listener should picture instead.
 - **Pace with paragraph breaks** — each paragraph = one idea. A blank line between paragraphs gives the TTS engine a natural pause. Aim for 2–4 sentences per paragraph.
