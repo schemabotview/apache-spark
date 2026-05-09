@@ -68,6 +68,30 @@ Actions trigger execution. Count returns the number of elements. Take n returns 
 
 To make the laziness concrete: keep only approved transactions, then project each transaction down to a tuple of merchant category and amount. That is two transformations chained together — filter, then map. Up to that point, no work happens. Spark has just recorded the recipe. Then call take three, which is an action, and Spark finally runs the chain and returns the first three results.
 
+RDDs of objects — a note for object-oriented programmers.
+
+We used bare tuples above for visual brevity, but RDDs hold any type — including objects with named fields. From a java virtual machine or Python runtime standpoint, your object-oriented intuition is exactly right. Each element is an object. Accessor methods work. Garbage collection works. Closures call dot field like in any other program.
+
+In Python, you can use a named tuple or a data class. Picture this — define a named tuple called transaction with six fields: transaction ID, card ID, customer ID, category, amount, and status. Build the RDD by parallelizing a list of transaction objects. Your filter expression becomes t dot status equals "approved" instead of t five equals "approved." Your map expression becomes t dot category and t dot amount instead of t three and t four. Same RDD mechanics, much more readable code.
+
+In Scala, case classes are the idiomatic form. Declare a case class called transaction with the same six fields. The RDD is then typed as RDD of transaction. The Scala compiler enforces field types end to end.
+
+So why does this notebook write t five instead of t dot status? Two reasons — both pedagogical, neither principled. Tuples skip a named-tuple definition that would distract from the RDD mechanics being shown. And positional access makes the absence of a schema visually unmistakable. In real code, prefer named records.
+
+What "no schema" actually means. Even when you write t dot status, the java virtual machine or Python interpreter accesses that property — Spark itself does not. To Spark's planner, every RDD element is an opaque blob. Spark serializes that blob between executors and hands it back to your closure. Your filter function is a black box.
+
+Three consequences flow from that opacity.
+
+First, no catalyst optimization. Spark cannot rewrite a filter on amount greater than one thousand followed by a map to category into a column-pruned, predicate-pushed-down scan, because it cannot see the fields.
+
+Second, no columnar storage. RDDs serialize whole objects across partitions. You pay input-output cost for fields you never read. A parquet-backed dataframe skips unread columns at scan time.
+
+Third, no plan-time validation. A typo in a field access — say t dot a-m-o-u-t instead of t dot amount — blows up at runtime on an executor, not at job submission. Dataframe analysis catches a missing column reference before any task runs.
+
+Compare what Spark sees in each ay-pee-eye. With an RDD filter, Spark sees a user-supplied function and runs it on every element. With a dataframe filter, Spark sees that the column called status equals the literal "approved." The dataframe version lets catalyst push that predicate into the parquet scan and skip files via min and max stats. The RDD version, even with t dot status, gets none of that.
+
+The object-oriented mental model holds for the runtime mechanics — objects, properties, methods, java virtual machine and Python execution. What it does not grant is visibility into Spark's planner. That visibility is exactly the gap a dataframe's schema fills.
+
 Narrow versus wide transformations.
 
 This is the single most important distinction for reasoning about Spark performance.
