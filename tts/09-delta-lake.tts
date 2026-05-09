@@ -1,0 +1,241 @@
+Parquet plus a transaction log.
+
+Plain data lakes store files — parquet, json, c-s-v — in object storage like S three or A-D-L-S. Cheap and scalable, but they have no atomicity, no schema enforcement, and no undo. A failed write leaves partial data behind. Two concurrent writes corrupt each other.
+
+Delta lake is an open-source storage layer that adds a transaction log on top of parquet files. That log is what makes a delta table different from a folder of parquet files. The plain parquet folder has data files sitting next to each other, including possibly a corrupt file from a failed write, and there is no history and no undo. The delta version of the same folder has an underscore delta log subfolder containing a sequence of json files — one per committed transaction — and the data files alongside, with every file accounted for in the log.
+
+This notebook builds delta from the ground up. Log mechanics, ACID writes, schema enforcement and evolution, mutations like delete, update, and merge, time travel, vacuum, change data feed, and the optimization toolkit — optimize, z-order, bloom filters, partitioning, generated columns, constraints, and clone.
+
+Setup.
+
+One spark session with the delta extensions, one scratch directory, and the bank dataset loaded once. Every section below builds on these. We import the spark session, the delta types, and configure spark with delta pip — which is the helper that pulls the delta jars into the java virtual machine. We set spark dot sql dot shuffle dot partitions to four, smaller than the default two-hundred, because all our demos run locally on a small dataset.
+
+Then we load three datasets — customers from c-s-v with an explicit schema, card transactions from parquet with an explicit schema, and loan accounts from json with multiline enabled. These three dataframes are the source data for every demo in the notebook.
+
+The transaction log.
+
+Every delta table has an underscore delta log directory alongside its data files. This directory is the source of truth for the entire table.
+
+The log contains a sequence of json files, one per committed transaction. The filenames are zero-padded twenty-digit numbers — zero zero zero zero zero zero zero zero zero zero zero zero zero zero zero zero zero zero zero zero dot json for the first commit, then incrementing from there. Periodically, every ten commits by default, delta writes a checkpoint parquet file that compresses the full log state into a single file, so readers don't have to replay every json file from the beginning.
+
+Each log entry records two things — which data files were added in this transaction, and which data files were removed. A single log entry is a sequence of json objects. The first object is commit info — the operation type and timestamp. Then come the add objects — one per new parquet file written, with the file path, size in bytes, and a stats string containing the row count and per-column min and max values.
+
+Readers use the log like this. First, load the latest checkpoint if one exists, to get the table state up to that point. Second, replay the json log files committed since the checkpoint. Third, compute the active file set as all add entries minus all remove entries. Fourth, read only those files. No directory listing required — that is why delta reads stay fast even on tables with millions of files.
+
+Creating and reading a delta table.
+
+Writing delta is identical to writing parquet — just change the format string from "parquet" to "delta." Spark creates the data files and the underscore delta log directory automatically.
+
+In code, we write the customers dataframe to a delta path with overwrite mode. After the write completes, the directory contains the parquet data files plus the underscore delta log subdirectory. Inside the log directory there is one json file — the version zero commit. We open it and walk through its entries — the commit info entry has operation set to write, the add entries each describe one written parquet file with its row count, the protocol entry declares the minimum reader and writer versions required, and the metadata entry declares the schema.
+
+Then we register the path as a SQL table using create table with the delta format and a location, and run a simple group-by query against it.
+
+Writing — append, overwrite, replace where.
+
+Delta supports the same mode options as any spark write, but with ACID guarantees. Append adds new rows; existing rows are untouched. Overwrite replaces the entire table. Overwrite combined with the replace where option replaces only rows matching a predicate — this is partition-level overwrite. Error, the default, fails if the table exists. Ignore is a no-op if the table exists.
+
+Each write is a new transaction — a new json entry in the log. If the write fails midway, none of the new files appear in the log and the table is unchanged.
+
+In code, we build the card transactions delta table over three versions. Version zero writes the first half of the data — transactions before April first — partitioned by category. Version one appends the second half. Version two uses replace where — we filter to travel category transactions with status success, change the status to verified, and write with overwrite mode plus replace where on the travel partition. Only the travel partition is rewritten; every other category is untouched.
+
+ACID guarantees in practice.
+
+Atomicity. A write commits all its files or none. If the job crashes after writing sixty of one hundred files, those sixty exist on disk but are never referenced in the log. Readers never see them. The table remains in its previous state.
+
+Consistency. Schema enforcement, covered in the next section, ensures every committed row conforms to the declared schema. The table is always in a valid state.
+
+Isolation. Delta uses optimistic concurrency control. Each writer reads the current table version, makes its changes, then attempts to commit. If another writer committed a conflicting change in the meantime, the commit fails and the writer can retry.
+
+Durability. Once the log json file is written to object storage, the transaction is permanent. Object storage itself provides the durability guarantee.
+
+The atomicity demo proves this. We write a delta table with one hundred customer rows. Then we drop a parquet file directly into the table directory, bypassing the log — fifty rows of orphan data. Reading the delta table afterwards still returns one hundred rows. The orphan file exists on disk but the log doesn't reference it, so delta treats it as if it didn't exist.
+
+Schema enforcement.
+
+Delta rejects writes that do not match the table schema. This is enforced at write time, not at read time, so data quality problems are caught at the source rather than downstream. New columns not present in the table schema are rejected, unless merge schema is enabled. Missing columns that are not nullable are rejected. Wrong data types for existing columns are rejected.
+
+In code, we set up an enforcement table with the customers schema. First bad write — append a dataframe with an extra credit score column. The write is rejected with an analysis exception. Second bad write — append a dataframe where kyc verified, originally a boolean, has been cast to a string. Also rejected. The table row count is unchanged after both attempts.
+
+Schema evolution — merge schema.
+
+Schema enforcement blocks accidental schema changes. But sometimes you intentionally want to add a new column to an existing table — for example, when an upstream pipeline starts producing an additional field. Enable merge schema set to true to allow additive schema changes. New columns in the incoming data are added to the table schema. Existing rows get null for the new column. Existing columns are not removed. Type changes are still rejected unless the types are compatible.
+
+Merge schema is opt-in per write — you must request it explicitly each time, so a typo in the source can never silently widen the schema.
+
+In code, we write the customers table at version zero. Then we build a version-two dataframe with two new columns — credit score and risk tier — and append with the merge schema option set to true. The new columns are added to the schema. The original rows now have null for credit score and risk tier; the new rows have populated values.
+
+Delete from.
+
+Delete from removes rows matching a predicate. Under the hood, delta does not modify parquet files in place — it rewrites the affected files with the matching rows omitted, and records the old files as remove entries in the log. The old files stay on disk until vacuum removes them. This is what makes time travel possible.
+
+We build a loans table here and reuse it through update, merge, time travel, and rollback.
+
+In code, we write the loan accounts dataframe as the loans delta table at version zero. Register it as a SQL table. Then call delta table dot delete with the condition status equals "rejected." This is version one. The SQL equivalent is delete from loans where status equals "rejected." Before the delete, the status distribution shows rejected loans alongside active, closed, and delinquent. After the delete, rejected is gone.
+
+Update set.
+
+Update modifies column values for rows matching a predicate. Like delete, only files containing matching rows are rewritten — unaffected files are not touched. You can update multiple columns in a single statement. The condition can reference any column, and the new value can be any expression.
+
+In code, version two — call delta table dot update with a condition that targets active loans disbursed before twenty twenty-two, and a set dictionary that updates two columns at once. Status becomes "closed" and interest rate is multiplied by zero point nine, applying a ten-percent discount on close. Version three uses the SQL update syntax — flag delinquent loans with interest rate above twelve percent for review by setting status to "under review."
+
+Merge into — upsert in one transaction.
+
+Merge into is the most powerful delta mutation. It joins a source dataframe against the target table on a match condition, then applies different actions per row.
+
+When matched and an extra condition holds, you can update with specific column assignments. When matched without an extra condition, you can update all columns from the source. When not matched in the target, you can insert the row. When not matched by source — meaning the row is in the target but not in the source — you can delete it.
+
+All clauses are optional. Common patterns include S-C-D type one upsert — when matched, update; when not matched, insert. Conditional update — only overwrite the target if the source has, say, a newer timestamp. Full sync — add when not matched by source, delete, to mirror an upstream system that has dropped some rows.
+
+The demo covers all three actions in one merge. We build a sync table with twenty loans. The source dataframe has fifteen of those loans plus two brand-new loan I-Ds. We call delta table dot merge with the match condition on loan I-D, then chain when matched update all, when not matched insert all, and when not matched by source delete. After execute, the sync table has seventeen rows — the two new ones inserted, and the five rows that were not in the source were deleted.
+
+Merge — SQL syntax.
+
+The same operations are available directly in spark SQL. Useful when building pipelines as spark dot sql calls or writing transformations SQL-first.
+
+In code, we build a customer staging dataframe with two changed customers and one brand-new customer. Then we run a SQL merge into statement against the customers delta table — when matched, update three columns. When not matched, insert all nine columns explicitly. After the merge, the existing customer's email and city are updated, and the new customer is inserted.
+
+Time travel and table history.
+
+Delta retains old files until vacuum removes them, so you can read any past version of a table — by version number or by timestamp.
+
+By version number, you set the option version as of N on the dataframe reader, or use the SQL clause version as of N. By timestamp, you set the option timestamp as of with a date-time string, or use the SQL clause timestamp as of with that string.
+
+Describe history in SQL, or delta table dot history in python, returns a full audit trail — version, timestamp, operation, parameters, and metrics. Useful for finding the version to time-travel to.
+
+In code, we print the loans table history — five versions so far, with operations write, delete, update, update. Then we time travel — version as of zero gives the initial load, version as of one gives the state after the delete, and the current read gives the state after both updates. Rejected loans are present in version zero but gone from version one. The same query in SQL using version as of zero confirms the row counts match.
+
+Rollback and restore table.
+
+There is no single-command rollback in open-source delta, but the pattern is simple. Time-travel read the past version, then overwrite the current table with it. The rollback is itself a new transaction, so the history of both the mistake and the recovery is preserved.
+
+On databricks and on delta one point two and later, you can use the single-command form — restore table loans to version as of zero, or restore table with timestamp as of a date-time string.
+
+In code, we write a rollback table at version zero, then run a bad delete that accidentally removes all personal loans — version one. To recover, we read version zero with the version as of option, and write it back to the same path with overwrite mode and overwrite schema set to true. This becomes version two. The full history is preserved — the mistake at version one and the recovery at version two are both visible in describe history.
+
+Vacuum and retention.
+
+Delta marks old files as remove in the log but does not delete them from disk — those files are what enable time travel. Vacuum physically deletes files that are both marked as removed in the log, and older than the retention threshold — default seven days.
+
+Vacuum loans retain one-hundred-sixty-eight hours keeps the seven-day default. Vacuum loans retain zero hours deletes everything beyond the current version. After vacuum, time travel to versions whose files were deleted becomes impossible — but the log entries still exist.
+
+Delta blocks vacuum with a retention period below seven days unless you disable the safety check. Set the spark config spark dot databricks dot delta dot retention duration check dot enabled to false. Testing only, never production.
+
+Two table properties control retention. Delta dot log retention duration controls how long log entries are kept — default thirty days. Delta dot deleted file retention duration controls how long removed data files are kept on disk — default seven days. Longer retention means more time travel range but more storage cost; shorter retention means less storage but a smaller time travel window.
+
+In code, we count parquet files in the loans directory before vacuum. Then we run a vacuum dry run, which lists the files vacuum would delete without deleting them. Then we execute the actual vacuum with zero-hour retention — all old files are deleted. Reading version zero now fails because the files are gone. The current version remains fully readable. Finally we set the two retention properties on the loans table using alter table set table properties.
+
+Change data feed.
+
+Change data feed, abbreviated C-D-F, tracks row-level changes to a delta table — which rows were inserted, updated with before and after images, or deleted. C-D-F is the foundation for change data capture pipelines. Downstream consumers read only what changed, instead of re-reading the entire table.
+
+Enable per table by setting the table property delta dot enable change data feed to true.
+
+C-D-F adds three system columns to each row. Underscore change type takes the values insert, update preimage, update postimage, or delete. Underscore commit version is an integer indicating which version produced the change. Underscore commit timestamp is the timestamp of that commit.
+
+C-D-F works as both a batch read and a streaming source.
+
+In code, we create the loans C-D-F table with C-D-F enabled at write time. Version one — delete rejected loans. Version two — update active loans with high interest to status high risk. Version three — append two new loans. Then we read the change feed since version one by setting the option read change feed to true and starting version to one. We group by change type and commit version to count how many rows changed in each operation.
+
+Optimistic concurrency.
+
+Delta uses optimistic concurrency control. Multiple writers can run simultaneously without blocking each other. When a writer commits, delta checks whether any conflicting change was committed since the writer started. If yes, the commit fails and the writer can retry.
+
+Conflict rules. Append rarely conflicts — appends are almost always compatible. Update and delete conflict if another writer touched the same files. Merge conflicts if another writer modified files merge needs to read or write. Schema changes conflict with any concurrent writer.
+
+Partition-level isolation. If two writers update different partitions, delta detects this and lets both commit without conflict. Picture this — writer A updates loans where loan type equals "home." Writer B updates loans where loan type equals "vehicle." The two writers touch disjoint partition files; both commits succeed. Now picture writer C updating where status equals "active" — this touches files in every partition. If writer D starts an update on the home partition while C is running, C will commit first, then D's commit will fail because the home files have changed. D retries against the new version and succeeds.
+
+The small-file problem and optimize.
+
+Every spark write produces files — one per output partition per task. Streaming pipelines make this worse, because each micro-batch adds another set of small files. Over time a table can accumulate thousands of tiny files.
+
+Why small files hurt. Picture one thousand files at one megabyte each — one gigabyte total. Opening a file in S three costs around ten milliseconds — list, get metadata, open. One thousand files times ten milliseconds is ten seconds of overhead before reading a single row. The same data in ten files at one hundred megabytes each takes only one hundred milliseconds of overhead.
+
+Small files also reduce the effectiveness of parquet's row-group statistics. Fewer rows per file means the min-and-max range per file is wider, so data skipping skips fewer files.
+
+Optimize reads small files in a partition, combines their rows, and writes a smaller number of larger files — target one gigabyte each. The old files are marked remove in the log and the new compacted files are added in one atomic transaction.
+
+Optimize on a table compacts all partitions. Optimize with a where clause compacts a single partition. Optimize with z-order by, covered next, compacts and clusters in one step.
+
+In code, we force thirty-two small files by repartitioning, write to delta, run optimize, and check the file count drops dramatically.
+
+Data skipping.
+
+When delta writes a parquet file it records column-level statistics in the transaction log. Min values and max values per column per file. Null count per column. Num records — the total row count.
+
+At query time, if a filter predicate is provably false for a file based on its stats, spark skips that file entirely without opening it. Picture this — query where amount is greater than five hundred. File A has min ten, max four-ninety — max is less than five hundred, so no row can satisfy the filter; skip. File B has min fifty, max six-fifty — max is greater than five hundred; read. File C has min ten, max three hundred — skip. File D has min two hundred, max eight hundred — read. Two of four files read; fifty percent I-O savings.
+
+Data skipping is most effective when the data is physically clustered by the filter column, because then min-and-max ranges per file are narrow and more files can be skipped. This is exactly what z-order by provides.
+
+In code, we open the version-zero log file and walk through the add entries, printing the per-file stats — the number of records, and the min and max for amount and transaction timestamp. You can see how spark uses these to decide which files to skip.
+
+Z-order by — multi-dimensional clustering.
+
+Z-order by co-locates related data in the same files using a space-filling curve. After optimize with z-order by on two columns, files contain narrow ranges of column one and column two simultaneously — so data skipping benefits both filters.
+
+A regular sort on category, then amount, clusters well for category filters but not for amount filters alone. Z-ordering interleaves the sort keys so both dimensions skip well.
+
+Rules for choosing z-order columns. Use columns that appear in where clauses frequently. Use high-cardinality columns like customer I-D or transaction I-D — z-ordering on a boolean is useless. Two to four columns maximum; more dilutes the benefit. Do not z-order by partition columns — those are already handled by directory pruning. Z-order is re-run every time optimize runs; it is not maintained incrementally.
+
+In code, we build two tables with the same fragmented data. One is optimized without z-order — just compaction. The other is optimized with z-order by customer I-D and amount. We then run the same filter on both — customer I-D equals "C-U-S-T zero zero zero five" and amount greater than four hundred. The z-ordered version reads fewer files and finishes faster, because the customer's rows are clustered into fewer files instead of being scattered.
+
+Bloom filter indexes.
+
+A bloom filter is a probabilistic structure that answers the question "is this value in this file?" with two possible answers. Definitely not — skip the file. Possibly yes — read the file. False positives are possible; false negatives are not.
+
+Bloom filters are stored per file in the underscore delta log, a few kilobytes even for millions of distinct values.
+
+When to use bloom filters. Equality lookups on high-cardinality columns like U-U-I-Ds or transaction I-Ds. Z-order's min-and-max stats are weak here, because a U-U-I-D has a wide min-and-max range, but only one file actually contains any given value. Do not use bloom filters for low-cardinality columns or range queries — they only help equality checks.
+
+The syntax is create bloom filter index on table for columns, with options f-p-p and num items. F-p-p is the false positive probability — for example, zero point zero one means a one-percent chance of reading a file that doesn't contain the value. Num items is the expected number of distinct values in the column, used to size the filter.
+
+In code, we create a bloom filter index on transaction I-D with f-p-p zero point zero one and num items fifty thousand. Then we run optimize with z-order by on transaction I-D so the filter is applied to the compacted files. A point lookup by exact transaction I-D now skips most files without reading them.
+
+Partition strategies.
+
+Partitioning physically separates data into subdirectories. A bad partition choice hurts performance more than not partitioning at all.
+
+Rules. Use low-to-medium cardinality columns — ten to ten thousand distinct values. Too few partitions means no benefit; too many means millions of tiny directories. Use columns that are frequently filtered on, because queries must reference the partition column in their where clause for pruning to work. Aim for balanced distribution, because skewed partitions cause slow tasks. Target at least one gigabyte per partition; less than that and you fall into the small-file problem. And never partition by a high-cardinality column like customer I-D with ten thousand unique values — you would end up with ten thousand directories of around fifty rows each, terrible for full-table scans.
+
+Most common good partition columns are date, month, region, status, and category.
+
+Generated columns.
+
+A generated column is computed automatically from other columns by a deterministic expression. The most common use is to derive a date partition key from a timestamp column, so writers only need to provide the raw timestamp.
+
+The syntax is — in the create table column list, declare transaction date as date generated always as cast of transaction timestamp as date. Then partition by transaction date.
+
+When you write a dataframe with transaction timestamp but without transaction date, delta computes transaction date automatically and partition pruning works on it.
+
+In code, we create a generated-column table partitioned by the derived transaction date column. We append the card transactions dataframe — which only has transaction timestamp, not transaction date — and delta fills in transaction date for every row. A subsequent query with where transaction date equals a specific date prunes to a single partition directory.
+
+Constraints — not null and check.
+
+Delta supports two value-level constraints, both enforced at write time. Not null is declared in the create table column definition — the column cannot be null. Check is added with alter table add constraint — an arbitrary boolean expression must evaluate to true for every row.
+
+Constraints are stored as table properties and enforced by every writer, not just one job. They act as a schema-level data quality gate that catches bad data at the source. Unlike schema enforcement, which checks types and column presence, constraints check value-level rules — amounts must be positive, status must be a valid enum value, end date must be after start date.
+
+In code, we create a loans constrained table with not null on every column, then add three check constraints. Principal must be greater than zero. Interest rate must be between one point zero and thirty point zero. Status must be one of the four allowed values. A good write that satisfies all constraints succeeds. A bad write with status "pending" — not in the allowed list — is rejected atomically with a constraint violation error.
+
+Analyze table.
+
+Analyze table computes column-level statistics — distinct count, min, max, null count — and stores them in the metastore. The spark optimizer, called catalyst, uses these statistics to pick the right join strategy and estimate result sizes. Without statistics, catalyst falls back to rough estimates and may pick a sort-merge join when a broadcast join would be faster.
+
+Three forms. Analyze table compute statistics — row count and table size only. Analyze table compute statistics for all columns — full column stats. Analyze table compute statistics for columns, with a column list — specific columns.
+
+In code, we run both forms on the loans constrained table — basic statistics and column-level statistics for four key columns. Describe extended on a single column shows the collected stats — distinct count, min, max, null count, and average length.
+
+Auto-compaction and optimized writes on databricks.
+
+On databricks, two table-level features manage file sizes automatically. Auto-compaction — after each write, if enough small files have accumulated in a partition, delta runs a compaction in the background. The table stays in a reasonably compacted state without explicit optimize calls. Optimized writes — delta coalesces output files at write time to target around one gigabyte each, instead of one file per spark task. Prevents the small-file problem at the source.
+
+Both are configured as table properties — delta dot auto optimize dot optimize write set to true, and delta dot auto optimize dot auto compact set to true. Both are databricks-only features. On open-source spark, schedule optimize periodically instead.
+
+Clone — shallow and deep copies.
+
+Clone creates a copy of a delta table. Two modes. Shallow clone is cheap — metadata only, no data files copied; the clone references the source files. Use it for development and testing, short-lived branches, or exploring data without affecting production. Deep clone is expensive — copies all data files. Use it for disaster recovery, archiving, or migrating tables to a different location.
+
+Shallow clone behaves like a normal delta table. It has its own log, you can run delete, update, and merge on it, and delta copies files on write — copy-on-write semantics. The source remains untouched.
+
+The syntax is create table loans clone shallow clone loans at version as of three, or create table loans backup deep clone loans.
+
+In code, we create a shallow clone and a deep clone of the loans constrained table. The shallow clone completes almost instantaneously; the deep clone takes longer because every parquet file is copied. We then delete closed-status rows from the shallow clone — the shallow clone row count drops, but the source table is unchanged. That is copy-on-write in action.

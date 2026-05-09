@@ -61,8 +61,6 @@ Curriculum is consolidated into 10 thematic notebooks for retention. Each notebo
 | 07 | Performance & Tuning | `07-performance-tuning.ipynb` | `07-performance-tuning.wav` | partitioning/shuffles/catalyst + caching + broadcast/skew |
 | 08 | Structured Streaming | `08-structured-streaming.ipynb` | `08-structured-streaming.wav` | streaming fundamentals + sources/sinks/watermarking + stateful |
 | 09 | Delta Lake | `09-delta-lake.ipynb` | `09-delta-lake.wav` | intro + ACID/time travel + ops/optimization |
-| 10 | Databricks Spark Developer Exam Guide | `10-exam-guide.ipynb` | `10-exam-guide.wav` | capstone — exam-focused recap + practice |
-
 ## Extras (optional track)
 
 | Topic | Notebook | Audio |
