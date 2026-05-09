@@ -61,9 +61,4 @@ Curriculum is consolidated into 10 thematic notebooks for retention. Each notebo
 | 07 | Performance & Tuning | `07-performance-tuning.ipynb` | `07-performance-tuning.wav` | partitioning/shuffles/catalyst + caching + broadcast/skew |
 | 08 | Structured Streaming | `08-structured-streaming.ipynb` | `08-structured-streaming.wav` | streaming fundamentals + sources/sinks/watermarking + stateful |
 | 09 | Delta Lake | `09-delta-lake.ipynb` | `09-delta-lake.wav` | intro + ACID/time travel + ops/optimization |
-## Extras (optional track)
 
-| Topic | Notebook | Audio |
-|---|---|---|
-| MLlib & Spark ML Pipelines | `extras/mllib-spark-ml-pipelines.ipynb` | `mllib--spark-ml-pipelines.wav` |
-| Pandas API on Spark | `extras/pandas-api-on-spark.ipynb` | `22-pandas-api-on-spark.wav` |
