@@ -61,4 +61,6 @@ Curriculum is consolidated into 10 thematic notebooks for retention. Each notebo
 | 07 | Performance & Tuning | `07-performance-tuning.ipynb` | `07-performance-tuning.wav` | partitioning/shuffles/catalyst + caching + broadcast/skew |
 | 08 | Structured Streaming | `08-structured-streaming.ipynb` | `08-structured-streaming.wav` | streaming fundamentals + sources/sinks/watermarking + stateful |
 | 09 | Delta Lake | `09-delta-lake.ipynb` | `09-delta-lake.wav` | intro + ACID/time travel + ops/optimization |
+| 10 | Gotchas | `10-gotchas.ipynb` | `10-gotchas.wav` | laziness traps, null semantics, schema/decimal/date gotchas, builder pitfalls |
+| 11 | Self Notes (scratch) | `11-self-notes.ipynb` | _(no audio)_ | personal running notes — add entries over time |
 

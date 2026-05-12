@@ -1,0 +1,147 @@
+Things the docs don't shout about.
+
+Spark works the way you expect — until it doesn't. Most surprises aren't bugs. They are consequences of laziness, java virtual machine semantics, distributed execution, or sequel null handling leaking into the dataframe API.
+
+This notebook collects the traps that beginners and even experienced users hit repeatedly. Each section is a tiny demo of something that looks correct, runs without error, and silently gives the wrong answer or wastes minutes of compute.
+
+The categories we will cover are these. Lazy evaluation — including caching, re-computation, and the with-column-in-a-loop trap. Null semantics — comparisons, joins, and filters. Schema gotchas — union versus union-by-name, decimal overflow, and date parsing. API confusables — repartition versus coalesce versus partition-by. Builders and sessions — the get-or-create stickiness, and classic versus connect builder. Driver pitfalls — collect, to-pandas, and Python user-defined functions.
+
+Setup.
+
+Small synthetic dataframes so every section is self-contained. No data folder required. We build a customers dataframe with five rows and four columns — customer ID, name, state, and credit score — with deliberate nulls in state and credit score. And a transactions dataframe with five rows — transaction ID, customer ID, and amount — including one orphan transaction whose customer ID is null. We also set spark dot sequel dot shuffle dot partitions to four, since all our demos run locally on tiny data.
+
+Every action re-runs the directed acyclic graph.
+
+Dataframe transformations are lazy. Actions — count, collect, write, show, to-pandas — trigger execution. And each action executes the entire lineage from the source. That is the trap. If you call count for a log message and write to persist, spark reads the source file twice and recomputes every transformation twice.
+
+The fix is to call cache, or persist, so subsequent actions reuse the materialized result.
+
+In the demo we build an expensive dataframe — filter, then add two derived columns. Without cache, we call count and then a sum aggregation, and the lineage runs twice. With cache, we materialize once with the first action, and the second action reads from memory in a fraction of the time.
+
+Cache is also lazy.
+
+Calling cache does not materialize the dataframe. It only marks the dataframe so that the next action will materialize and store it. Until then, the data is not cached.
+
+A common mistake is to cache a dataframe, immediately inspect the spark user interface storage tab, see nothing there, and conclude that caching is broken. Trigger any action and the storage tab populates.
+
+Column equals null returns null, not false.
+
+Sequel three-valued logic leaks into the dataframe API. Any comparison involving null returns null, and null is not truthy. So filter and where silently drop those rows.
+
+The rules are these. Column equals nothing always returns null and matches nothing. Column not-equals a value drops null rows, because null compared to anything is null. Column dot is-null is the correct way to find nulls. Column dot equal-null-safe — the spaceship operator — treats null equals null as true.
+
+In the demo, filtering customers where credit score equals nothing returns zero rows. The right way is to filter where credit score is-null. Equally surprising — filtering customers where credit score is not equal to seven-twenty silently drops the null rows. Expected count is four, but you get three. Equal-null-safe is the explicit way to compare against null and get a real boolean back.
+
+Joining on a nullable column drops null-key rows.
+
+The same null semantics that hide column not-equals seven-twenty also affect joins. Null equals null is null, not true. So rows with null join keys disappear from every join type — including a left outer join, where many people expect orphans to survive.
+
+For inner joins this is usually what you want. For outer joins where you expect orphan rows to come through, either filter nulls explicitly before joining, or replace the null key with a sentinel value using coalesce.
+
+In the demo, transaction T-five has a null customer ID. A left join with customers loses it. After coalescing the customer ID column to the string "unknown" before joining, the orphan row survives with a sentinel key.
+
+Union is positional. Union-by-name matches by column name.
+
+Dataframe-a dot union dataframe-b ignores column names and stacks rows by position. If two dataframes have the same columns in a different order, union silently produces garbage — values land under the wrong header. There is no error, just a wrong table.
+
+Always prefer union-by-name, which matches by column name and optionally fills missing columns with null when you pass allow-missing-columns equals true.
+
+In the demo, dataframe A has columns customer ID, name, score. Dataframe B has the same three columns but in reverse order — score, name, customer ID. A dot union B places the integer score under the customer ID column and the string customer ID under the score column. Union-by-name on the same inputs aligns by name and gives the correct result.
+
+Monotonically increasing ID is monotonic, not sequential.
+
+A frequent misuse — someone needs an auto-incrementing primary key, reaches for monotonically-increasing-id, and gets back values like eight billion five hundred eighty-nine million, then a few values up, then a jump to seventeen billion. Large gaps. Not one, two, three.
+
+The function only guarantees two things. Unique within a job. Monotonically increasing within each partition. The high bits of the long encode the partition number, so values from partition number one start way above values from partition number zero.
+
+For a true row sequence, use row-number over a window ordered by some column. But be aware that a global ordering forces all rows through a single partition, which is fine on a small result set and disastrous on a billion-row table.
+
+When-otherwise evaluates every branch.
+
+In Python, one divided by zero, if-false, else-zero, is safe — the false branch is never evaluated. In spark, when condition expression-one dot otherwise expression-two does not short-circuit. Both branches are computed for every row, and the result is selected from the two.
+
+That means a guarded division still touches the divisor. Spark itself returns null for divide-by-zero instead of raising, so you don't always see the failure. But the cost is paid. And if you replace the division with something that does throw — like a Python user-defined function — every row hits the failure branch even when the guard would skip it.
+
+The safer pattern is to make the divisor itself null when it would be zero, so the division yields null naturally without a conditional. In the demo, we wrap the denominator in a when expression that returns null when it is zero, then divide. No branch evaluates problematic arithmetic.
+
+Collect and to-pandas pull everything to the driver.
+
+Every distributed spark API has a cliff. The moment you call collect, to-pandas, or to-local-iterator, all selected rows leave the executors and land in the driver's heap. On a two-hundred gigabyte dataframe with a four gigabyte driver, this out-of-memories the driver and kills the job.
+
+Here is what is safe and what is not. Count, sum, aggregate — the driver gets a scalar. Safe. Show n, take n, head n — the driver gets at most n rows. Safe. Collect, to-pandas — the driver gets all rows. Danger. To-local-iterator — the driver streams partitions one at a time, which is safer than collect for medium-large data but still pulls every row through eventually.
+
+If you only need a peek, use show or take. If you genuinely need pandas for a small aggregate result, aggregate on spark first, and only then call to-pandas. In the demo, we group transactions by customer ID, sum the amount, and only after the aggregate is small do we materialize it to pandas.
+
+Python user-defined functions are a catalyst black box.
+
+A Python user-defined function runs in a separate Python worker process. Spark serializes each row from the java virtual machine to Python, calls your function, serializes the result back. Catalyst — spark's query optimizer — can't push the function into the data source, can't reorder predicates around it, and pays a per-row serialization cost.
+
+The hierarchy from fastest to slowest is this. Built-in spark functions — like upper, when, arithmetic — are fastest, because catalyst sees the full expression and can optimize and vectorize. Pandas user-defined functions, also called arrow user-defined functions, are next — opaque to catalyst, but they process batches at a time. Plain Python user-defined functions are ten to one-hundred times slower, opaque to catalyst, and process row by row. Scala and java user-defined functions run at native speed but are still opaque.
+
+Reach for a Python user-defined function only when you genuinely cannot express the logic in built-ins. In the demo, the same logic written with a built-in expression and with a Python user-defined function is benchmarked side by side. The built-in version runs many times faster.
+
+With-column in a loop is exponentially slow.
+
+Each with-column call appends a node to the logical plan. The analyzer then re-traverses the entire plan to check column resolution and types. Calling with-column two hundred times in a Python loop produces a plan that is quadratic to analyze. The job can spend longer planning than running.
+
+When adding many columns, build a single select with a list of expressions instead. In the demo, sixty with-column calls in a loop are compared to a single select with sixty aliased expressions. The select version is dramatically faster, and the gap widens as the number of columns grows.
+
+Repartition, coalesce, and partition-by are three different things.
+
+People reach for whichever name they remember. They do very different jobs.
+
+Dataframe dot repartition with a number changes the in-memory partition count and redistributes rows evenly. It triggers a full shuffle. Use it before a wide operation, or to balance skew.
+
+Dataframe dot repartition with a number and a column hashes rows by the column into that many partitions. It also triggers a shuffle. Use it as a pre-shuffle for joins or aggregations on that column.
+
+Dataframe dot coalesce with a number reduces the partition count by merging existing partitions. It does not trigger a shuffle. The merge is narrow. Use it after a heavy filter or to write fewer output files. Be aware it can produce skewed partitions.
+
+Dataframe dot write dot partition-by with a column changes the on-disk directory layout — directories named column-equals-value — and is unrelated to in-memory partition count. It triggers a shuffle during the write step. Use it when the column has low cardinality and is frequently filtered on read.
+
+Confusing repartition, which is in-memory, with partition-by, which is on-disk, is one of the most common spark mistakes. Partition-by is a property of the write path, not the dataframe.
+
+Spark session builder dot get-or-create is sticky.
+
+Get-or-create does exactly what it says. If a session already exists in the java virtual machine, it returns that session. Any dot config calls in your new builder are silently ignored. This bites notebook users who tweak a config in a later cell and wonder why nothing changed.
+
+To apply a new static config — one that must be set at session creation time — you must call spark dot stop first to tear down the existing session.
+
+Runtime configs — anything you can change via spark dot conf dot set after creation — can be updated on a live session without restart. In the demo, a new builder with shuffle partitions set to nine-ninety-nine produces a session whose shuffle partitions are still four, because the existing session was returned. The same setting via spark dot conf dot set takes effect immediately.
+
+Classic builder is not the same as spark connect builder.
+
+There are now two spark session builder classes in py-spark. Py-spark dot sequel dot session dot spark-session dot builder is the classic one, which drives a local java virtual machine. Py-spark dot sequel dot connect dot session dot spark-session dot builder is the connect one, which talks to a remote spark server over g-r-p-c.
+
+They look identical at the call site but are different types. Helpers like delta dot configure-spark-with-delta-pip builder accept only the classic builder. Handing them a connect builder fails with an error that says the argument found is of type connect spark-session dot builder, and the function must be called with a spark-session builder.
+
+Why does this matter? Because connect helpers can't inject java archive files into a remote java virtual machine — the server needs to be configured with delta at startup, not after the fact.
+
+Things that flip you into connect mode without you asking for it. Setting the spark-remote or spark-connect-mode-enabled environment variables. Importing from py-spark dot sequel dot connect explicitly. Having databricks-connect installed and active. Or a shim in your environment that reassigns py-spark dot sequel to py-spark dot sequel dot connect.
+
+In the demo we inspect the active session type and the builder type at runtime, and we check both environment variables to confirm we are in the classic path.
+
+Decimal arithmetic widens precision and can overflow to null.
+
+Spark's decimal type with precision P and scale S follows sequel precision-widening rules. Decimal ten-two plus decimal ten-two returns decimal eleven-two. Decimal ten-two times decimal ten-two returns decimal twenty-one-four. Decimal thirty-eight-two times decimal thirty-eight-two would need decimal seventy-seven-four, which exceeds the thirty-eight-digit maximum and gets capped — with loss or null, depending on a config.
+
+Once a result exceeds the decimal type maximum, spark either rounds with precision loss, or returns null, depending on spark dot sequel dot decimal-operations dot allow-precision-loss. The default is true — silent rounding. Set it to false and you get null on overflow.
+
+Either way, you get the wrong answer with no exception. The demo squares a huge decimal — with allow-precision-loss equals true the result is a rounded value, with allow-precision-loss equals false the result is null.
+
+Date parsing got strict in spark three point zero.
+
+Before spark three point zero, the date parser was lenient and tolerated formats like twenty-twenty-four dash one dash one or twenty-twenty-four slash zero-one slash zero-one when you asked for the pattern year-year-year-year dash month-month dash day-day. Since three point zero, the default parser is strict — it raises, or returns null, depending on the read mode, on anything that doesn't exactly match.
+
+There are three behaviours, controlled by spark dot sequel dot legacy dot time-parser-policy. Exception, the default, is strict and throws on invalid inputs. Corrected is strict and returns null on invalid inputs. Legacy is the pre-three-point-zero lenient parser.
+
+This hits people moving spark two-point-x code to three-point-x. Same data, suddenly null dates. In the demo, the input has one well-formed date, one that uses single-digit month and day, and one that is not a date at all. Under the corrected policy, only the first parses; the others become null. Under legacy, the second parses too. Under exception, the call would throw.
+
+Joining on dataframe-one dot k equals dataframe-two dot k keeps both k columns.
+
+Two different join syntaxes look interchangeable but produce different schemas. Joining with the expression form — dataframe-one dot k equals dataframe-two dot k — keeps both k columns and makes any later reference to k ambiguous. Joining with the string form — passing the join key as a string, or a list of strings for compound keys — keeps only one k column.
+
+After the expression-form join, calling select with the column name k raises an ambiguous-reference error. You then have to qualify with dataframe-one dot k, but if you select star and pass the result downstream, you have two columns with identical names and a later group-by on k is ambiguous too.
+
+In the demo, joining customers and orders with the expression form keeps two customer-ID columns. Joining with the string form keeps one, and a subsequent select on customer-ID just works.
+
+That covers the most common traps. Knowing they exist is half the fix — the other half is recognizing them when a result looks slightly off rather than throwing an error.
