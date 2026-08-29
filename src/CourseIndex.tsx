@@ -20,10 +20,12 @@ export function CourseIndex({ courses }: { courses: Course[] }) {
 
   return (
     <div className="idx">
-      {/* GraphL = the platform brand (constant across every content repo; the future link back to the
-          root schemabotview.github.io index). Apache Spark = this repo's subject. */}
+      {/* GraphL = the platform brand (constant across every content repo); the eyebrow links back to
+          the root graphl.in catalog. Apache Spark = this repo's subject. */}
       <header className="idx__head">
-        <span className="idx__brand">GraphL</span>
+        <a className="idx__brand" href="/">
+          GraphL
+        </a>
         <h1 className="idx__subject">Apache Spark</h1>
       </header>
 

@@ -109,7 +109,8 @@ export function App() {
   // Back to the catalog: clear the hash (empty hash → CourseIndex). No-ops when already there. Wired
   // to the top-left GraphL brand AND the Esc key (below), so any inner page is one gesture from home.
   const goHome = useCallback(() => {
-    if (location.hash) location.hash = ''
+    if (location.hash) location.hash = '' // inner page → this concept's index
+    else if (location.pathname !== '/') location.href = '/' // already at the index → up to the graphl.in catalog
   }, [])
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

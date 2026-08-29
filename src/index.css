@@ -415,13 +415,18 @@ body {
 }
 /* Catalog header: GraphL platform eyebrow over the AWS subject title (no marketing subtitle). */
 .idx__brand {
-  display: block;
+  display: inline-block;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--idx-accent);
   margin-bottom: 10px;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+.idx__brand:hover {
+  opacity: 0.72;
 }
 .idx__subject {
   margin: 0;
