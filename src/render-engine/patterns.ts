@@ -12,7 +12,7 @@ export interface PatternStyle {
 }
 
 export const PATTERNS: Record<PatternKey, PatternStyle> = {
-  service: { icon: Server, color: '#f0902f', bg: '#241c12' },
+  service: { icon: Server, color: '#e25a1c', bg: '#251610' }, // Spark brand orange (matches --brand)
   storage: { icon: Database, color: '#37b877', bg: '#122419' },
   network: { icon: Network, color: '#4f8ff7', bg: '#111d2e' },
   user: { icon: Users, color: '#c98bff', bg: '#1e1428' },
