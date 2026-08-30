@@ -40,9 +40,12 @@ export const apiRdd: Scene = {
     },
     {
       id: 'tradeoff',
-      label: 'the trade-off: total control, but opaque to the optimizer',
+      // A leaf card is a fixed 210×96, so the long form (a 4-line label over a 3-line sub) spilled
+      // out top and bottom. The headline moves to the label and the trade-off itself to the sub —
+      // 1 line + 2 lines fits with room. "Spark sees your lambdas, not your intent" is on the slide.
+      label: 'the trade-off',
       pattern: 'warn',
-      sub: 'Spark sees your lambdas, not your intent',
+      sub: 'total control, but opaque to the optimizer',
     },
   ],
   edges: [

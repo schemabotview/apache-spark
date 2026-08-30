@@ -14,13 +14,16 @@ export const execution: Scene = {
   padding: 0.15,
   flow: 'TB',
   nodes: [
-    { id: 'code', label: 'df.filter(…).groupBy(…).count()', pattern: 'network', icon: 'filecode', sub: 'an action → one job' },
+    // Label kept short + broken at the chain dot: a leaf card is a fixed 210px and won't wrap an
+    // unbreakable token, so the full `df.filter(…).groupBy(…).count()` spilled past the border. The
+    // space lets it wrap to two lines; `filter` lives on the slide, `groupBy` stays because it is
+    // what earns the SHUFFLE below.
+    { id: 'code', label: 'df.groupBy(…) .count()', pattern: 'network', icon: 'filecode', sub: 'an action → one job' },
     {
       id: 'job',
       label: 'Job',
       pattern: 'group',
       sub: 'one action → one job → stages → tasks',
-      flow: 'LR',
       children: [
         {
           id: 'stage-0', label: 'Stage 0', pattern: 'service', sub: 'narrow · map/filter · one task per partition',
@@ -35,6 +38,7 @@ export const execution: Scene = {
         { id: 'shuffle', label: 'SHUFFLE', pattern: 'warn', icon: 'router', sub: 'redistribute · stage boundary' },
         {
           id: 'stage-1', label: 'Stage 1', pattern: 'service', sub: 'after shuffle · one task per shuffle partition',
+          cols: 2,
           children: [
             { id: 's1-t1', label: 'task', pattern: 'external', sub: 'part 0' },
             { id: 's1-t2', label: 'task', pattern: 'external', sub: 'part 1' },

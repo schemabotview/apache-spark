@@ -16,7 +16,6 @@ export const spark1: Scene = {
       pattern: 'service',
       icon: 'zap',
       sub: 'bring it in-memory',
-      flow: 'LR',
       children: [
         { id: 'driver', label: 'Driver', pattern: 'network', icon: 'brain', sub: 'builds & coordinates' },
         { id: 'rdd', label: 'RDD', pattern: 'storage', icon: 'layers', sub: 'in-memory dataset' },

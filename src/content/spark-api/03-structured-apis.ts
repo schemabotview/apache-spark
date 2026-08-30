@@ -20,7 +20,7 @@ One layer up: give your data a **schema**, and Spark can finally *see* — and o
 
 ### Spark SQL — the same engine, as text
 - The **same engine**, driven by **ANSI SQL** strings instead of code
-- Query **tables & views** in the **catalog** — mix SQL and DataFrames freely
+- Query **tables & views** in the **catalog**
 
 All three compile to the **same optimized plan** — because now Spark sees your *intent*.`,
   narration:

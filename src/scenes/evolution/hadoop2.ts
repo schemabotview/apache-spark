@@ -24,7 +24,7 @@ export const hadoop2: Scene = {
         { source: 'rm', target: 'nm' },
       ],
     },
-    { id: 'win', label: 'compute ⟂ resource management', pattern: 'storage', icon: 'layers', sub: 'many engines — not just MapReduce' },
+    { id: 'win', label: 'compute ⟂ resource management', pattern: 'storage', icon: 'layers', sub: 'many engines' },
   ],
   edges: [{ source: 'yarn', target: 'win' }],
 }

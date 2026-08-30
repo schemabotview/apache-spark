@@ -47,7 +47,6 @@ export const topology: Scene = {
       icon: 'workflow',
       sub: 'owns the machines · launches executors',
       children: [
-        { id: 'cm-alloc', label: 'allocates resources', pattern: 'service', icon: 'workflow', sub: 'grants containers to the driver' },
         {
           id: 'cm-mgrs',
           label: 'pluggable managers',

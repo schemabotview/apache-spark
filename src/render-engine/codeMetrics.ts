@@ -14,6 +14,14 @@ export const CODE_GUTTER_W = 40 // line-number gutter width
 export const CODE_PAD_X = 16 // body horizontal padding (each side)
 export const CODE_PAD_Y = 14 // body vertical padding (top & bottom)
 
+// The MINIMUM character column a code card is sized to. A card is drawn at a fixed font and fitView
+// scales it into the pane, so the card's WIDTH is what sets the rendered type size — which meant a
+// 51-char card (cap-window) came out at 1.65× while an 86-char one (cap-write) came out at 1.04×, a
+// 59% swing in code text size between consecutive shots of the same course. Padding every card out
+// to a common column makes them all render at one size. The house rule that follows: keep source
+// lines at or under this width — a longer line widens its card and shrinks that scene's type again.
+export const CODE_MIN_COLS = 76
+
 // The lines a code node paints: `label` split on newlines, plus a trailing `# sub` comment line when
 // `sub` is set. Used by both the sizer and the renderer so they never disagree on line count.
 export function codeLines(node: Pick<SceneNode, 'label' | 'sub'>): string[] {
@@ -25,7 +33,7 @@ export function codeLines(node: Pick<SceneNode, 'label' | 'sub'>): string[] {
 export function codeCardSize(node: Pick<SceneNode, 'label' | 'sub' | 'filename'>): { w: number; h: number } {
   const lines = codeLines(node)
   const chrome = (node.filename?.length ?? 0) + 8 // filename tab needs room past the traffic lights
-  const maxChars = Math.max(1, chrome, ...lines.map((l) => l.length))
+  const maxChars = Math.max(CODE_MIN_COLS, chrome, ...lines.map((l) => l.length))
   const w = CODE_GUTTER_W + Math.ceil(maxChars * CODE_CHAR_W) + CODE_PAD_X * 2
   const h = CODE_BAR_H + lines.length * CODE_LINE_H + CODE_PAD_Y * 2
   return { w, h }

@@ -14,7 +14,9 @@ export const apiStructured: Scene = {
   padding: 0.15,
   flow: 'TB',
   nodes: [
-    { id: 'schema', label: 'give your data a schema', pattern: 'network', icon: 'braces', sub: 'named, typed columns → Spark sees intent, not lambdas' },
+    // Sub trimmed to two lines — the long form wrapped to four and spilled out of the 210×96 card.
+    // "Spark sees intent, not lambdas" is the slide's opening line, so the scene just needs the hook.
+    { id: 'schema', label: 'give your data a schema', pattern: 'network', icon: 'braces', sub: 'named, typed columns → intent' },
     {
       id: 'sa',
       label: 'Structured APIs — same engine, three faces',

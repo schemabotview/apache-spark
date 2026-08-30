@@ -8,20 +8,24 @@ import type { Scene } from '../../render-engine'
 //   PHYSICAL  Physical Plans → Cost Model → Selected → Codegen → RDDs                   — how to run it
 //
 // Shared by all three catalyst sections: catalyst-overview frames the whole pipeline; catalyst-logical
-// dwells on the top band (analysis + rule-based rewrites); tungsten-physical dwells on the bottom band
-// (candidates → cost model → Tungsten codegen → RDDs). Landscape (two LR bands stacked TB) so the
-// whole-pipeline overview reads wide, not tall. Short labels/subs so the 5-wide bands stay legible.
+// dwells on the left band (analysis + rule-based rewrites); tungsten-physical dwells on the right band
+// (candidates → cost model → Tungsten codegen → RDDs).
+//
+// Composition: two TB bands sitting side by side (scene flow LR). The bands are 4 and 5 nodes deep, so
+// running them LR made a 2.6:1 ribbon that fitView shrank to ~0.71 in the near-square scene pane —
+// tiny nodes, half the pane empty. Turned on their side the scene is ~820×913 (0.9:1), close to the
+// pane's own aspect, so it scales up instead of down. Each band still reads as one flow, start to end.
 export const catalyst: Scene = {
   id: 'catalyst',
   padding: 0.14,
-  flow: 'TB',
+  flow: 'LR',
   nodes: [
     {
       id: 'logical',
       label: 'Logical planning — what to do',
       pattern: 'service',
       icon: 'brain',
-      flow: 'LR',
+      flow: 'TB',
       children: [
         { id: 'q', label: 'Query', pattern: 'network', icon: 'terminal', sub: 'DataFrame · Dataset · SQL' },
         { id: 'ulp', label: 'Unresolved Plan', pattern: 'external', icon: 'workflow', sub: 'names not bound' },
@@ -41,7 +45,7 @@ export const catalyst: Scene = {
       label: 'Physical planning & codegen — how to run it',
       pattern: 'user',
       icon: 'gears',
-      flow: 'LR',
+      flow: 'TB',
       children: [
         { id: 'pp', label: 'Physical Plans', pattern: 'user', icon: 'workflow', sub: 'candidate strategies' },
         { id: 'cost', label: 'Cost Model', pattern: 'external', icon: 'gauge', sub: 'estimate each' },

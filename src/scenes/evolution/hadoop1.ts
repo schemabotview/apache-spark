@@ -22,7 +22,6 @@ export const hadoop1: Scene = {
           pattern: 'storage',
           icon: 'database',
           sub: 'storage',
-          flow: 'LR',
           children: [
             { id: 'namenode', label: 'NameNode', pattern: 'network', sub: 'block index' },
             { id: 'datanodes', label: 'DataNodes', pattern: 'storage', icon: 'server', sub: 'hold the blocks' },
@@ -35,7 +34,6 @@ export const hadoop1: Scene = {
           pattern: 'service',
           icon: 'gears',
           sub: 'compute',
-          flow: 'LR',
           children: [
             { id: 'jobtracker', label: 'JobTracker', pattern: 'network', icon: 'workflow', sub: 'schedules jobs' },
             { id: 'tasktrackers', label: 'TaskTrackers', pattern: 'external', sub: 'run map / reduce' },
@@ -48,7 +46,7 @@ export const hadoop1: Scene = {
       id: 'limit',
       label: 'One JobTracker = scheduling + resources',
       pattern: 'warn',
-      sub: 'bottleneck · MapReduce-only · disk-heavy',
+      sub: 'disk-heavy',
     },
   ],
   edges: [{ source: 'h1', target: 'limit' }],
