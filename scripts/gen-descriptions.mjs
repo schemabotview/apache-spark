@@ -34,13 +34,16 @@ const TAIL_MS = process.env.TAIL_MS ? +process.env.TAIL_MS : 500
 const CIRCLED = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩', '⑪', '⑫']
 
 // The concept + where the app deploys (the catalog path + deep links). Overridable for a different
-// host: SITE default graphl.in, APP_PATH default the vite build base (/aws-content). Deep link is
-// `${SITE}${APP_PATH}/#/<course>` (hash routing, see src/App.tsx).
-const CONCEPT = process.env.CONCEPT ?? 'AWS'
+// host: SITE default graphl.in, APP_PATH default the vite build base (see vite.config.ts). Deep link
+// is `${SITE}${APP_PATH}/#/<course>` (hash routing, see src/App.tsx).
+// NOTE: these three were '/aws-content' + AWS copy/hashtags when this script was ported from the AWS
+// app — every generated description named the wrong series and deep-linked to a path this app does
+// not deploy to. Keep APP_PATH in step with `base` in vite.config.ts.
+const CONCEPT = process.env.CONCEPT ?? 'Apache Spark'
 const SITE = process.env.SITE ?? 'https://graphl.in'
-const APP_PATH = (process.env.APP_PATH ?? '/aws-content').replace(/\/$/, '')
+const APP_PATH = (process.env.APP_PATH ?? '/apache-spark').replace(/\/$/, '')
 const HASHTAGS =
-  '#AWS #CloudComputing #AWSCertified #DevOps #CloudArchitecture #AmazonWebServices #Cloud #TechEducation'
+  '#ApacheSpark #Spark #DataEngineering #BigData #PySpark #ETL #DataPipeline #TechEducation'
 
 const titleCase = (slug) => slug.split(/[-_]/).map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
 // m:ss (or h:mm:ss past an hour) — YouTube chapter format; first chapter must be 0:00.
