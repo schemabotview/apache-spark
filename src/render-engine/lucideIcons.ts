@@ -13,6 +13,7 @@ import {
   Clock, Repeat, Lock, Scale,
   Workflow, Box, Cog, MemoryStick,
   Zap, Brain, Waves,
+  Share2,
   type LucideIcon,
 } from 'lucide-react'
 
@@ -59,4 +60,5 @@ export const LUCIDE_ICONS: Record<string, LucideIcon> = {
   zap: Zap, // the Spark engine (in-memory speed)
   brain: Brain, // an optimizer / planner (Catalyst, the driver planning)
   waves: Waves, // a stream (Structured Streaming)
+  share: Share2, // one input fanning out to many (a broadcast join, a merge)
 }

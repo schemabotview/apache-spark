@@ -9,7 +9,7 @@ import type { SceneNode as SceneNodeData } from './types'
 
 export function SceneNode({ data }: NodeProps) {
   const d = data as unknown as SceneNodeData & { __focus?: boolean }
-  const p = PATTERNS[d.pattern] ?? PATTERNS.service
+  const p = PATTERNS[d.pattern ?? 'service'] ?? PATTERNS.service
   return (
     <div
       style={{
