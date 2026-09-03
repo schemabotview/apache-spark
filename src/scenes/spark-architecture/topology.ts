@@ -1,43 +1,71 @@
 import type { Scene } from '../../render-engine'
 
-// arch-topology — the SPINE of the spark-architecture course: the whole machine a Spark job runs
-// across, drawn solid, top to bottom. Three bands wired driver → cluster manager → workers:
+// arch-topology — the ANCHOR diagram for the whole Apache Spark concept, and the SPINE of the
+// spark-architecture course. It deliberately conforms to the canonical cluster-mode picture from the
+// Spark docs (cluster-overview) — the one the audience has already seen — so the first frame lands on
+// structure they half-remember instead of asking them to learn a new drawing:
 //
-//     DRIVER          your program — plans the work (DAG → tasks) and coordinates it
-//        │  "I need N executors"
-//     CLUSTER MANAGER owns the machines, launches an executor on each granted node
-//        │  launches (fans to all three)
-//     WORKER NODES    each hosts an executor (a JVM) with task slots + a memory cache
+//     Driver Program ⊃ SparkContext          Worker Node ⊃ Executor ⊃ { Cache, Task, Task }
+//
+//   Driver ↔ Cluster Manager     "I need N executors"   — the driver asks; it owns no machines
+//   Cluster Manager ↔ Workers    "launches executor"    — the manager's ONLY job is allocation
+//   Driver ↔ Workers             "tasks ↓ · results ↑"  — the direct link: once executors exist the
+//                                                         driver drives them itself, NOT through the
+//                                                         manager. This is the whole point of the
+//                                                         canonical diagram's curved edges, and
+//                                                         01-overview narrates it verbatim.
+//
+// Every link is bidirectional, as the canonical draws them: the driver receives heartbeats and
+// results back, the manager reports what it granted.
+//
+// CONTAINMENT IS THE TEACHING. Tasks and the cache live INSIDE the executor (an executor is a JVM;
+// its cores become task slots and its heap holds the cache) — they are not peers of it. Two worker
+// nodes, as the canonical draws, not three.
+//
+// Drawn TOP-DOWN — driver → cluster manager → the two workers side by side — because the scene pane
+// is tall and squarish; the canonical is drawn left-right, but ORIENTATION is the one thing that is
+// ours. What must match is the containment and the edges.
+//
+// Kept deliberately thin: the driver's DAG/Task schedulers, the pluggable managers (YARN/K8s/Mesos)
+// and the memory split each belong to their own deep-dive scene (arch-driver, arch-cluster-manager,
+// arch-memory), which are ZOOMS of this anchor and must reuse its vocabulary and colour roles.
 //
 // Shared by the two whole-machine bookends — `overview` (opening tour) and `lifecycle` (closer) —
-// plus `tasks-to-slots`. The per-band deep dives (driver, deploy, cluster-manager, executors,
-// memory) each ride their own focused scene. The old reveal-engine drew the driver→slot dispatch
-// edges only on the tasks-to-slots band; with no reveal here they're left out so the shared solid
-// spine stays clean (that section's slide carries the hand-off).
-//
-// Palette follows evolution's role mapping: `network` = the coordinator brain (driver), `service`
-// = the manager, `group` = the worker-nodes container, `storage`/memory = cache, `gears` = slots.
+// plus `tasks-to-slots`. Palette follows evolution's role mapping: `network` = the coordinator brain
+// (driver), `service` = the manager and the executor, `group` = a worker node, `storage` = cache.
+const worker = (n: number) => ({
+  id: `w${n}`,
+  label: 'Worker Node',
+  pattern: 'group' as const,
+  children: [
+    {
+      id: `w${n}-exec`,
+      label: 'Executor',
+      pattern: 'service' as const,
+      icon: 'box',
+      sub: 'JVM · long-lived',
+      children: [
+        { id: `w${n}-cache`, label: 'Cache', pattern: 'storage' as const, icon: 'memory', sub: 'in-memory' },
+        { id: `w${n}-t1`, label: 'Task', pattern: 'service' as const, icon: 'gears', sub: 'one slot' },
+        // { id: `w${n}-t2`, label: 'Task', pattern: 'service' as const, icon: 'gears', sub: 'one slot' },
+      ],
+    },
+  ],
+})
+
 export const topology: Scene = {
   id: 'arch-topology',
   padding: 0.14,
+  flow: 'TB',
   nodes: [
     {
       id: 'driver',
-      label: 'Driver',
+      label: 'Driver Program',
       pattern: 'network',
       icon: 'terminal',
-      sub: 'your program · plans + coordinates',
-      flow: 'LR',
+      sub: 'your program · plans and coordinates',
       children: [
-        { id: 'd-session', label: 'SparkSession', pattern: 'network', icon: 'terminal', sub: 'the entry point' },
-        { id: 'd-dag', label: 'DAG Scheduler', pattern: 'user', icon: 'workflow', sub: 'code → stages' },
-        { id: 'd-task', label: 'Task Scheduler', pattern: 'service', icon: 'gears', sub: 'stages → tasks' },
-        { id: 'd-track', label: 'tracks executors', pattern: 'external', icon: 'clock', sub: 'heartbeats' },
-      ],
-      edges: [
-        { source: 'd-session', target: 'd-dag' },
-        { source: 'd-dag', target: 'd-task' },
-        { source: 'd-task', target: 'd-track' },
+        { id: 'sparkcontext', label: 'SparkContext', pattern: 'network', icon: 'terminal', sub: 'the entry point' },
       ],
     },
     {
@@ -45,57 +73,16 @@ export const topology: Scene = {
       label: 'Cluster Manager',
       pattern: 'service',
       icon: 'workflow',
-      sub: 'owns the machines · launches executors',
-      children: [
-        {
-          id: 'cm-mgrs',
-          label: 'pluggable managers',
-          pattern: 'group',
-          sub: 'same app on any',
-          cols: 4,
-          children: [
-            { id: 'cm-standalone', label: 'Standalone', pattern: 'external' },
-            { id: 'cm-yarn', label: 'YARN', pattern: 'external' },
-            { id: 'cm-k8s', label: 'Kubernetes', pattern: 'external' },
-            { id: 'cm-mesos', label: 'Mesos', pattern: 'external' },
-          ],
-        },
-      ],
-      edges: [{ source: 'cm-alloc', target: 'cm-mgrs' }],
+      sub: 'owns the machines',
     },
-    {
-      id: 'workers',
-      label: 'Worker Nodes',
-      pattern: 'group',
-      sub: 'executors run tasks · hold cached data',
-      cols: 3,
-      children: [
-        {
-          id: 'w1', label: 'Worker Node', pattern: 'group', children: [
-            { id: 'w1-exec', label: 'Executor', pattern: 'service', icon: 'box', sub: 'JVM' },
-            { id: 'w1-slots', label: 'slots', pattern: 'service', icon: 'gears', sub: 'cores → tasks' },
-            { id: 'w1-cache', label: 'cache', pattern: 'storage', icon: 'memory', sub: 'in-memory' },
-          ],
-        },
-        {
-          id: 'w2', label: 'Worker Node', pattern: 'group', children: [
-            { id: 'w2-exec', label: 'Executor', pattern: 'service', icon: 'box', sub: 'JVM' },
-            { id: 'w2-slots', label: 'slots', pattern: 'service', icon: 'gears', sub: 'cores → tasks' },
-            { id: 'w2-cache', label: 'cache', pattern: 'storage', icon: 'memory', sub: 'in-memory' },
-          ],
-        },
-        {
-          id: 'w3', label: 'Worker Node', pattern: 'group', children: [
-            { id: 'w3-exec', label: 'Executor', pattern: 'service', icon: 'box', sub: 'JVM' },
-            { id: 'w3-slots', label: 'slots', pattern: 'service', icon: 'gears', sub: 'cores → tasks' },
-            { id: 'w3-cache', label: 'cache', pattern: 'storage', icon: 'memory', sub: 'in-memory' },
-          ],
-        },
-      ],
-    },
+    worker(1),
+    worker(2),
   ],
   edges: [
-    { source: 'driver', target: 'cm', label: 'I need N executors' },
-    { source: 'cm', target: 'workers', label: 'launches' },
+    { source: 'driver', target: 'cm', label: 'I need N executors', bidirectional: true },
+    { source: 'cm', target: 'w1', label: 'launches executor', bidirectional: true },
+    { source: 'cm', target: 'w2', bidirectional: true },
+    { source: 'driver', target: 'w1', label: 'tasks ↓ · results ↑', bidirectional: true },
+    { source: 'driver', target: 'w2', bidirectional: true },
   ],
 }
