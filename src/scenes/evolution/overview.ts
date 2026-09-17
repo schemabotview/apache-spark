@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §1 evo-overview — the whole road at a glance: five eras, each a card with its year + the pieces
 // that era added. Big data (the problem) → Hadoop 1 → Hadoop 2/YARN → Spark 1 → Spark 2. The Spark

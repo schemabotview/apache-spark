@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // stream-trigger — the focused TRIGGER band: the clock that decides when each incremental run
 // fires. Two engines. Micro-batch (the default) collects arrived data and processes it in small

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // stream-sources — the focused SOURCES band. A source is what appends rows to the input table.
 // Spark ships four: Kafka (the replayable, partitioned workhorse for production), files (a directory

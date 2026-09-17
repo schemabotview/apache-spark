@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §4 evo-hadoop2 — YARN broke Hadoop 1's bottleneck apart. A cluster-wide ResourceManager owns the
 // machines and grants containers; a per-job ApplicationMaster owns each application's lifecycle;

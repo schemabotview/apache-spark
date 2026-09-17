@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // arch-executors — the focused EXECUTORS band. When the cluster manager grants resources it
 // launches an executor on each worker node, and an executor is simply a long-lived JVM: it stays up

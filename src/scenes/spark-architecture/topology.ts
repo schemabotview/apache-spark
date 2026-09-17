@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // arch-topology — the ANCHOR diagram for the whole Apache Spark concept, and the SPINE of the
 // spark-architecture course. It deliberately conforms to the canonical cluster-mode picture from the
@@ -82,7 +82,11 @@ export const topology: Scene = {
     { source: 'driver', target: 'cm', label: 'I need N executors', bidirectional: true },
     { source: 'cm', target: 'w1', label: 'launches executor', bidirectional: true },
     { source: 'cm', target: 'w2', bidirectional: true },
-    { source: 'driver', target: 'w1', label: 'tasks ↓ · results ↑', bidirectional: true },
+    // No label on this edge: it curves past the Cluster Manager card, so a midpoint chip lands on top
+    // of it. Labels render ABOVE nodes (EdgeLabelRenderer) so they can never hide behind a container —
+    // which means a badly placed one overlaps rather than disappearing. The cm → w1 label carries the
+    // flow here anyway.
+    { source: 'driver', target: 'w1', bidirectional: true },
     { source: 'driver', target: 'w2', bidirectional: true },
   ],
 }

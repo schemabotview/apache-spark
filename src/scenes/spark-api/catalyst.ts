@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // catalyst — the compile-down PIPELINE, the second shared scene of the spark-api course. Where
 // api-stack shows the stack of altitudes, this unpacks the engine band: how any structured query —

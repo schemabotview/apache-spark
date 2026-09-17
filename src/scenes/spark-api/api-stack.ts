@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // api-stack — the SPINE of the spark-api course ("The layers you write against"). A top-to-bottom
 // STACK of altitudes: the higher a band sits, the higher-level and more declarative the thing you

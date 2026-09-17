@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { streamingModel } from './streaming-model'
 import { streamSources } from './stream-sources'
 import { streamTrigger } from './stream-trigger'

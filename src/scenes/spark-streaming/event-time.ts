@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // event-time — the shared scene for the two windowing sections (event-time-windows + watermarks),
 // the part of streaming that has no equivalent in batch. When events carry their own timestamp you

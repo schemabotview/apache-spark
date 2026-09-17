@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // arch-memory — the focused EXECUTOR-MEMORY band. An executor's memory isn't only for running
 // tasks: it's one UNIFIED pool split into two uses. Execution memory is the scratch space a running

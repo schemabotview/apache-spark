@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // lambda-arch — the ONE master map of the capstone course ("Everything, end to end"), shared by all
 // 13 sections. It shows the whole Lambda-architecture pipeline the project builds: one clickstream,

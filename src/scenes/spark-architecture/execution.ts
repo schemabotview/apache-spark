@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // arch-execution — the second shared scene of the course (job-decomposes + shuffle-boundary). Where
 // arch-topology shows WHO runs a job, this shows HOW a job is broken down: an ACTION on your code

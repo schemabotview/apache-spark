@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { apiStack } from './api-stack'
 import { apiRdd } from './api-rdd'
 import { apiStructured } from './api-structured'

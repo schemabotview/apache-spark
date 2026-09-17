@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { lambdaArch } from './lambda-arch'
 import { capstoneCodeScenes } from './code-scenes'
 

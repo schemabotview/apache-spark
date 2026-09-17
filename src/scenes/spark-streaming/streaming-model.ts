@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // streaming-model — the SPINE of the spark-streaming course ("The stream is a table"). The whole
 // course hangs on one insight: a stream is an UNBOUNDED TABLE, and you run the SAME DataFrame/SQL

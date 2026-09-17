@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // The capstone's per-stage CODE scenes — one IDE code card each, shown on the LEFT for the 11 build
 // sections (the two bookends, the-plan & closer, keep the `lambda-arch` map). Each is a single
@@ -21,7 +21,10 @@ import type { Scene } from '../../render-engine'
 const codeScene = (id: string, filename: string, source: string): Scene => ({
   id,
   padding: 0.16,
-  nodes: [{ id: 'code', kind: 'code', label: source, filename }],
+  // minCols 76 (not the engine's 64 default): Spark's API surface runs wide, and these 11 cards are
+  // each the whole scene — padding them to a common 76 columns is what makes the capstone's code
+  // render at one type size shot to shot.
+  nodes: [{ id: 'code', kind: 'code', label: source, filename, minCols: 76 }],
   edges: [],
 })
 

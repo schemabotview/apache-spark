@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // stream-sinks — the focused SINKS band, the mirror of stream-sources. A sink is the destination
 // for the result stream: Kafka (publish downstream — the production default), files (Parquet/JSON to

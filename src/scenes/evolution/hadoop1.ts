@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §3 evo-hadoop1 — Hadoop 1 split the problem in two: STORE (HDFS), then COMPUTE (MapReduce).
 // HDFS = a NameNode indexing where every block lives + DataNodes holding the blocks. MapReduce =

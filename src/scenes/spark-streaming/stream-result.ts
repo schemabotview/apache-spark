@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // stream-result — the focused RESULT-TABLE + OUTPUT-MODES band. The result table is the answer your
 // query would give if run over all data seen so far; for an aggregation it holds one row per group

@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // stream-durability — the focused DURABILITY band (state-and-checkpoints), the layer holding the
 // whole thing up. Streaming keeps STATE across triggers — windowed counts, the running side of a

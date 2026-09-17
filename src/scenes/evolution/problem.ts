@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §2 evo-problem — the problem Spark was built for. Data outgrew a single machine, so the only
 // affordable path was to SCALE OUT across commodity boxes — and a cluster demands two things at

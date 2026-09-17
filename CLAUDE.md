@@ -6,7 +6,12 @@ Spark-specific.
 
 ## What this is
 
-A standalone concept app: its own scenes + courses + a bundled render-engine (`src/render-engine`).
+A standalone concept app: its own scenes + courses. The render engine is the **`@graphlearning/flow`**
+package (repo `schemabotview/ui-flow`) — pinned by version, so an engine change never lands here until
+this repo upgrades and re-verifies. Two Spark-specific notes: the capstone's code cards set
+`minCols: 76` (Spark's API surface runs wide, and the engine's 64 default would leave the 11 cards at
+differing widths), and scene `service` nodes use the engine's shared orange, not `--brand` — the Spark
+orange still drives the app chrome (eyebrow, slide titles, catalog accent).
 Each **section** = `(scene, slide, narration)`; the left scene is a react-flow diagram or a code
 snippet, the right slide is markdown. One section = one slide = one video segment.
 
@@ -18,7 +23,6 @@ snippet, the right slide is markdown. One section = one slide = one video segmen
 ## Layout
 
 ```
-src/render-engine/   layout + renderer (import from the barrel index, never deep paths)
 src/scenes/          scenes + registry (a scene can be shared across sections)
 src/content/         courses → sections + registry
 src/section/         scene-left / slide-right composited view (responsive)

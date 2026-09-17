@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // arch-driver — the focused DRIVER band of the spark-architecture course. The driver IS your
 // program: you create a SparkSession (the entry point, sitting on the lower-level SparkContext),

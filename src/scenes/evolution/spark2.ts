@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §6 evo-spark2 — Spark 2 turned the engine into a unified platform. It flipped the model: you
 // declare WHAT you want and the engine works out HOW. A single SparkSession fronts DataFrames /

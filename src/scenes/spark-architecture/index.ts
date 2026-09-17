@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 import { topology } from './topology'
 import { driver } from './driver'
 import { deploy } from './deploy'

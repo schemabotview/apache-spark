@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // api-rdd — the focused RDD-CORE band. The bottom of the stack, where the course starts. An RDD —
 // Resilient Distributed Dataset — is three things: a DISTRIBUTED collection (data split into

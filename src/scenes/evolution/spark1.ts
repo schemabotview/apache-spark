@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // §5 evo-spark1 — Spark walked through YARN's open door. Its insight was about disk: MapReduce
 // wrote to disk between every step, murder for iterative work — so Spark keeps the working data in

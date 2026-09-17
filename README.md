@@ -22,7 +22,6 @@ Played in syllabus order (`→` past the end of one rolls into the next):
 
 ```
 src/
-  render-engine/   layout + react-flow / code-snippet renderer (folder, not a package)
   scenes/          hand-authored scenes + registry
   content/         courses → sections (one file per section) + registry
   section/         composited scene-left / slide-right view (responsive)
@@ -38,7 +37,7 @@ scripts/
 ```bash
 npm install
 npm run dev                     # open the printed URL, try #/evolution
-npm run build                   # tsc + vite build (must stay clean)
+npm run build                   # vite build only — NO typecheck; run `npx tsc --noEmit` separately
 npm run record evolution        # 4K video → scripts/out/evolution.mp4
 npm run record:reels evolution  # portrait reels
 ```

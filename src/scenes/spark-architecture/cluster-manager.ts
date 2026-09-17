@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // arch-cluster-manager — the focused CLUSTER-MANAGER band. The driver has a plan but no machines,
 // so it asks the cluster manager — the component that actually owns the cluster's pool of CPU and

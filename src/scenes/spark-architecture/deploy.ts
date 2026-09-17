@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // arch-deploy — the focused DEPLOY-MODE band. The one choice that decides where the driver PROCESS
 // physically lives — picked with `spark-submit --deploy-mode`. The whole point is visual and it's

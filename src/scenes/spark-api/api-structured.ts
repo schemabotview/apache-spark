@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // api-structured — the focused STRUCTURED-APIs band, the heart of the course. The move that changes
 // everything: give your data a SCHEMA (named, typed columns) and Spark stops seeing opaque lambdas

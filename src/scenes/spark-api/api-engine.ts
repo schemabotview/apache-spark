@@ -1,4 +1,4 @@
-import type { Scene } from '../../render-engine'
+import type { Scene } from '@graphlearning/flow'
 
 // api-engine — the focused ENGINE band: the bridge between what you DECLARE and what actually RUNS,
 // as a high-level two-step. Catalyst, the query optimizer, turns your structured query into a
