@@ -1,0 +1,7 @@
+/* Apache Spark's design surface — the three tokens @graphlearning/shell leaves to the repo.
+   Imported AFTER the shell's stylesheet in main.tsx, so these win the cascade. */
+:root {
+  --brand: #e25a1c; /* counter tone to --brand: the slide's `###` subheading */
+  --brand-hover: #f7a94f; /* lighter tint of --brand: the eyebrow's hover state */
+  --accent-2: #5cc0cf; /* counter tone to --brand: the slide's `###` subheading */
+}
