@@ -14,7 +14,7 @@ import { getScene } from './scenes'
 // The whole app. The router, the composited scene-left / slide-right view, the catalog and the
 // narration all live in @graphlearning/shell; this repo supplies its two registries and its name.
 // audioBase must be passed from here: import.meta.env.BASE_URL is replaced at THIS app's build time
-// (vite `base` = "/apache-spark-ct/"), and the shell is built separately, so it cannot read it.
+// (vite `base` = "/apache-spark/"), and the shell is built separately, so it cannot read it.
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ConceptApp

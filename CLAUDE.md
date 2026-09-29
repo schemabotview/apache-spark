@@ -1,4 +1,4 @@
-# CLAUDE.md — apache-spark-ct
+# CLAUDE.md — apache-spark
 
 > Auto-loaded in this repo, so it stays short. The workspace file (`../CLAUDE.md`) carries the
 > content model and the invariants — read that first. **The syllabus is `COURSE-PLAN.md`**: 15
@@ -13,7 +13,8 @@ chapters.
 
 Courses 1–14 are category A without exception. **Course 15 `capstone` is the one deliberate
 category-B course** — it BUILDS a pipeline instead of explaining a mechanism — and it is here because
-it was ported in from the `apache-spark` repo on 2026-09-24 rather than authored to this plan. It sits
+it was ported in from the FORMER five-course `apache-spark` repo on 2026-09-24 rather than authored
+to this plan. It sits
 last for that reason. Do not read it as licence to add "how to use it" courses: see
 `COURSE-PLAN.md` §"The capstone port" before touching it.
 
@@ -40,6 +41,19 @@ Courses fully voiced: `origins` 8/8, `topology` 10/10, `rdd` 10/10, `execution` 
 narration survived it byte-for-byte; the other eight were rewritten and need generating like the rest.
 `public/audio/<course>/<section>.wav` is the contract, and `scripts/audio-manifest.json` (regenerate
 with `npm run gen:audio`) is what the notebook reads.
+
+## Repo identity — renamed 2026-09-29
+
+This repo was `apache-spark-ct` until 2026-09-29. The five-course `apache-spark` it superseded was
+deleted from GitHub that day and this repo took its name, so **there is now exactly one Spark repo**
+and it is this one. A `.bundle` of the deleted repo's full history sits in `../.archive/` — the only
+copy left of its 5 courses and 47 wavs.
+
+What moved with the name: vite `base`, `scripts/concept.json` `appPath`, the deploy workflow and the
+`graphl.in` catalog entry all read `/apache-spark/`. **Section slugs did not move** — they are
+`<courseId>-<sectionId>` and never carried the repo name, so the route contract is untouched.
+`graphl.in/apache-spark-ct/` is dead: Pages does not redirect a renamed repo's old path. Nothing was
+published under it, so no live link broke.
 
 ## The route contract (do not re-decide it per repo)
 

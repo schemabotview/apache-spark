@@ -1,14 +1,14 @@
-# apache-spark-ct
+# apache-spark
 
 Apache Spark **internals**, as deterministic diagrams with narration. Not a tutorial course — each
 unit answers *how does this actually work*: how the shuffle works, how Spark decides to join, why
 your PySpark UDF is slow, how the query gets re-planned while it runs.
 
 The exception is the last course, a **capstone** that builds one end-to-end pipeline instead of
-explaining one mechanism. It was ported in from the `apache-spark` repo rather than authored to this
+explaining one mechanism. It was ported in from the former five-course `apache-spark` repo rather than authored to this
 plan, which is why it sits outside the pattern and at the end.
 
-Part of [GraphL](https://graphl.in). Deploys to `graphl.in/apache-spark-ct/`.
+Part of [GraphL](https://graphl.in). Deploys to `graphl.in/apache-spark/`.
 
 ## The model
 
@@ -48,7 +48,7 @@ The plan — the spine, the sources behind each course, and the copyright line �
 ```sh
 npm install
 npm run dev      # http://localhost:5173
-npm run build    # production build, base = /apache-spark-ct/
+npm run build    # production build, base = /apache-spark/
 npm run check    # tsc --noEmit + the scene linter
 npm run frames   # render every section and check it (needs `npm run dev`)
 ```

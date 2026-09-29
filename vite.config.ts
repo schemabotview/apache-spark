@@ -7,12 +7,12 @@ import react from '@vitejs/plugin-react'
 // (invalid-hook-call). The packages declare them as peer deps and externalise them, so neither
 // carries its own React; dedupe is the belt to that braces. jsx is automatic via @vitejs/plugin-react.
 //
-// `base` is `/apache-spark-ct/` for the production BUILD only (the app deploys under
-// graphl.in/apache-spark-ct/ as a concept app in the GraphL catalog), so built asset URLs are
+// `base` is `/apache-spark/` for the production BUILD only (the app deploys under
+// graphl.in/apache-spark/ as a concept app in the GraphL catalog), so built asset URLs are
 // subpath-relative. Dev/serve stays at `/` so `npm run dev` and the capture/record scripts (which
 // drive the dev server at localhost:5173/#/<id>) are unaffected.
 export default defineConfig(({ command }) => ({
-  base: command === 'build' ? '/apache-spark-ct/' : '/',
+  base: command === 'build' ? '/apache-spark/' : '/',
   plugins: [react()],
   resolve: {
     dedupe: ['react', 'react-dom', '@xyflow/react'],

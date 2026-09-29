@@ -1,6 +1,6 @@
 # Build the Vite app and deploy it to GitHub Pages on every push to main. The site is served at
-# graphl.in/apache-spark-ct/ — the apex custom domain is inherited from the org's schemabotview.github.io
-# Pages site, and the app sets its vite `base` to /apache-spark-ct/ for the production build so asset URLs are
+# graphl.in/apache-spark/ — the apex custom domain is inherited from the org's schemabotview.github.io
+# Pages site, and the app sets its vite `base` to /apache-spark/ for the production build so asset URLs are
 # subpath-relative. This app carries no engine code: @graphlearning/flow and @graphlearning/shell are consumed as
 # published packages, so no sibling repo checkout is needed.
 name: Deploy to Pages

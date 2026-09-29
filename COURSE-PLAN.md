@@ -6,8 +6,8 @@
 > without leaving the repo.
 >
 > **ALL FIFTEEN COURSES AUTHORED — 162 of 162 sections**, each verified on its rendered frame.
-> Courses 1–14 were authored to this plan; course 15 `capstone` was ported in from the `apache-spark`
-> repo on 2026-09-24 — see §"The capstone port" below.
+> Courses 1–14 were authored to this plan; course 15 `capstone` was ported in from the FORMER
+> five-course `apache-spark` repo on 2026-09-24 — see §"The capstone port" below.
 > 45 narration wavs of 162 — `origins`, `topology`, `rdd` and `execution` fully voiced, `shuffle`
 > started, and 5 of `capstone`'s carried over with the port. `.tts` → `.wav` via Colab + Chatterbox
 > is the owner's step and is under way.
@@ -269,7 +269,7 @@ the real nodes (`Filter`, `Project`, `Relation`) and name the rule that fired.
 ---
 
 ## 15 · `capstone` ✅ — "Everything, end to end"
-*13 sections · **ported**, not authored to this plan · sources: the `apache-spark` repo + **DOC***
+*13 sections · **ported**, not authored to this plan · sources: the former `apache-spark` repo + **DOC***
 
 | | section | the beat |
 |---|---|---|
@@ -289,8 +289,8 @@ the real nodes (`Filter`, `Project`, `Relation`) and name the rule that fired.
 
 ### The capstone port
 
-**This course did not come from the four books.** It was ported from the `apache-spark` repo on
-2026-09-24, where it closed a five-course applied arc, and it is the one **category-B** course here —
+**This course did not come from the four books.** It was ported from the FORMER `apache-spark` repo
+on 2026-09-24, where it closed a five-course applied arc, and it is the one **category-B** course here —
 it BUILDS rather than explains. It is last in the spine for that reason, and its presence is not a
 precedent: courses 1–14 remain the plan.
 

@@ -1,5 +1,5 @@
 {
-  "name": "apache-spark-ct",
+  "name": "apache-spark",
   "private": true,
   "version": "0.0.0",
   "type": "module",

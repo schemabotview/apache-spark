@@ -1,4 +1,4 @@
-/* apache-spark-ct's design surface — the three tokens @graphlearning/shell leaves to the repo.
+/* apache-spark's design surface — the three tokens @graphlearning/shell leaves to the repo.
    Imported AFTER the shell's stylesheet in main.tsx, so these win the cascade.
 
    Apache Spark's own logo pairing: its orange with the gold it gradients into. Deliberately NOT the
