@@ -13,5 +13,6 @@
   "memory": "Where Spark's Memory Actually Goes",
   "aqe": "How Spark Re-Plans Your Query While It Runs",
   "streaming": "How Structured Streaming Actually Works",
-  "lakehouse": "Why a Folder of Parquet Is Not a Table"
+  "lakehouse": "Why a Folder of Parquet Is Not a Table",
+  "capstone": "Build a Spark Pipeline: Batch and Streaming End to End"
 }
