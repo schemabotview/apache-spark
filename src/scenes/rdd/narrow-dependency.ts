@@ -10,11 +10,35 @@ export const narrowDependency: Scene = {
       label: 'Narrow — each output partition reads exactly one input',
       pattern: 'service',
       sub: 'map · filter · flatMap · mapPartitions · union — no row ever needs to know about another partition',
-      cols: 3,
+      flow: 'LR',
       children: [
-        { id: 'n-a', icon: 'layers', label: 'partition 0 → 0′', pattern: 'service', sub: 'host A, start to finish' },
-        { id: 'n-b', icon: 'layers', label: 'partition 1 → 1′', pattern: 'service', sub: 'host B, start to finish' },
-        { id: 'n-c', icon: 'layers', label: 'partition 2 → 2′', pattern: 'service', sub: 'host C, start to finish' },
+        {
+          id: 'n-in',
+          icon: 'none',
+          label: 'inputs',
+          pattern: 'storage',
+          children: [
+            { id: 'n-i0', variant: 'tile', icon: 'layers', label: '0', pattern: 'storage', sub: 'host A' },
+            { id: 'n-i1', variant: 'tile', icon: 'layers', label: '1', pattern: 'storage', sub: 'host B' },
+            { id: 'n-i2', variant: 'tile', icon: 'layers', label: '2', pattern: 'storage', sub: 'host C' },
+          ],
+        },
+        {
+          id: 'n-out',
+          icon: 'none',
+          label: 'outputs',
+          pattern: 'service',
+          children: [
+            { id: 'n-o0', variant: 'tile', icon: 'layers', label: '0′', pattern: 'service', sub: 'host A' },
+            { id: 'n-o1', variant: 'tile', icon: 'layers', label: '1′', pattern: 'service', sub: 'host B' },
+            { id: 'n-o2', variant: 'tile', icon: 'layers', label: '2′', pattern: 'service', sub: 'host C' },
+          ],
+        },
+      ],
+      edges: [
+        { source: 'n-i0', target: 'n-o0' },
+        { source: 'n-i1', target: 'n-o1' },
+        { source: 'n-i2', target: 'n-o2' },
       ],
     },
     {
