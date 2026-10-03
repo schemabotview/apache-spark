@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "Apache Spark internals content repo for GraphL \u2014 'how it actually works' scenes (react-flow diagrams + IDE code cards) per slug, rendered full-frame for the compose pipeline. The render engine is the @graphlearning/flow package; the app shell is @graphlearning/shell. Syllabus: COURSE-PLAN.md.",
+  "description": "Apache Spark internals content repo for GraphL — 'how it actually works' scenes (react-flow diagrams + IDE code cards) per slug, rendered full-frame for the compose pipeline. The render engine is the @graphlearning/flow package; the app shell is @graphlearning/shell. Syllabus: COURSE-PLAN.md.",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -22,7 +22,7 @@
     "frames": "node scripts/frames.mjs"
   },
   "dependencies": {
-    "@graphlearning/flow": "^0.8.0",
+    "@graphlearning/flow": "^1.0.0",
     "@graphlearning/shell": "^0.4.0",
     "@xyflow/react": "^12.11.2",
     "lucide-react": "^1.28.0",
