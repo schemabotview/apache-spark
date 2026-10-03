@@ -11,8 +11,8 @@ export const theDecision: Scene = {
       pattern: 'service',
       sub: 'the ordering is not style — each rung down gives up something the engine was doing for you',
       children: [
-        { id: 'r1', label: '1 · a built-in function', pattern: 'service', sub: 'stays in the JVM · fuses · optimizable' },
-        { id: 'r2', label: '2 · a SQL expression', pattern: 'service', sub: 'still a tree Catalyst can read' },
+        { id: 'r1', icon: 'circlecheck', label: '1 · a built-in function', pattern: 'service', sub: 'stays in the JVM · fuses · optimizable' },
+        { id: 'r2', icon: 'tree', label: '2 · a SQL expression', pattern: 'service', sub: 'still a tree Catalyst can read' },
         { id: 'r3', label: '3 · a pandas UDF', pattern: 'network', sub: 'leaves the JVM, but in batches' },
         { id: 'r4', label: '4 · a plain Python UDF', pattern: 'warn', sub: 'per row · the last resort' },
       ],

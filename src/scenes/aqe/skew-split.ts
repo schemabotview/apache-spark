@@ -12,8 +12,8 @@ export const skewSplit: Scene = {
       sub: 'two conditions, because either alone gives false positives on a small or a uniformly large stage',
       cols: 2,
       children: [
-        { id: 'd-factor', label: '> 5× the median', pattern: 'network', sub: 'skewedPartitionFactor' },
-        { id: 'd-size', label: 'and > 256 MB', pattern: 'network', sub: 'skewedPartitionThresholdInBytes' },
+        { id: 'd-factor', icon: 'scale', label: '> 5× the median', pattern: 'network', sub: 'skewedPartitionFactor' },
+        { id: 'd-size', icon: 'ruler', label: 'and > 256 MB', pattern: 'network', sub: 'skewedPartitionThresholdInBytes' },
       ],
     },
     {
@@ -23,8 +23,8 @@ export const skewSplit: Scene = {
       sub: 'splitting alone would lose matches — the counterpart partition has to be copied to every piece',
       cols: 2,
       children: [
-        { id: 'sp-big', label: 'the big one → N pieces', pattern: 'service', sub: 'now N tasks, not one' },
-        { id: 'sp-other', label: 'its match → copied N times', pattern: 'service', sub: 'so every piece can still find it' },
+        { id: 'sp-big', icon: 'scissors', label: 'the big one → N pieces', pattern: 'service', sub: 'now N tasks, not one' },
+        { id: 'sp-other', icon: 'copy', label: 'its match → copied N times', pattern: 'service', sub: 'so every piece can still find it' },
       ],
     },
     {

@@ -35,9 +35,9 @@ export const smallFileProblem: Scene = {
       sub: 'aim for files in the region of 128 MB to 1 GB — the exact number matters far less than the order of magnitude',
       cols: 3,
       children: [
-        { id: 'fx-part', label: 'repartition before write', pattern: 'service', sub: 'control the file count directly' },
-        { id: 'fx-compact', label: 'compact on a schedule', pattern: 'service', sub: 'rewrite yesterday into few files' },
-        { id: 'fx-less', label: 'partition by less', pattern: 'service', sub: 'day, not hour; drop a level' },
+        { id: 'fx-part', icon: 'layers', label: 'repartition before write', pattern: 'service', sub: 'control the file count directly' },
+        { id: 'fx-compact', icon: 'package', label: 'compact on a schedule', pattern: 'service', sub: 'rewrite yesterday into few files' },
+        { id: 'fx-less', icon: 'scissors', label: 'partition by less', pattern: 'service', sub: 'day, not hour; drop a level' },
       ],
     },
   ],

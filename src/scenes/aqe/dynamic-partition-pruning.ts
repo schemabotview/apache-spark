@@ -23,8 +23,8 @@ export const dynamicPartitionPruning: Scene = {
       sub: 'run the dimension side first, collect the join keys that survived, and turn them into a predicate',
       cols: 2,
       children: [
-        { id: 'b-run', label: 'the small side runs first', pattern: 'service', sub: 'it was being broadcast anyway' },
-        { id: 'b-keys', label: 'its keys become a filter', pattern: 'service', sub: 'date_id IN (…the Q3 days…)' },
+        { id: 'b-run', icon: 'zap', label: 'the small side runs first', pattern: 'service', sub: 'it was being broadcast anyway' },
+        { id: 'b-keys', icon: 'key', label: 'its keys become a filter', pattern: 'service', sub: 'date_id IN (…the Q3 days…)' },
       ],
     },
     {
@@ -32,7 +32,7 @@ export const dynamicPartitionPruning: Scene = {
       framed: true,
       label: 'Pushed into the scan',
       pattern: 'service',
-      icon: 'filter',
+      icon: 'funnel',
       sub: '90 partitions of 730 — the rest never even listed',
     },
   ],

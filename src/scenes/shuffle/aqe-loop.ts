@@ -19,21 +19,22 @@ export const aqeLoop: Scene = {
       pattern: 'service',
       sub: 'a shuffle is the one moment the optimizer stops guessing, because the data has been counted',
       children: [
-        { id: 'run', label: 'a stage completes', pattern: 'service', sub: 'its shuffle files are written' },
+        { id: 'run', icon: 'circlecheck', label: 'a stage completes', pattern: 'service', sub: 'its shuffle files are written' },
         { id: 'stats', label: 'real statistics exist', pattern: 'network', icon: 'database', sub: 'actual bytes and rows per partition' },
         {
           id: 'replan',
+          icon: 'repeat',
           label: 'Catalyst runs again on the rest of the plan',
           pattern: 'service',
           sub: 'three re-plans, each with its own trigger',
           flow: 'LR',
           children: [
-            { id: 'coalesce', label: 'coalesce partitions', pattern: 'network', sub: '200 × 8 MB → a few × 64 MB' },
-            { id: 'switch', label: 'switch the join', pattern: 'network', sub: 'measured small → broadcast it' },
-            { id: 'split', label: 'split the skew', pattern: 'network', sub: 'cut it up, duplicate its match' },
+            { id: 'coalesce', icon: 'merge', label: 'coalesce partitions', pattern: 'network', sub: '200 × 8 MB → a few × 64 MB' },
+            { id: 'switch', icon: 'swap', label: 'switch the join', pattern: 'network', sub: 'measured small → broadcast it' },
+            { id: 'split', icon: 'scissors', label: 'split the skew', pattern: 'network', sub: 'cut it up, duplicate its match' },
           ],
         },
-        { id: 'next', label: 'the next stage runs', pattern: 'service', sub: 'and the loop repeats at the next shuffle' },
+        { id: 'next', icon: 'workflow', label: 'the next stage runs', pattern: 'service', sub: 'and the loop repeats at the next shuffle' },
       ],
       edges: [
         { source: 'run', target: 'stats' },

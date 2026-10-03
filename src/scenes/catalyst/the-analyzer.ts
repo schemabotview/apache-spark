@@ -24,8 +24,8 @@ export const theAnalyzer: Scene = {
       sub: 'the apostrophes are gone; #7 and #11 are attribute ids, unique for the life of the plan',
       flow: 'LR',
       children: [
-        { id: 'a-rel', label: 'Relation flights', pattern: 'service', sub: 'parquet · s3://…/flights' },
-        { id: 'a-filter', label: 'Filter (country#7 = IN)', pattern: 'service', sub: 'country#7: string' },
+        { id: 'a-rel', icon: 'file', label: 'Relation flights', pattern: 'service', sub: 'parquet · s3://…/flights' },
+        { id: 'a-filter', icon: 'funnel', label: 'Filter (country#7 = IN)', pattern: 'service', sub: 'country#7: string' },
       ],
       edges: [{ source: 'a-rel', target: 'a-filter' }],
     },

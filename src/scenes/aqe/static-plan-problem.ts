@@ -30,7 +30,7 @@ export const staticPlanProblem: Scene = {
       framed: true,
       label: 'But they exist — later',
       pattern: 'service',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'partway through, Spark knows exactly what it has',
     },
   ],

@@ -17,10 +17,10 @@ export const dependencies: Scene = {
       sub: 'filter · map · union — every output reads exactly one input',
       cols: 2,
       children: [
-        { id: 'n-in-0', label: 'partition 0', pattern: 'storage', sub: 'rows on host A' },
-        { id: 'n-out-0', label: 'partition 0′', pattern: 'service', sub: 'same host, no network' },
-        { id: 'n-in-1', label: 'partition 1', pattern: 'storage', sub: 'rows on host B' },
-        { id: 'n-out-1', label: 'partition 1′', pattern: 'service', sub: 'same host, no network' },
+        { id: 'n-in-0', icon: 'layers', label: 'partition 0', pattern: 'storage', sub: 'rows on host A' },
+        { id: 'n-out-0', icon: 'layers', label: 'partition 0′', pattern: 'service', sub: 'same host, no network' },
+        { id: 'n-in-1', icon: 'layers', label: 'partition 1', pattern: 'storage', sub: 'rows on host B' },
+        { id: 'n-out-1', icon: 'layers', label: 'partition 1′', pattern: 'service', sub: 'same host, no network' },
       ],
       edges: [
         { source: 'n-in-0', target: 'n-out-0' },
@@ -34,9 +34,9 @@ export const dependencies: Scene = {
       sub: 'groupBy · join · distinct — an output needs rows it does not hold',
       cols: 2,
       children: [
-        { id: 'w-in-0', label: 'partition 0', pattern: 'storage', sub: 'keys a, b' },
+        { id: 'w-in-0', icon: 'layers', label: 'partition 0', pattern: 'storage', sub: 'keys a, b' },
         { id: 'w-out-0', label: 'partition 0′', pattern: 'warn', sub: 'all of key a' },
-        { id: 'w-in-1', label: 'partition 1', pattern: 'storage', sub: 'keys a, b' },
+        { id: 'w-in-1', icon: 'layers', label: 'partition 1', pattern: 'storage', sub: 'keys a, b' },
         { id: 'w-out-1', label: 'partition 1′', pattern: 'warn', sub: 'all of key b' },
       ],
       edges: [

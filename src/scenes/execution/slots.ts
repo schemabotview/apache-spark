@@ -12,8 +12,8 @@ export const slots: Scene = {
       sub: 'tasks queue; they do not run in parallel past the number of cores you actually have',
       flow: 'LR',
       children: [
-        { id: 'w1', label: 'wave 1', pattern: 'service', sub: '100 tasks, every slot busy' },
-        { id: 'w2', label: 'wave 2', pattern: 'service', sub: '100 tasks, every slot busy' },
+        { id: 'w1', icon: 'waves', label: 'wave 1', pattern: 'service', sub: '100 tasks, every slot busy' },
+        { id: 'w2', icon: 'waves', label: 'wave 2', pattern: 'service', sub: '100 tasks, every slot busy' },
       ],
     },
     {
@@ -21,7 +21,6 @@ export const slots: Scene = {
       framed: true,
       label: 'And 201 tasks runs in three',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'one task and 99 idle cores, for a whole task’s duration',
     },
     {
@@ -31,8 +30,8 @@ export const slots: Scene = {
       sub: 'it is free, it takes ten seconds, and it is frequently the whole problem',
       cols: 2,
       children: [
-        { id: 'ru-slots', label: 'executors × cores', pattern: 'network', sub: '= every slot you will ever have' },
-        { id: 'ru-parts', label: 'partitions ≈ a multiple', pattern: 'network', sub: 'of that number, 2–4× for skew' },
+        { id: 'ru-slots', icon: 'cpu', label: 'executors × cores', pattern: 'network', sub: '= every slot you will ever have' },
+        { id: 'ru-parts', icon: 'layers', label: 'partitions ≈ a multiple', pattern: 'network', sub: 'of that number, 2–4× for skew' },
       ],
     },
   ],

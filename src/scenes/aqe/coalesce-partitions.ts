@@ -25,9 +25,9 @@ export const coalescePartitions: Scene = {
       sub: 'advisoryPartitionSizeInBytes, 64 MB by default — the target, not a guarantee',
       cols: 3,
       children: [
-        { id: 'a-1', label: '~64 MB', pattern: 'service', sub: 'eight of them, combined' },
-        { id: 'a-2', label: '~64 MB', pattern: 'service', sub: 'eight more' },
-        { id: 'a-3', label: '~60 MB', pattern: 'service', sub: 'the remainder' },
+        { id: 'a-1', icon: 'merge', label: '~64 MB', pattern: 'service', sub: 'eight of them, combined' },
+        { id: 'a-2', icon: 'merge', label: '~64 MB', pattern: 'service', sub: 'eight more' },
+        { id: 'a-3', icon: 'merge', label: '~60 MB', pattern: 'service', sub: 'the remainder' },
       ],
     },
     {
@@ -37,8 +37,8 @@ export const coalescePartitions: Scene = {
       sub: 'it makes the old advice obsolete: you no longer size shuffle.partitions for the WHOLE query',
       cols: 2,
       children: [
-        { id: 'w-high', label: 'set it high and forget it', pattern: 'service', sub: 'AQE brings it down per stage' },
-        { id: 'w-stage', label: 'per stage, not per query', pattern: 'service', sub: 'one number never fitted all of them' },
+        { id: 'w-high', icon: 'gauge', label: 'set it high and forget it', pattern: 'service', sub: 'AQE brings it down per stage' },
+        { id: 'w-stage', icon: 'layers', label: 'per stage, not per query', pattern: 'service', sub: 'one number never fitted all of them' },
       ],
     },
   ],

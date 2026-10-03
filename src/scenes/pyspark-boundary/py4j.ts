@@ -31,8 +31,8 @@ export const py4j: Scene = {
       sub: 'one message per API call you write, not per row — a hundred-line script is a few hundred messages',
       cols: 2,
       children: [
-        { id: 's-count', label: 'messages ≈ your lines', pattern: 'service', sub: 'and you write few of them' },
-        { id: 's-driver', label: 'driver-side only', pattern: 'service', sub: 'Py4J never touches an executor' },
+        { id: 's-count', icon: 'hash', label: 'messages ≈ your lines', pattern: 'service', sub: 'and you write few of them' },
+        { id: 's-driver', icon: 'brain', label: 'driver-side only', pattern: 'service', sub: 'Py4J never touches an executor' },
       ],
     },
   ],

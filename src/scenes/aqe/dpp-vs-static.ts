@@ -32,7 +32,6 @@ export const dppVsStatic: Scene = {
       framed: true,
       label: 'DPP is not part of AQE',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'separate setting · on by default since Spark 3.0',
     },
   ],

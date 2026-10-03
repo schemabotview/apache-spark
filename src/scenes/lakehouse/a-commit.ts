@@ -32,7 +32,7 @@ export const aCommit: Scene = {
       framed: true,
       label: 'A crash is now dull',
       pattern: 'service',
-      icon: 'shield',
+      icon: 'shieldcheck',
       sub: 'no entry written → the orphan files are not in the table',
     },
   ],

@@ -12,8 +12,8 @@ export const theCostModel: Scene = {
       sub: 'estimated sizes — and "estimated" is the load-bearing word in this entire course',
       cols: 3,
       children: [
-        { id: 'i-stats', label: 'catalog statistics', pattern: 'network', sub: 'if ANALYZE TABLE ever ran' },
-        { id: 'i-files', label: 'file sizes', pattern: 'network', sub: 'compressed bytes on disk' },
+        { id: 'i-stats', icon: 'barchart', label: 'catalog statistics', pattern: 'network', sub: 'if ANALYZE TABLE ever ran' },
+        { id: 'i-files', icon: 'ruler', label: 'file sizes', pattern: 'network', sub: 'compressed bytes on disk' },
         { id: 'i-guess', label: 'and heuristics', pattern: 'warn', sub: 'a filter keeps…some fraction?' },
       ],
     },
@@ -22,7 +22,7 @@ export const theCostModel: Scene = {
       framed: true,
       label: 'One candidate wins',
       pattern: 'service',
-      icon: 'check',
+      icon: 'circlecheck',
       sub: 'e.g. the right side estimates under 10 MB → BroadcastHashJoin',
     },
     {
@@ -32,8 +32,8 @@ export const theCostModel: Scene = {
       sub: 'a bad estimate does not make Spark choose badly sometimes — it makes it choose badly on every run, identically',
       cols: 2,
       children: [
-        { id: 'w-fix', label: 'ANALYZE TABLE', pattern: 'service', sub: 'fixes the cause, cheaply' },
-        { id: 'w-aqe', label: 'or let AQE re-decide', pattern: 'service', sub: 'with real numbers, after a shuffle' },
+        { id: 'w-fix', icon: 'wrench', label: 'ANALYZE TABLE', pattern: 'service', sub: 'fixes the cause, cheaply' },
+        { id: 'w-aqe', icon: 'repeat', label: 'or let AQE re-decide', pattern: 'service', sub: 'with real numbers, after a shuffle' },
       ],
     },
   ],

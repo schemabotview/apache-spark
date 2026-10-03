@@ -12,8 +12,8 @@ export const offHeap: Scene = {
       sub: 'spark.memory.offHeap.enabled plus a size — and the size is a SECOND budget, not a share of the first',
       cols: 2,
       children: [
-        { id: 'w-alloc', label: 'Spark allocates directly', pattern: 'service', sub: 'through Unsafe, outside the heap' },
-        { id: 'w-gc', label: 'the GC never traces it', pattern: 'service', sub: 'so it adds nothing to pause time' },
+        { id: 'w-alloc', icon: 'wrench', label: 'Spark allocates directly', pattern: 'service', sub: 'through Unsafe, outside the heap' },
+        { id: 'w-gc', icon: 'trash', label: 'the GC never traces it', pattern: 'service', sub: 'so it adds nothing to pause time' },
       ],
     },
     {
@@ -33,7 +33,7 @@ export const offHeap: Scene = {
       framed: true,
       label: 'Only if GC is measured',
       pattern: 'service',
-      icon: 'activity',
+      icon: 'gauge',
       sub: 'a third of task time — otherwise it changes nothing',
     },
   ],

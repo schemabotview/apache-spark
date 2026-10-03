@@ -24,8 +24,8 @@ export const spill: Scene = {
       sub: 'a large memory figure against a small disk figure is normal — it is the same data, measured twice',
       cols: 2,
       children: [
-        { id: 'm-mem', label: 'Spill (Memory)', pattern: 'network', sub: 'the size it had in memory, deserialized' },
-        { id: 'm-disk', label: 'Spill (Disk)', pattern: 'network', sub: 'the size written, serialized and compressed' },
+        { id: 'm-mem', icon: 'memory', label: 'Spill (Memory)', pattern: 'network', sub: 'the size it had in memory, deserialized' },
+        { id: 'm-disk', icon: 'harddrive', label: 'Spill (Disk)', pattern: 'network', sub: 'the size written, serialized and compressed' },
       ],
     },
     {
@@ -35,8 +35,8 @@ export const spill: Scene = {
       sub: 'spilling means the partition was too big — so make the partitions smaller, or stop one being huge',
       cols: 2,
       children: [
-        { id: 'f-parts', label: 'more partitions', pattern: 'service', sub: 'each one smaller' },
-        { id: 'f-skew', label: 'or fix the skew', pattern: 'service', sub: 'if only ONE task is spilling' },
+        { id: 'f-parts', icon: 'layers', label: 'more partitions', pattern: 'service', sub: 'each one smaller' },
+        { id: 'f-skew', icon: 'scale', label: 'or fix the skew', pattern: 'service', sub: 'if only ONE task is spilling' },
       ],
     },
   ],

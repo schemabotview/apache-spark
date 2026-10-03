@@ -12,9 +12,9 @@ export const codegenLost: Scene = {
       sub: 'scan, filter and project compiled into a single generated Java method, marked *(1) in the plan',
       flow: 'LR',
       children: [
-        { id: 'w-s', label: 'scan', pattern: 'service', sub: '*(1)', variant: 'tile' },
-        { id: 'w-f', label: 'filter', pattern: 'service', sub: '*(1)', variant: 'tile' },
-        { id: 'w-p', label: 'project', pattern: 'service', sub: '*(1)', variant: 'tile' },
+        { id: 'w-s', icon: 'search', label: 'scan', pattern: 'service', sub: '*(1)', variant: 'tile' },
+        { id: 'w-f', icon: 'funnel', label: 'filter', pattern: 'service', sub: '*(1)', variant: 'tile' },
+        { id: 'w-p', icon: 'table', label: 'project', pattern: 'service', sub: '*(1)', variant: 'tile' },
       ],
       edges: [
         { source: 'w-s', target: 'w-f' },
@@ -28,9 +28,9 @@ export const codegenLost: Scene = {
       sub: 'BatchEvalPython has no * — it is a wall, and the loop that held three operators is now two loops',
       flow: 'LR',
       children: [
-        { id: 'x-s', label: 'scan', pattern: 'service', sub: '*(1)', variant: 'tile' },
+        { id: 'x-s', icon: 'search', label: 'scan', pattern: 'service', sub: '*(1)', variant: 'tile' },
         { id: 'x-u', label: 'BatchEvalPython', pattern: 'warn', sub: 'no *', variant: 'tile' },
-        { id: 'x-p', label: 'project', pattern: 'service', sub: '*(2)', variant: 'tile' },
+        { id: 'x-p', icon: 'table', label: 'project', pattern: 'service', sub: '*(2)', variant: 'tile' },
       ],
       edges: [
         { source: 'x-s', target: 'x-u' },
@@ -42,7 +42,7 @@ export const codegenLost: Scene = {
       framed: true,
       label: 'Opaque to Catalyst too',
       pattern: 'warn',
-      icon: 'eyeOff',
+      icon: 'circleslash',
       sub: 'a filter inside a UDF cannot be pushed down',
     },
   ],

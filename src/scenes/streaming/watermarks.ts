@@ -10,7 +10,7 @@ export const watermarks: Scene = {
       framed: true,
       label: 'When can state be dropped?',
       pattern: 'warn',
-      icon: 'helpCircle',
+      icon: 'search',
       sub: 'never, without a rule — 09:00 may arrive tomorrow',
     },
     {
@@ -20,8 +20,8 @@ export const watermarks: Scene = {
       sub: 'withWatermark("ts", "10 minutes") — the threshold is subtracted from the latest event time SEEN',
       cols: 2,
       children: [
-        { id: 'p-say', label: 'you say: 10 minutes', pattern: 'service', sub: 'nothing later than that matters' },
-        { id: 'p-do', label: 'Spark then drops state', pattern: 'service', sub: 'for windows the watermark has passed' },
+        { id: 'p-say', icon: 'clock', label: 'you say: 10 minutes', pattern: 'service', sub: 'nothing later than that matters' },
+        { id: 'p-do', icon: 'trash', label: 'Spark then drops state', pattern: 'service', sub: 'for windows the watermark has passed' },
       ],
     },
     {

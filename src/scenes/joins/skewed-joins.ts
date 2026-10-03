@@ -13,7 +13,6 @@ export const skewedJoins: Scene = {
       framed: true,
       label: 'One key, one task',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: '40% of the orders are one customer — and a stage ends last',
     },
     {
@@ -23,8 +22,8 @@ export const skewedJoins: Scene = {
       sub: 'spark.sql.adaptive.skewJoin.enabled — it measures the partitions and splits the outliers itself',
       cols: 2,
       children: [
-        { id: 'a-factor', label: 'skewedPartitionFactor', pattern: 'service', sub: '5× the median counts as skewed' },
-        { id: 'a-size', label: 'thresholdInBytes', pattern: 'service', sub: '256 MB, and both tests must pass' },
+        { id: 'a-factor', icon: 'scale', label: 'skewedPartitionFactor', pattern: 'service', sub: '5× the median counts as skewed' },
+        { id: 'a-size', icon: 'ruler', label: 'thresholdInBytes', pattern: 'service', sub: '256 MB, and both tests must pass' },
       ],
     },
     {
@@ -34,8 +33,8 @@ export const skewedJoins: Scene = {
       sub: 'turn one hot key into n keys by hand — the technique AQE automated, and the reason it rarely earns its complexity now',
       cols: 3,
       children: [
-        { id: 's-left', label: 'key → key + rand(0,9)', pattern: 'network', sub: 'the big side: one key becomes ten' },
-        { id: 's-right', label: 'explode 0..9', pattern: 'network', sub: 'the small side: each row becomes ten' },
+        { id: 's-left', icon: 'key', label: 'key → key + rand(0,9)', pattern: 'network', sub: 'the big side: one key becomes ten' },
+        { id: 's-right', icon: 'copy', label: 'explode 0..9', pattern: 'network', sub: 'the small side: each row becomes ten' },
         { id: 's-cost', label: 'the small side ×10', pattern: 'warn', sub: 'and the code is now hard to read' },
       ],
     },

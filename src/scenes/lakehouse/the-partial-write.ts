@@ -22,7 +22,7 @@ export const thePartialWrite: Scene = {
       framed: true,
       label: 'A reader sees 140 files',
       pattern: 'warn',
-      icon: 'eye',
+      icon: 'search',
       sub: 'a complete-looking table with 70% of the data, and no way to tell',
     },
     {

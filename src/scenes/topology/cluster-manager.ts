@@ -23,9 +23,9 @@ export const clusterManager: Scene = {
       sub: 'Spark does not care which — the same application runs on all of them unchanged',
       cols: 4,
       children: [
-        { id: 'c-standalone', label: 'Standalone', pattern: 'service', sub: 'ships with Spark · one tenant' },
-        { id: 'c-yarn', label: 'YARN', pattern: 'service', sub: 'the Hadoop estate' },
-        { id: 'c-k8s', label: 'Kubernetes', pattern: 'service', sub: 'the current default' },
+        { id: 'c-standalone', icon: 'box', label: 'Standalone', pattern: 'service', sub: 'ships with Spark · one tenant' },
+        { id: 'c-yarn', icon: 'warehouse', label: 'YARN', pattern: 'service', sub: 'the Hadoop estate' },
+        { id: 'c-k8s', icon: 'boxes', label: 'Kubernetes', pattern: 'service', sub: 'the current default' },
         { id: 'c-mesos', label: 'Mesos', pattern: 'warn', sub: 'deprecated — do not start here' },
       ],
     },

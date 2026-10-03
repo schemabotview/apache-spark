@@ -11,10 +11,10 @@ export const twoKindsOfPruning: Scene = {
       pattern: 'network',
       sub: 'each rung is cheaper than the one below it, because it is decided with less information read',
       children: [
-        { id: 'p-dir', label: '1 · whole directories', pattern: 'service', sub: 'partition pruning — from the path alone' },
-        { id: 'p-file', label: '2 · whole files', pattern: 'service', sub: 'from the footer, without reading data' },
-        { id: 'p-group', label: '3 · row groups', pattern: 'network', sub: 'from min/max in the footer' },
-        { id: 'p-page', label: '4 · pages', pattern: 'network', sub: 'from the page index, if present' },
+        { id: 'p-dir', icon: 'folder', label: '1 · whole directories', pattern: 'service', sub: 'partition pruning — from the path alone' },
+        { id: 'p-file', icon: 'file', label: '2 · whole files', pattern: 'service', sub: 'from the footer, without reading data' },
+        { id: 'p-group', icon: 'layers', label: '3 · row groups', pattern: 'network', sub: 'from min/max in the footer' },
+        { id: 'p-page', icon: 'scroll', label: '4 · pages', pattern: 'network', sub: 'from the page index, if present' },
       ],
       edges: [
         { source: 'p-dir', target: 'p-file' },
@@ -27,7 +27,7 @@ export const twoKindsOfPruning: Scene = {
       framed: true,
       label: 'And only then, what is left',
       pattern: 'warn',
-      icon: 'filter',
+      icon: 'funnel',
       sub: 'the filter finally runs on rows — on whatever survived all four',
     },
   ],

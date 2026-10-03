@@ -24,8 +24,8 @@ export const theTask: Scene = {
       sub: 'tasks are retried individually — spark.task.maxFailures is 4, and only then does the stage fail',
       cols: 3,
       children: [
-        { id: 'r-1', label: 'retry elsewhere', pattern: 'network', sub: 'lineage says how to redo it' },
-        { id: 'r-2', label: 'four strikes', pattern: 'network', sub: 'then the stage gives up' },
+        { id: 'r-1', icon: 'repeat', label: 'retry elsewhere', pattern: 'network', sub: 'lineage says how to redo it' },
+        { id: 'r-2', icon: 'ban', label: 'four strikes', pattern: 'network', sub: 'then the stage gives up' },
         { id: 'r-3', label: 'and the job fails', pattern: 'warn', sub: 'one partition can end everything' },
       ],
     },

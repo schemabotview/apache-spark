@@ -13,10 +13,10 @@ export const oneEngine: Scene = {
       sub: 'each one replaces a whole engine from the zoo — and they compose, because they share the layer below',
       cols: 4,
       children: [
-        { id: 'l-sql', label: 'Spark SQL', pattern: 'network', sub: 'replaces Hive and Impala' },
-        { id: 'l-stream', label: 'Structured Streaming', pattern: 'network', sub: 'replaces Storm' },
-        { id: 'l-ml', label: 'MLlib', pattern: 'network', sub: 'replaces Mahout' },
-        { id: 'l-graph', label: 'GraphX', pattern: 'network', sub: 'replaces Giraph' },
+        { id: 'l-sql', icon: 'database', label: 'Spark SQL', pattern: 'network', sub: 'replaces Hive and Impala' },
+        { id: 'l-stream', icon: 'waves', label: 'Structured Streaming', pattern: 'network', sub: 'replaces Storm' },
+        { id: 'l-ml', icon: 'brain', label: 'MLlib', pattern: 'network', sub: 'replaces Mahout' },
+        { id: 'l-graph', icon: 'share', label: 'GraphX', pattern: 'network', sub: 'replaces Giraph' },
       ],
     },
     {
@@ -34,8 +34,8 @@ export const oneEngine: Scene = {
       sub: 'a SQL read feeding an ML model is one plan, not two systems handing files to each other',
       cols: 2,
       children: [
-        { id: 'p-nodisk', label: 'no disk at the borders', pattern: 'service', sub: 'the handoff stays in memory' },
-        { id: 'p-opt', label: 'optimized across them', pattern: 'service', sub: 'a filter can move into the scan' },
+        { id: 'p-nodisk', icon: 'memory', label: 'no disk at the borders', pattern: 'service', sub: 'the handoff stays in memory' },
+        { id: 'p-opt', icon: 'gears', label: 'optimized across them', pattern: 'service', sub: 'a filter can move into the scan' },
       ],
     },
   ],

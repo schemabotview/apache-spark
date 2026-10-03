@@ -12,9 +12,9 @@ export const dagScheduler: Scene = {
       sub: 'thinks in stages · knows the shape of the plan',
       cols: 1,
       children: [
-        { id: 'd-cut', label: 'cuts stages', pattern: 'network', sub: 'at every shuffle' },
-        { id: 'd-order', label: 'orders them', pattern: 'network', sub: 'by what depends on what' },
-        { id: 'd-skip', label: 'skips finished ones', pattern: 'network', sub: 'shuffle files still on disk' },
+        { id: 'd-cut', icon: 'scissors', label: 'cuts stages', pattern: 'network', sub: 'at every shuffle' },
+        { id: 'd-order', icon: 'sortarrows', label: 'orders them', pattern: 'network', sub: 'by what depends on what' },
+        { id: 'd-skip', icon: 'circlecheck', label: 'skips finished ones', pattern: 'network', sub: 'shuffle files still on disk' },
       ],
     },
     {
@@ -24,9 +24,9 @@ export const dagScheduler: Scene = {
       sub: 'thinks in tasks · knows where the slots are',
       cols: 1,
       children: [
-        { id: 'ts-place', label: 'places tasks', pattern: 'network', sub: 'preferring local data' },
-        { id: 'ts-retry', label: 'retries failures', pattern: 'network', sub: 'up to four times' },
-        { id: 'ts-spec', label: 'launches speculation', pattern: 'network', sub: 'against stragglers' },
+        { id: 'ts-place', icon: 'share', label: 'places tasks', pattern: 'network', sub: 'preferring local data' },
+        { id: 'ts-retry', icon: 'repeat', label: 'retries failures', pattern: 'network', sub: 'up to four times' },
+        { id: 'ts-spec', icon: 'zap', label: 'launches speculation', pattern: 'network', sub: 'against stragglers' },
       ],
     },
     {
@@ -34,7 +34,6 @@ export const dagScheduler: Scene = {
       framed: true,
       label: 'When a shuffle file is lost',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'FetchFailed → the MAP STAGE is resubmitted, not the task',
     },
   ],

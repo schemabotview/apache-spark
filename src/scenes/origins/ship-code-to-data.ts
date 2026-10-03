@@ -29,9 +29,9 @@ export const shipCodeToData: Scene = {
       sub: 'the program is kilobytes and the data is terabytes, so move the small thing — GFS and MapReduce, Google, 2003–04',
       cols: 3,
       children: [
-        { id: 'n1', label: 'node 1', pattern: 'service', sub: 'its block + a copy of the code' },
-        { id: 'n2', label: 'node 2', pattern: 'service', sub: 'its block + a copy of the code' },
-        { id: 'n3', label: 'node 3', pattern: 'service', sub: 'its block + a copy of the code' },
+        { id: 'n1', icon: 'server', label: 'node 1', pattern: 'service', sub: 'its block + a copy of the code' },
+        { id: 'n2', icon: 'server', label: 'node 2', pattern: 'service', sub: 'its block + a copy of the code' },
+        { id: 'n3', icon: 'server', label: 'node 3', pattern: 'service', sub: 'its block + a copy of the code' },
       ],
     },
   ],

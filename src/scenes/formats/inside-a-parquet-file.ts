@@ -13,17 +13,18 @@ export const insideAParquetFile: Scene = {
       children: [
         {
           id: 'rg1',
+          icon: 'layers',
           label: 'Row group 1 — ~128 MB of rows',
           pattern: 'service',
           sub: 'a horizontal slice, self-contained: it can be read without any other row group',
           flow: 'LR',
           children: [
-            { id: 'rg1-a', label: 'chunk: dest', pattern: 'network', sub: 'pages · ~1 MB each' },
-            { id: 'rg1-b', label: 'chunk: country', pattern: 'network', sub: 'pages · ~1 MB each' },
-            { id: 'rg1-c', label: 'chunk: cnt', pattern: 'network', sub: 'pages · ~1 MB each' },
+            { id: 'rg1-a', icon: 'box', label: 'chunk: dest', pattern: 'network', sub: 'pages · ~1 MB each' },
+            { id: 'rg1-b', icon: 'box', label: 'chunk: country', pattern: 'network', sub: 'pages · ~1 MB each' },
+            { id: 'rg1-c', icon: 'box', label: 'chunk: cnt', pattern: 'network', sub: 'pages · ~1 MB each' },
           ],
         },
-        { id: 'rg2', label: 'Row group 2', pattern: 'service', sub: 'the same three column chunks, for the next slice of rows' },
+        { id: 'rg2', icon: 'layers', label: 'Row group 2', pattern: 'service', sub: 'the same three column chunks, for the next slice of rows' },
         { id: 'footer', label: 'The footer', pattern: 'warn', sub: 'the schema, and statistics for every chunk above' },
       ],
       edges: [
@@ -36,7 +37,7 @@ export const insideAParquetFile: Scene = {
       framed: true,
       label: 'Why hybrid',
       pattern: 'service',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'a row group is skippable whole — and one task reads one',
     },
   ],

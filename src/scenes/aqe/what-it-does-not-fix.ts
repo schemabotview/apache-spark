@@ -10,7 +10,6 @@ export const whatItDoesNotFix: Scene = {
       framed: true,
       label: 'It never removes a shuffle',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'broadcasting and bucketing still beat everything here',
     },
     {
@@ -32,8 +31,8 @@ export const whatItDoesNotFix: Scene = {
       sub: 'AQE fixes the plan after the fact; ANALYZE TABLE means the first plan was right — both are worth having',
       cols: 2,
       children: [
-        { id: 'sa-analyze', label: 'ANALYZE TABLE', pattern: 'service', sub: 'a better first guess' },
-        { id: 'sa-aqe', label: 'AQE', pattern: 'service', sub: 'a correction to a bad one' },
+        { id: 'sa-analyze', icon: 'barchart', label: 'ANALYZE TABLE', pattern: 'service', sub: 'a better first guess' },
+        { id: 'sa-aqe', icon: 'repeat', label: 'AQE', pattern: 'service', sub: 'a correction to a bad one' },
       ],
     },
   ],

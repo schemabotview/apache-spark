@@ -12,9 +12,9 @@ export const theAction: Scene = {
       sub: 'a transformation returns another description; an action returns a value, writes a file, or shows rows',
       cols: 3,
       children: [
-        { id: 'k-value', label: 'a value to the driver', pattern: 'network', sub: 'count · collect · first · take' },
+        { id: 'k-value', icon: 'funnel', label: 'a value to the driver', pattern: 'network', sub: 'count · collect · first · take' },
         { id: 'k-write', label: 'a write to storage', pattern: 'storage', sub: 'save · write · saveAsTable' },
-        { id: 'k-show', label: 'rows on your screen', pattern: 'network', sub: 'show — yes, this is an action' },
+        { id: 'k-show', icon: 'monitor', label: 'rows on your screen', pattern: 'network', sub: 'show — yes, this is an action' },
       ],
     },
     {

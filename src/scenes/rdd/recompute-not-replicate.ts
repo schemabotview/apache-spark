@@ -23,8 +23,8 @@ export const recomputeNotReplicate: Scene = {
       sub: 'keep the lineage graph instead of the copies: a few kilobytes on the driver, per job',
       cols: 2,
       children: [
-        { id: 's-cost', label: 'nearly free', pattern: 'service', sub: 'a graph, not a dataset' },
-        { id: 's-when', label: 'paid on failure', pattern: 'service', sub: 'and only for what was lost' },
+        { id: 's-cost', icon: 'gitbranch', label: 'nearly free', pattern: 'service', sub: 'a graph, not a dataset' },
+        { id: 's-when', icon: 'repeat', label: 'paid on failure', pattern: 'service', sub: 'and only for what was lost' },
       ],
     },
     {
@@ -32,7 +32,6 @@ export const recomputeNotReplicate: Scene = {
       framed: true,
       label: 'The condition',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'every transformation must be deterministic, or recovery lies',
     },
   ],

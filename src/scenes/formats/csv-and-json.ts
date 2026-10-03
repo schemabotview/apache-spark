@@ -23,7 +23,6 @@ export const csvAndJson: Scene = {
       framed: true,
       label: 'inferSchema: an extra pass',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'read once to guess types, then again to load',
     },
     {
@@ -33,8 +32,8 @@ export const csvAndJson: Scene = {
       sub: 'CSV and JSON are interchange formats — fine at the edge of a system, wrong as a place to keep data',
       cols: 2,
       children: [
-        { id: 'do-schema', label: 'pass an explicit schema', pattern: 'service', sub: 'one pass, and no wrong guesses' },
-        { id: 'do-convert', label: 'land it, then convert', pattern: 'service', sub: 'read CSV once, write Parquet' },
+        { id: 'do-schema', icon: 'braces', label: 'pass an explicit schema', pattern: 'service', sub: 'one pass, and no wrong guesses' },
+        { id: 'do-convert', icon: 'swap', label: 'land it, then convert', pattern: 'service', sub: 'read CSV once, write Parquet' },
       ],
     },
   ],

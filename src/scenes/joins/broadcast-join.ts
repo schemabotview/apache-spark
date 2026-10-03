@@ -23,6 +23,7 @@ export const broadcastJoin: Scene = {
       children: [
         {
           id: 'e1',
+          icon: 'server',
           label: 'Executor A',
           pattern: 'network',
           cols: 1,
@@ -33,6 +34,7 @@ export const broadcastJoin: Scene = {
         },
         {
           id: 'e2',
+          icon: 'server',
           label: 'Executor B',
           pattern: 'network',
           cols: 1,
@@ -43,6 +45,7 @@ export const broadcastJoin: Scene = {
         },
         {
           id: 'e3',
+          icon: 'server',
           label: 'Executor C',
           pattern: 'network',
           cols: 1,
@@ -60,8 +63,8 @@ export const broadcastJoin: Scene = {
       sub: 'the big partition is streamed through, and each row looks its key up in the table already beside it',
       cols: 2,
       children: [
-        { id: 'p-stream', label: 'stream the partition', pattern: 'service', sub: 'read once, in place' },
-        { id: 'p-lookup', label: 'one local lookup', pattern: 'service', sub: 'per row, against the local hash table' },
+        { id: 'p-stream', icon: 'waves', label: 'stream the partition', pattern: 'service', sub: 'read once, in place' },
+        { id: 'p-lookup', icon: 'hash', label: 'one local lookup', pattern: 'service', sub: 'per row, against the local hash table' },
       ],
     },
   ],

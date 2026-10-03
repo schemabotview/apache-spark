@@ -13,8 +13,8 @@ export const lineage: Scene = {
       flow: 'LR',
       children: [
         { id: 'l-file', label: 'the file', pattern: 'storage', sub: 'durable — the root' },
-        { id: 'l-1', label: 'filtered', pattern: 'service', sub: 'narrow' },
-        { id: 'l-2', label: 'mapped', pattern: 'service', sub: 'narrow' },
+        { id: 'l-1', icon: 'funnel', label: 'filtered', pattern: 'service', sub: 'narrow' },
+        { id: 'l-2', icon: 'swap', label: 'mapped', pattern: 'service', sub: 'narrow' },
         { id: 'l-3', label: 'grouped', pattern: 'warn', sub: 'wide' },
       ],
       edges: [
@@ -28,7 +28,6 @@ export const lineage: Scene = {
       framed: true,
       label: 'A machine dies',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'no replica exists — and none is needed',
     },
     {
@@ -38,8 +37,8 @@ export const lineage: Scene = {
       sub: 'only the lost partition is rebuilt — not the RDD, not the stage, not the job',
       cols: 3,
       children: [
-        { id: 'r-which', label: 'which parents fed it', pattern: 'network', sub: 'the graph already says' },
-        { id: 'r-redo', label: 'redo that path', pattern: 'network', sub: 'for that one partition' },
+        { id: 'r-which', icon: 'gitbranch', label: 'which parents fed it', pattern: 'network', sub: 'the graph already says' },
+        { id: 'r-redo', icon: 'repeat', label: 'redo that path', pattern: 'network', sub: 'for that one partition' },
         { id: 'r-done', label: 'carry on', pattern: 'service', sub: 'slower, not failed' },
       ],
     },

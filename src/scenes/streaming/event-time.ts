@@ -23,9 +23,9 @@ export const eventTime: Scene = {
       sub: 'every one of these is ordinary operations, not a malfunction — and each widens the gap',
       cols: 3,
       children: [
-        { id: 'g-mobile', label: 'a phone was offline', pattern: 'network', sub: 'events arrive hours late' },
-        { id: 'g-retry', label: 'a broker retried', pattern: 'network', sub: 'out of order, not just late' },
-        { id: 'g-restart', label: 'the job was restarted', pattern: 'network', sub: 'an hour of backlog, at once' },
+        { id: 'g-mobile', icon: 'plug', label: 'a phone was offline', pattern: 'network', sub: 'events arrive hours late' },
+        { id: 'g-retry', icon: 'repeat', label: 'a broker retried', pattern: 'network', sub: 'out of order, not just late' },
+        { id: 'g-restart', icon: 'power', label: 'the job was restarted', pattern: 'network', sub: 'an hour of backlog, at once' },
       ],
     },
     {

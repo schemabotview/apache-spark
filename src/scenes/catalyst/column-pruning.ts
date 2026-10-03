@@ -20,9 +20,9 @@ export const columnPruning: Scene = {
       sub: 'a wide event table — the other 197 columns are never mentioned anywhere in the plan',
       cols: 4,
       children: [
-        { id: 't-used1', label: 'dest', pattern: 'service', sub: 'used' },
-        { id: 't-used2', label: 'cnt', pattern: 'service', sub: 'used' },
-        { id: 't-used3', label: 'country', pattern: 'service', sub: 'used' },
+        { id: 't-used1', icon: 'circlecheck', label: 'dest', pattern: 'service', sub: 'used' },
+        { id: 't-used2', icon: 'circlecheck', label: 'cnt', pattern: 'service', sub: 'used' },
+        { id: 't-used3', icon: 'circlecheck', label: 'country', pattern: 'service', sub: 'used' },
         { id: 't-rest', label: '…197 more', pattern: 'warn', sub: 'never mentioned' },
       ],
     },
@@ -33,8 +33,8 @@ export const columnPruning: Scene = {
       sub: 'ReadSchema is the honest record of what will actually be read off disk',
       cols: 2,
       children: [
-        { id: 're-schema', label: 'ReadSchema: 3 fields', pattern: 'service', sub: 'struct<dest,cnt,country>' },
-        { id: 're-why', label: 'columnar formats deliver', pattern: 'service', sub: 'Parquet skips the other 197 entirely' },
+        { id: 're-schema', icon: 'braces', label: 'ReadSchema: 3 fields', pattern: 'service', sub: 'struct<dest,cnt,country>' },
+        { id: 're-why', icon: 'scissors', label: 'columnar formats deliver', pattern: 'service', sub: 'Parquet skips the other 197 entirely' },
       ],
     },
   ],

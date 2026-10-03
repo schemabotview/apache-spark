@@ -12,8 +12,8 @@ export const snapshotIsolation: Scene = {
       sub: 'read the log to version N, take the set of files it describes, and use that set for the whole query',
       cols: 2,
       children: [
-        { id: 'r-pin', label: 'pins version 7', pattern: 'service', sub: 'a fixed set of files' },
-        { id: 'r-scan', label: 'and reads only those', pattern: 'service', sub: 'for the entire query' },
+        { id: 'r-pin', icon: 'lock', label: 'pins version 7', pattern: 'service', sub: 'a fixed set of files' },
+        { id: 'r-scan', icon: 'search', label: 'and reads only those', pattern: 'service', sub: 'for the entire query' },
       ],
     },
     {
@@ -21,7 +21,7 @@ export const snapshotIsolation: Scene = {
       framed: true,
       label: 'A writer commits v8',
       pattern: 'network',
-      icon: 'edit',
+      icon: 'pencil',
       sub: 'and the running reader never sees any of it',
     },
     {
@@ -31,8 +31,8 @@ export const snapshotIsolation: Scene = {
       sub: 'writers stop needing a window when nobody is reading — the thing every nightly pipeline is scheduled around',
       cols: 2,
       children: [
-        { id: 'w-consistent', label: 'a consistent answer', pattern: 'service', sub: 'never half of two versions' },
-        { id: 'w-nolock', label: 'and no locking', pattern: 'service', sub: 'readers never block a writer' },
+        { id: 'w-consistent', icon: 'circlecheck', label: 'a consistent answer', pattern: 'service', sub: 'never half of two versions' },
+        { id: 'w-nolock', icon: 'dooropen', label: 'and no locking', pattern: 'service', sub: 'readers never block a writer' },
       ],
     },
   ],

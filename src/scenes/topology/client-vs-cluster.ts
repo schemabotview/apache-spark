@@ -34,8 +34,8 @@ export const clientVsCluster: Scene = {
       sub: 'the failure question is the decisive one: in client mode, closing your laptop kills the job',
       cols: 2,
       children: [
-        { id: 'ch-client', label: 'interactive work', pattern: 'network', sub: 'shells, notebooks — you need the output' },
-        { id: 'ch-cluster', label: 'anything scheduled', pattern: 'network', sub: 'survives your laptop, near the executors' },
+        { id: 'ch-client', icon: 'terminal', label: 'interactive work', pattern: 'network', sub: 'shells, notebooks — you need the output' },
+        { id: 'ch-cluster', icon: 'clock', label: 'anything scheduled', pattern: 'network', sub: 'survives your laptop, near the executors' },
       ],
     },
   ],

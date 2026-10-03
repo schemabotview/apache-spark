@@ -10,7 +10,7 @@ export const strategySwitch: Scene = {
       framed: true,
       label: 'Planned as a sort-merge join',
       pattern: 'warn',
-      icon: 'gitmerge',
+      icon: 'merge',
       sub: 'the right side ESTIMATED at 4 GB — with no statistics',
     },
     {
@@ -31,8 +31,8 @@ export const strategySwitch: Scene = {
       sub: 'the sort and the second shuffle are dropped — and a local shuffle reader avoids re-reading what is already there',
       cols: 2,
       children: [
-        { id: 'sw-new', label: 'BroadcastHashJoin', pattern: 'service', sub: 'ship 3 MB, join locally' },
-        { id: 'sw-saved', label: 'no sort, no second shuffle', pattern: 'service', sub: 'the expensive half, removed' },
+        { id: 'sw-new', icon: 'share', label: 'BroadcastHashJoin', pattern: 'service', sub: 'ship 3 MB, join locally' },
+        { id: 'sw-saved', icon: 'scissors', label: 'no sort, no second shuffle', pattern: 'service', sub: 'the expensive half, removed' },
       ],
     },
   ],

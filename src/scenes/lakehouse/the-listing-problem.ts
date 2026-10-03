@@ -33,7 +33,7 @@ export const theListingProblem: Scene = {
       framed: true,
       label: 'Which suggests the fix',
       pattern: 'service',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'stop asking storage what the table contains. Write it down.',
     },
   ],

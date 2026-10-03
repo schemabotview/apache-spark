@@ -21,9 +21,9 @@ export const howSparkChooses: Scene = {
       pattern: 'network',
       sub: 'Spark walks this list in order and stops — it is not choosing the cheapest, it is taking the first that applies',
       children: [
-        { id: 'r1', label: '1 · broadcast hash', pattern: 'network', sub: 'a hint, or a side under the threshold' },
-        { id: 'r2', label: '2 · shuffle hash', pattern: 'network', sub: 'a hint, or preferSortMergeJoin is off' },
-        { id: 'r3', label: '3 · sort-merge', pattern: 'network', sub: 'the keys are sortable — the usual answer' },
+        { id: 'r1', icon: 'share', label: '1 · broadcast hash', pattern: 'network', sub: 'a hint, or a side under the threshold' },
+        { id: 'r2', icon: 'hash', label: '2 · shuffle hash', pattern: 'network', sub: 'a hint, or preferSortMergeJoin is off' },
+        { id: 'r3', icon: 'merge', label: '3 · sort-merge', pattern: 'network', sub: 'the keys are sortable — the usual answer' },
       ],
       edges: [
         { source: 'r1', target: 'r2' },

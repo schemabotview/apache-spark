@@ -12,8 +12,8 @@ export const onKubernetes: Scene = {
       sub: 'spark-submit asks the K8s API server for a driver pod; the driver then requests its own executor pods',
       cols: 2,
       children: [
-        { id: 'p-driver', label: 'driver pod', pattern: 'service', sub: 'created first, requests the rest' },
-        { id: 'p-exec', label: 'executor pods', pattern: 'service', sub: 'one container each, created on demand' },
+        { id: 'p-driver', icon: 'box', label: 'driver pod', pattern: 'service', sub: 'created first, requests the rest' },
+        { id: 'p-exec', icon: 'boxes', label: 'executor pods', pattern: 'service', sub: 'one container each, created on demand' },
       ],
     },
     {
@@ -21,7 +21,7 @@ export const onKubernetes: Scene = {
       framed: true,
       label: 'Dynamic allocation',
       pattern: 'network',
-      icon: 'activity',
+      icon: 'gauge',
       sub: 'idle executors are handed back · new ones appear under load',
     },
     {

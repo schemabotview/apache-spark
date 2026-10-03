@@ -23,7 +23,7 @@ export const theTrigger: Scene = {
       id: 'note',
       label: 'availableNow: the missed one',
       pattern: 'network',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'a batch job that remembers where it stopped',
     },
   ],

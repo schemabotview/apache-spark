@@ -12,8 +12,8 @@ export const virtualCallProblem: Scene = {
       sub: 'each one calls next() on its child — the textbook design, and it is correct and general',
       flow: 'LR',
       children: [
-        { id: 'v-proj', label: 'Project.next()', pattern: 'network', sub: 'calls its child' },
-        { id: 'v-filt', label: 'Filter.next()', pattern: 'network', sub: 'calls its child' },
+        { id: 'v-proj', icon: 'table', label: 'Project.next()', pattern: 'network', sub: 'calls its child' },
+        { id: 'v-filt', icon: 'funnel', label: 'Filter.next()', pattern: 'network', sub: 'calls its child' },
         { id: 'v-scan', label: 'Scan.next()', pattern: 'storage', sub: 'returns a row' },
       ],
       edges: [

@@ -23,8 +23,8 @@ export const offHeap: Scene = {
       sub: 'allocated outside the JVM heap through Unsafe · spark.memory.offHeap.enabled + a size',
       cols: 2,
       children: [
-        { id: 'off-who', label: 'Spark manages it', pattern: 'service', sub: 'explicit allocate and free' },
-        { id: 'off-cost', label: 'the GC never sees it', pattern: 'service', sub: 'no tracing at all' },
+        { id: 'off-who', icon: 'wrench', label: 'Spark manages it', pattern: 'service', sub: 'explicit allocate and free' },
+        { id: 'off-cost', icon: 'trash', label: 'the GC never sees it', pattern: 'service', sub: 'no tracing at all' },
       ],
     },
     {
@@ -32,7 +32,6 @@ export const offHeap: Scene = {
       framed: true,
       label: 'And it is not a free win',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'two pools to size by hand · measure before enabling',
     },
   ],

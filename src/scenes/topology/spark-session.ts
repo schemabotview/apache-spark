@@ -33,9 +33,9 @@ export const sparkSession: Scene = {
       sub: 'a session is not a connection — it is the configuration and catalog your plans are built against',
       cols: 3,
       children: [
-        { id: 'h-conf', label: 'the configuration', pattern: 'network', sub: 'every spark.* setting' },
-        { id: 'h-cat', label: 'the catalog', pattern: 'network', sub: 'databases, tables, views' },
-        { id: 'h-sc', label: 'the SparkContext', pattern: 'network', sub: 'still there, underneath' },
+        { id: 'h-conf', icon: 'wrench', label: 'the configuration', pattern: 'network', sub: 'every spark.* setting' },
+        { id: 'h-cat', icon: 'database', label: 'the catalog', pattern: 'network', sub: 'databases, tables, views' },
+        { id: 'h-sc', icon: 'layers', label: 'the SparkContext', pattern: 'network', sub: 'still there, underneath' },
       ],
     },
   ],

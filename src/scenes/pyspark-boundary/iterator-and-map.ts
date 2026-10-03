@@ -10,7 +10,6 @@ export const iteratorAndMap: Scene = {
       framed: true,
       label: 'Setup runs per batch',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'load a 2 GB model inside one, and it loads once per batch',
     },
     {
@@ -20,8 +19,8 @@ export const iteratorAndMap: Scene = {
       sub: 'Iterator[pd.Series] → Iterator[pd.Series]: everything before the loop runs once per PARTITION',
       cols: 2,
       children: [
-        { id: 'i-setup', label: 'before the loop', pattern: 'service', sub: 'load the model · open a connection' },
-        { id: 'i-yield', label: 'inside the loop', pattern: 'service', sub: 'yield one result per batch' },
+        { id: 'i-setup', icon: 'plug', label: 'before the loop', pattern: 'service', sub: 'load the model · open a connection' },
+        { id: 'i-yield', icon: 'repeat', label: 'inside the loop', pattern: 'service', sub: 'yield one result per batch' },
       ],
     },
     {
@@ -31,8 +30,8 @@ export const iteratorAndMap: Scene = {
       sub: 'when a Series is the wrong shape because your function needs several columns at once',
       cols: 2,
       children: [
-        { id: 'w-map', label: 'mapInPandas', pattern: 'network', sub: 'DataFrame in, DataFrame out · any row count' },
-        { id: 'w-cog', label: 'applyInPandas', pattern: 'network', sub: 'one group at a time — beware skew' },
+        { id: 'w-map', icon: 'table', label: 'mapInPandas', pattern: 'network', sub: 'DataFrame in, DataFrame out · any row count' },
+        { id: 'w-cog', icon: 'boxes', label: 'applyInPandas', pattern: 'network', sub: 'one group at a time — beware skew' },
       ],
     },
   ],

@@ -10,7 +10,7 @@ export const downToRdds: Scene = {
       framed: true,
       label: 'The selected physical plan',
       pattern: 'service',
-      icon: 'gitmerge',
+      icon: 'merge',
       sub: 'still a tree of operators, not yet anything runnable',
     },
     {
@@ -20,8 +20,8 @@ export const downToRdds: Scene = {
       sub: 'a run of operators is compiled into ONE generated Java method — no operator-to-operator calls left',
       cols: 2,
       children: [
-        { id: 'cg-what', label: 'one fused loop', pattern: 'network', sub: 'scan + filter + project, together' },
-        { id: 'cg-see', label: 'the ★ in the plan', pattern: 'network', sub: 'marks a codegen stage' },
+        { id: 'cg-what', icon: 'merge', label: 'one fused loop', pattern: 'network', sub: 'scan + filter + project, together' },
+        { id: 'cg-see', icon: 'star', label: 'the ★ in the plan', pattern: 'network', sub: 'marks a codegen stage' },
       ],
     },
     {

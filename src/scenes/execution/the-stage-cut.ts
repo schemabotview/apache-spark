@@ -13,8 +13,8 @@ export const theStageCut: Scene = {
       flow: 'LR',
       children: [
         { id: 'sc', label: 'FileScan', pattern: 'storage', sub: '4 partitions', variant: 'tile' },
-        { id: 'fi', label: 'Filter', pattern: 'network', sub: 'narrow', variant: 'tile' },
-        { id: 'pr', label: 'Project', pattern: 'network', sub: 'narrow', variant: 'tile' },
+        { id: 'fi', icon: 'funnel', label: 'Filter', pattern: 'network', sub: 'narrow', variant: 'tile' },
+        { id: 'pr', icon: 'table', label: 'Project', pattern: 'network', sub: 'narrow', variant: 'tile' },
       ],
       edges: [
         { source: 'sc', target: 'fi' },

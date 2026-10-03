@@ -26,9 +26,9 @@ export const mapWrite: Scene = {
           sub: 'records sorted by destination id',
           cols: 3,
           children: [
-            { id: 'b0', label: '→ 0', pattern: 'network', variant: 'tile' },
-            { id: 'b1', label: '→ 1', pattern: 'network', variant: 'tile' },
-            { id: 'b199', label: '→ 199', pattern: 'network', variant: 'tile' },
+            { id: 'b0', icon: 'box', label: '→ 0', pattern: 'network', variant: 'tile' },
+            { id: 'b1', icon: 'box', label: '→ 1', pattern: 'network', variant: 'tile' },
+            { id: 'b199', icon: 'box', label: '→ 199', pattern: 'network', variant: 'tile' },
           ],
         },
         { id: 'spill', label: 'spill', pattern: 'warn', sub: 'buffer full → a sorted run goes to disk, buffer empties, repeat' },

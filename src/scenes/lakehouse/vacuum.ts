@@ -10,7 +10,7 @@ export const vacuum: Scene = {
       framed: true,
       label: 'Nothing has been deleted',
       pattern: 'service',
-      icon: 'archive',
+      icon: 'trash',
       sub: 'remove takes a file out of the TABLE, not off the disk',
     },
     {

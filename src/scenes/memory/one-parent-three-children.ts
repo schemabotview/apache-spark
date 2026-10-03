@@ -12,9 +12,9 @@ export const oneParentThreeChildren: Scene = {
       sub: 'an ordinary shape: read, clean, then answer three questions from the cleaned data',
       cols: 3,
       children: [
-        { id: 'c1', label: 'count()', pattern: 'network', sub: 'job 1' },
-        { id: 'c2', label: 'write(summary)', pattern: 'network', sub: 'job 2' },
-        { id: 'c3', label: 'write(detail)', pattern: 'network', sub: 'job 3' },
+        { id: 'c1', icon: 'sigma', label: 'count()', pattern: 'network', sub: 'job 1' },
+        { id: 'c2', icon: 'file', label: 'write(summary)', pattern: 'network', sub: 'job 2' },
+        { id: 'c3', icon: 'file', label: 'write(detail)', pattern: 'network', sub: 'job 3' },
       ],
     },
     {
@@ -32,8 +32,8 @@ export const oneParentThreeChildren: Scene = {
       sub: 'and this is the ONLY situation where caching reliably pays — a shared, expensive, reused parent',
       cols: 2,
       children: [
-        { id: 'wi-first', label: 'the first action fills it', pattern: 'service', sub: 'cache() is lazy — nothing happens before' },
-        { id: 'wi-rest', label: 'the rest read memory', pattern: 'service', sub: 'no re-read, no re-shuffle' },
+        { id: 'wi-first', icon: 'zap', label: 'the first action fills it', pattern: 'service', sub: 'cache() is lazy — nothing happens before' },
+        { id: 'wi-rest', icon: 'memory', label: 'the rest read memory', pattern: 'service', sub: 'no re-read, no re-shuffle' },
       ],
     },
   ],

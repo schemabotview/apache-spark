@@ -32,7 +32,7 @@ export const memoryEras: Scene = {
       framed: true,
       label: '"My cache disappeared"',
       pattern: 'service',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'a big join took the memory back — as designed',
     },
   ],

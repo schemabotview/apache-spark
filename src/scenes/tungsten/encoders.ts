@@ -21,8 +21,8 @@ export const encoders: Scene = {
       sub: 'generated code, both directions',
       cols: 1,
       children: [
-        { id: 'e-to', label: 'object → bytes', pattern: 'network', sub: 'field by field, into the layout' },
-        { id: 'e-from', label: 'bytes → object', pattern: 'network', sub: 'only when you actually ask' },
+        { id: 'e-to', icon: 'swap', label: 'object → bytes', pattern: 'network', sub: 'field by field, into the layout' },
+        { id: 'e-from', icon: 'swap', label: 'bytes → object', pattern: 'network', sub: 'only when you actually ask' },
       ],
     },
     {
@@ -30,7 +30,7 @@ export const encoders: Scene = {
       framed: true,
       label: 'UnsafeRow',
       pattern: 'service',
-      icon: 'binary',
+      icon: 'hash',
       sub: 'what the engine actually operates on',
     },
     {

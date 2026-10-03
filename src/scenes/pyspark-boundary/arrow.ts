@@ -10,7 +10,7 @@ export const arrow: Scene = {
       framed: true,
       label: 'Not a faster pickle',
       pattern: 'service',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'agree on ONE layout both sides read — stop converting',
     },
     {
@@ -20,9 +20,9 @@ export const arrow: Scene = {
       sub: 'the JVM writes an Arrow batch; pandas and NumPy read that same memory · spark.sql.execution.arrow.pyspark.enabled',
       cols: 3,
       children: [
-        { id: 'a-col', label: 'columnar, not row-wise', pattern: 'service', sub: 'a column at a time' },
-        { id: 'a-batch', label: 'batched', pattern: 'service', sub: '10,000 rows, not one' },
-        { id: 'a-shared', label: 'one layout, both sides', pattern: 'service', sub: 'no per-row conversion' },
+        { id: 'a-col', icon: 'table', label: 'columnar, not row-wise', pattern: 'service', sub: 'a column at a time' },
+        { id: 'a-batch', icon: 'package', label: 'batched', pattern: 'service', sub: '10,000 rows, not one' },
+        { id: 'a-shared', icon: 'share', label: 'one layout, both sides', pattern: 'service', sub: 'no per-row conversion' },
       ],
     },
     {
@@ -32,8 +32,8 @@ export const arrow: Scene = {
       sub: 'the transport cost stops scaling with your row count and starts scaling with your batch count',
       cols: 2,
       children: [
-        { id: 'e-amortise', label: 'one crossing per 10k rows', pattern: 'service', sub: 'not one per row' },
-        { id: 'e-vector', label: 'and your code vectorises', pattern: 'service', sub: 'NumPy on a whole column' },
+        { id: 'e-amortise', icon: 'swap', label: 'one crossing per 10k rows', pattern: 'service', sub: 'not one per row' },
+        { id: 'e-vector', icon: 'sigma', label: 'and your code vectorises', pattern: 'service', sub: 'NumPy on a whole column' },
       ],
     },
   ],

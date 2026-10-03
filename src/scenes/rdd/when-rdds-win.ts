@@ -10,7 +10,6 @@ export const whenRddsWin: Scene = {
       framed: true,
       label: 'The default is: do not',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'an RDD is opaque to the optimizer — you get exactly what you wrote',
     },
     {
@@ -32,9 +31,9 @@ export const whenRddsWin: Scene = {
       sub: 'each one is a thing the structured API genuinely cannot express, not a preference',
       cols: 3,
       children: [
-        { id: 'st-unstructured', label: 'truly unstructured input', pattern: 'service', sub: 'before any schema exists' },
-        { id: 'st-control', label: 'you need the partitioner', pattern: 'service', sub: 'custom placement, by hand' },
-        { id: 'st-lowlevel', label: 'per-partition control', pattern: 'service', sub: 'one connection per partition' },
+        { id: 'st-unstructured', icon: 'file', label: 'truly unstructured input', pattern: 'service', sub: 'before any schema exists' },
+        { id: 'st-control', icon: 'key', label: 'you need the partitioner', pattern: 'service', sub: 'custom placement, by hand' },
+        { id: 'st-lowlevel', icon: 'plug', label: 'per-partition control', pattern: 'service', sub: 'one connection per partition' },
       ],
     },
   ],

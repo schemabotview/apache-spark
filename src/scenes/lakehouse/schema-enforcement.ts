@@ -34,8 +34,8 @@ export const schemaEnforcement: Scene = {
       sub: 'constraints are the thing people arrive for and the thing they did not know they could have',
       cols: 2,
       children: [
-        { id: 'm-null', label: 'NOT NULL', pattern: 'service', sub: 'enforced on every write' },
-        { id: 'm-check', label: 'CHECK constraints', pattern: 'service', sub: 'amount > 0, and it means it' },
+        { id: 'm-null', icon: 'ban', label: 'NOT NULL', pattern: 'service', sub: 'enforced on every write' },
+        { id: 'm-check', icon: 'shieldcheck', label: 'CHECK constraints', pattern: 'service', sub: 'amount > 0, and it means it' },
       ],
     },
   ],

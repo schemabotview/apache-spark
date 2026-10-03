@@ -10,7 +10,7 @@ export const materializationPoints: Scene = {
       framed: true,
       label: 'A stage runs to completion',
       pattern: 'service',
-      icon: 'checkCircle',
+      icon: 'circlecheck',
       sub: 'every task done, every shuffle file written and closed',
     },
     {
@@ -20,9 +20,9 @@ export const materializationPoints: Scene = {
       sub: 'the shuffle files are on disk and have been measured — these are counts, not estimates',
       cols: 3,
       children: [
-        { id: 'k-bytes', label: 'bytes per partition', pattern: 'service', sub: 'all 200 of them, exactly' },
-        { id: 'k-rows', label: 'rows per partition', pattern: 'service', sub: 'so skew is now visible' },
-        { id: 'k-total', label: 'the real output size', pattern: 'service', sub: 'not the estimate from before' },
+        { id: 'k-bytes', icon: 'ruler', label: 'bytes per partition', pattern: 'service', sub: 'all 200 of them, exactly' },
+        { id: 'k-rows', icon: 'hash', label: 'rows per partition', pattern: 'service', sub: 'so skew is now visible' },
+        { id: 'k-total', icon: 'scale', label: 'the real output size', pattern: 'service', sub: 'not the estimate from before' },
       ],
     },
     {

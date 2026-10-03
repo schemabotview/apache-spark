@@ -33,7 +33,7 @@ export const theTransactionLog: Scene = {
       framed: true,
       label: 'The LOG is the table',
       pattern: 'service',
-      icon: 'bookOpen',
+      icon: 'scroll',
       sub: 'a file with no add entry is invisible, however real it is on disk',
     },
   ],

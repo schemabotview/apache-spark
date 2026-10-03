@@ -13,6 +13,7 @@ export const aRealLineage: Scene = {
       children: [
         {
           id: 'st0',
+          icon: 'layers',
           label: 'Stage 0',
           pattern: 'service',
           sub: '8 tasks — one per input partition',
@@ -26,18 +27,19 @@ export const aRealLineage: Scene = {
         { id: 'ex1', label: 'Exchange · by key', pattern: 'warn', sub: 'the groupBy' },
         {
           id: 'st1',
+          icon: 'layers',
           label: 'Stage 1',
           pattern: 'service',
           sub: '200 tasks — the shuffle default',
           flow: 'LR',
           children: [
-            { id: 'b-final', label: 'final agg', pattern: 'network', sub: 'one row per key', variant: 'tile' },
-            { id: 'b-local', label: 'local top 5', pattern: 'network', sub: 'per partition', variant: 'tile' },
+            { id: 'b-final', icon: 'sigma', label: 'final agg', pattern: 'network', sub: 'one row per key', variant: 'tile' },
+            { id: 'b-local', icon: 'sortarrows', label: 'local top 5', pattern: 'network', sub: 'per partition', variant: 'tile' },
           ],
           edges: [{ source: 'b-final', target: 'b-local' }],
         },
         { id: 'ex2', label: 'Exchange · to one', pattern: 'warn', sub: 'the sort + limit' },
-        { id: 'st2', label: 'Stage 2', pattern: 'service', sub: '1 task — merge 200 local top-5s, take 5' },
+        { id: 'st2', icon: 'layers', label: 'Stage 2', pattern: 'service', sub: '1 task — merge 200 local top-5s, take 5' },
       ],
       edges: [
         { source: 'st0', target: 'ex1' },

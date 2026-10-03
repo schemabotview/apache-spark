@@ -24,10 +24,10 @@ export const computeNotStorage: Scene = {
       sub: 'it reads and writes, and owns nothing long-term — the deliberate gap where a storage system goes',
       cols: 4,
       children: [
-        { id: 's-s3', label: 'S3 · ADLS · GCS', pattern: 'storage', sub: 'object storage' },
-        { id: 's-hdfs', label: 'HDFS', pattern: 'storage', sub: 'still supported' },
-        { id: 's-db', label: 'JDBC · Cassandra', pattern: 'storage', sub: 'databases' },
-        { id: 's-kafka', label: 'Kafka · Kinesis', pattern: 'storage', sub: 'message buses' },
+        { id: 's-s3', icon: 'cloud', label: 'S3 · ADLS · GCS', pattern: 'storage', sub: 'object storage' },
+        { id: 's-hdfs', icon: 'harddrive', label: 'HDFS', pattern: 'storage', sub: 'still supported' },
+        { id: 's-db', icon: 'database', label: 'JDBC · Cassandra', pattern: 'storage', sub: 'databases' },
+        { id: 's-kafka', icon: 'waves', label: 'Kafka · Kinesis', pattern: 'storage', sub: 'message buses' },
       ],
     },
     {

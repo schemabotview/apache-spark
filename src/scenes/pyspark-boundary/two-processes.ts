@@ -14,6 +14,7 @@ export const twoProcesses: Scene = {
       children: [
         {
           id: 'ex-a',
+          icon: 'server',
           label: 'Executor A',
           pattern: 'service',
           sub: 'one machine, two processes',
@@ -25,6 +26,7 @@ export const twoProcesses: Scene = {
         },
         {
           id: 'ex-b',
+          icon: 'server',
           label: 'Executor B',
           pattern: 'service',
           sub: 'same arrangement, every node',
@@ -41,7 +43,7 @@ export const twoProcesses: Scene = {
       framed: true,
       label: 'Your rows are in the JVM',
       pattern: 'service',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'every question in this course is: does a row have to leave it?',
     },
   ],

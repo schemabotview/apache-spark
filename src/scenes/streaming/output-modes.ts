@@ -22,7 +22,6 @@ export const outputModes: Scene = {
       id: 'trap',
       label: 'complete ends in tears',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'every key ever seen, held forever, rewritten each batch',
     },
   ],

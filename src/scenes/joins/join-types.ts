@@ -27,7 +27,7 @@ export const joinTypes: Scene = {
       id: 'note',
       label: 'The underused two',
       pattern: 'network',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'an EXISTS written as an inner join duplicates rows',
     },
   ],

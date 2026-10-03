@@ -10,7 +10,7 @@ export const whereItStops: Scene = {
       framed: true,
       label: 'Codegen must see inside',
       pattern: 'service',
-      icon: 'eye',
+      icon: 'search',
       sub: 'logic it cannot read, it cannot inline into the loop',
     },
     {
@@ -32,8 +32,8 @@ export const whereItStops: Scene = {
       sub: 'the cost is not only running your function — it is everything around it that now cannot be fused',
       cols: 2,
       children: [
-        { id: 'le-builtin', label: 'prefer a built-in', pattern: 'service', sub: 'it fuses; yours does not' },
-        { id: 'le-expr', label: 'or a SQL expression', pattern: 'service', sub: 'still a tree Spark can read' },
+        { id: 'le-builtin', icon: 'circlecheck', label: 'prefer a built-in', pattern: 'service', sub: 'it fuses; yours does not' },
+        { id: 'le-expr', icon: 'tree', label: 'or a SQL expression', pattern: 'service', sub: 'still a tree Spark can read' },
       ],
     },
   ],

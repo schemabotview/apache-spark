@@ -10,7 +10,7 @@ export const predicatePushdown: Scene = {
       framed: true,
       label: 'WHERE cnt > 5000',
       pattern: 'network',
-      icon: 'filter',
+      icon: 'funnel',
       sub: 'answered from statistics, before any row is read',
     },
     {

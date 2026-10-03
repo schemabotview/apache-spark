@@ -13,8 +13,8 @@ export const theBet: Scene = {
       sub: 'UC Berkeley AMPLab, 2009 — the distribution model was never the problem',
       cols: 2,
       children: [
-        { id: 'k-par', label: 'data parallelism', pattern: 'service', sub: 'partition it, run the same code on each' },
-        { id: 'k-ft', label: 'fault tolerance', pattern: 'service', sub: 'a node dies, the work is redone' },
+        { id: 'k-par', icon: 'layers', label: 'data parallelism', pattern: 'service', sub: 'partition it, run the same code on each' },
+        { id: 'k-ft', icon: 'shieldcheck', label: 'fault tolerance', pattern: 'service', sub: 'a node dies, the work is redone' },
       ],
     },
     {
@@ -32,9 +32,9 @@ export const theBet: Scene = {
       sub: 'not a faster MapReduce — a different set of things it is possible to write at all',
       cols: 3,
       children: [
-        { id: 'f-iter', label: 'iteration is cheap', pattern: 'network', sub: 'loop over cached data, not disk' },
-        { id: 'f-interactive', label: 'queries feel live', pattern: 'network', sub: 'seconds, not minutes' },
-        { id: 'f-lineage', label: 'and still fault-tolerant', pattern: 'network', sub: 'lineage replaces replication' },
+        { id: 'f-iter', icon: 'repeat', label: 'iteration is cheap', pattern: 'network', sub: 'loop over cached data, not disk' },
+        { id: 'f-interactive', icon: 'zap', label: 'queries feel live', pattern: 'network', sub: 'seconds, not minutes' },
+        { id: 'f-lineage', icon: 'gitbranch', label: 'and still fault-tolerant', pattern: 'network', sub: 'lineage replaces replication' },
       ],
     },
   ],

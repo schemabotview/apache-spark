@@ -22,6 +22,7 @@ export const theUdfCrossing: Scene = {
       children: [
         {
           id: 'e1',
+          icon: 'server',
           label: 'Executor A',
           pattern: 'service',
           sub: 'a socket between the two',
@@ -33,6 +34,7 @@ export const theUdfCrossing: Scene = {
         },
         {
           id: 'e2',
+          icon: 'server',
           label: 'Executor B',
           pattern: 'service',
           sub: 'and again, here',
@@ -49,7 +51,6 @@ export const theUdfCrossing: Scene = {
       framed: true,
       label: 'The closure gotcha',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'a UDF referencing a big local dict ships that dict to every task',
     },
   ],

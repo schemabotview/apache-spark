@@ -12,8 +12,8 @@ export const folderIsNotATable: Scene = {
       sub: 'excellent at being read — and that is the whole of what it is good at',
       cols: 2,
       children: [
-        { id: 'h-fast', label: 'fast to scan', pattern: 'service', sub: 'columnar, pruned, compressed' },
-        { id: 'h-open', label: 'readable by anything', pattern: 'service', sub: 'no vendor in the way' },
+        { id: 'h-fast', icon: 'zap', label: 'fast to scan', pattern: 'service', sub: 'columnar, pruned, compressed' },
+        { id: 'h-open', icon: 'dooropen', label: 'readable by anything', pattern: 'service', sub: 'no vendor in the way' },
       ],
     },
     {
@@ -34,7 +34,7 @@ export const folderIsNotATable: Scene = {
       framed: true,
       label: 'Structural, not an oversight',
       pattern: 'service',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'object storage has no transactions, and no coordinator',
     },
   ],

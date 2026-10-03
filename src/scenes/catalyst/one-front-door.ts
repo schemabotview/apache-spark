@@ -12,9 +12,9 @@ export const oneFrontDoor: Scene = {
       sub: 'people believe one of these is faster than the others — and on the structured APIs, none of them is',
       cols: 3,
       children: [
-        { id: 'w-sql', label: 'SQL', pattern: 'network', sub: 'SELECT dest, count(*) …' },
-        { id: 'w-df', label: 'DataFrame', pattern: 'network', sub: 'df.groupBy("dest").count()' },
-        { id: 'w-ds', label: 'Dataset', pattern: 'network', sub: 'typed, Scala and Java only' },
+        { id: 'w-sql', icon: 'database', label: 'SQL', pattern: 'network', sub: 'SELECT dest, count(*) …' },
+        { id: 'w-df', icon: 'table', label: 'DataFrame', pattern: 'network', sub: 'df.groupBy("dest").count()' },
+        { id: 'w-ds', icon: 'braces', label: 'Dataset', pattern: 'network', sub: 'typed, Scala and Java only' },
       ],
     },
     {
@@ -22,7 +22,7 @@ export const oneFrontDoor: Scene = {
       framed: true,
       label: 'One unresolved logical plan',
       pattern: 'service',
-      icon: 'gitmerge',
+      icon: 'merge',
       sub: 'the same tree, whichever door you came through',
     },
     {
@@ -32,8 +32,8 @@ export const oneFrontDoor: Scene = {
       sub: 'language and dialect are ergonomic choices, not performance ones — the optimizer never learns which you used',
       cols: 2,
       children: [
-        { id: 'y-lang', label: 'Python is not slower', pattern: 'service', sub: 'until you write a UDF' },
-        { id: 'y-sql', label: 'SQL is not slower', pattern: 'service', sub: 'nor faster — it is the same tree' },
+        { id: 'y-lang', icon: 'code', label: 'Python is not slower', pattern: 'service', sub: 'until you write a UDF' },
+        { id: 'y-sql', icon: 'tree', label: 'SQL is not slower', pattern: 'service', sub: 'nor faster — it is the same tree' },
       ],
     },
   ],

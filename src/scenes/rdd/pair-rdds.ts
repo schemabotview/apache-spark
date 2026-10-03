@@ -20,9 +20,9 @@ export const pairRdds: Scene = {
       sub: 'partitioning, grouping and joining are all "put the same key in the same place" — they need a key to exist',
       cols: 3,
       children: [
-        { id: 'u-group', label: 'groupByKey', pattern: 'network', sub: 'all values for one key, together' },
-        { id: 'u-reduce', label: 'reduceByKey', pattern: 'network', sub: 'combine them as they arrive' },
-        { id: 'u-join', label: 'join', pattern: 'network', sub: 'match keys across two collections' },
+        { id: 'u-group', icon: 'boxes', label: 'groupByKey', pattern: 'network', sub: 'all values for one key, together' },
+        { id: 'u-reduce', icon: 'sigma', label: 'reduceByKey', pattern: 'network', sub: 'combine them as they arrive' },
+        { id: 'u-join', icon: 'merge', label: 'join', pattern: 'network', sub: 'match keys across two collections' },
       ],
     },
     {

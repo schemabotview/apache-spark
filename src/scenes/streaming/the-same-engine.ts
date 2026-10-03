@@ -18,7 +18,7 @@ export const theSameEngine: Scene = {
       framed: true,
       label: 'Streaming',
       pattern: 'network',
-      icon: 'activity',
+      icon: 'gauge',
       sub: 'spark.readStream · the SAME line · df.writeStream',
     },
     {
@@ -28,9 +28,9 @@ export const theSameEngine: Scene = {
       sub: 'same parser, same analyzer, same Catalyst rules, same Tungsten codegen, same shuffle',
       cols: 3,
       children: [
-        { id: 's-cat', label: 'Catalyst', pattern: 'service', sub: 'the same optimizer' },
-        { id: 's-tun', label: 'Tungsten', pattern: 'service', sub: 'the same generated code' },
-        { id: 's-shuf', label: 'the same shuffle', pattern: 'service', sub: 'and the same skew problems' },
+        { id: 's-cat', icon: 'gears', label: 'Catalyst', pattern: 'service', sub: 'the same optimizer' },
+        { id: 's-tun', icon: 'code', label: 'Tungsten', pattern: 'service', sub: 'the same generated code' },
+        { id: 's-shuf', icon: 'swap', label: 'the same shuffle', pattern: 'service', sub: 'and the same skew problems' },
       ],
     },
   ],

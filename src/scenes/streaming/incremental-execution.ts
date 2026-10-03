@@ -20,9 +20,9 @@ export const incrementalExecution: Scene = {
       sub: 'a count per key, updated by the new rows — the answer is the same, the work is proportional to what arrived',
       cols: 3,
       children: [
-        { id: 'r-old', label: 'state: dest → 1,204', pattern: 'service', sub: 'what the last batch left' },
+        { id: 'r-old', icon: 'memory', label: 'state: dest → 1,204', pattern: 'service', sub: 'what the last batch left' },
         { id: 'r-new', label: '+ 17 new rows', pattern: 'network', sub: 'this batch’s input' },
-        { id: 'r-out', label: '= 1,221', pattern: 'service', sub: 'and the state is updated' },
+        { id: 'r-out', icon: 'sigma', label: '= 1,221', pattern: 'service', sub: 'and the state is updated' },
       ],
     },
     {

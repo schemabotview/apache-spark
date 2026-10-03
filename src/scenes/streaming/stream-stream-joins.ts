@@ -10,7 +10,6 @@ export const streamStreamJoins: Scene = {
       framed: true,
       label: 'No side can be the build',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'neither is finished — a match may not have arrived yet',
     },
     {
@@ -20,8 +19,8 @@ export const streamStreamJoins: Scene = {
       sub: 'every unmatched row is kept, in case its partner turns up — and without a bound, that is every row forever',
       cols: 2,
       children: [
-        { id: 'b-left', label: 'the left side, buffered', pattern: 'network', sub: 'waiting for matches' },
-        { id: 'b-right', label: 'the right side, buffered', pattern: 'network', sub: 'waiting for matches' },
+        { id: 'b-left', icon: 'layers', label: 'the left side, buffered', pattern: 'network', sub: 'waiting for matches' },
+        { id: 'b-right', icon: 'layers', label: 'the right side, buffered', pattern: 'network', sub: 'waiting for matches' },
       ],
     },
     {
@@ -31,8 +30,8 @@ export const streamStreamJoins: Scene = {
       sub: 'together they put a ceiling on how long a row can usefully be kept — and so on the state',
       cols: 2,
       children: [
-        { id: 'n-wm', label: 'a watermark on BOTH sides', pattern: 'service', sub: 'how late each may be' },
-        { id: 'n-time', label: 'and a time bound in the ON', pattern: 'service', sub: 'clicks within an hour of the impression' },
+        { id: 'n-wm', icon: 'clock', label: 'a watermark on BOTH sides', pattern: 'service', sub: 'how late each may be' },
+        { id: 'n-time', icon: 'ruler', label: 'and a time bound in the ON', pattern: 'service', sub: 'clicks within an hour of the impression' },
       ],
     },
   ],

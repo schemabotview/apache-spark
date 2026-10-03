@@ -23,7 +23,6 @@ export const theObjectTax: Scene = {
       framed: true,
       label: 'Multiply by a billion rows',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: '~48 bytes to store 3 · each a separate heap object',
     },
     {

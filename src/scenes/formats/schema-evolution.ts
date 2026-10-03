@@ -12,8 +12,8 @@ export const schemaEvolution: Scene = {
       sub: 'Parquet matches columns by NAME, not by position — which is what makes these safe',
       cols: 2,
       children: [
-        { id: 'sa-add', label: 'add a column', pattern: 'service', sub: 'old files read it as null' },
-        { id: 'sa-reorder', label: 'reorder columns', pattern: 'service', sub: 'position was never load-bearing' },
+        { id: 'sa-add', icon: 'circlecheck', label: 'add a column', pattern: 'service', sub: 'old files read it as null' },
+        { id: 'sa-reorder', icon: 'sortarrows', label: 'reorder columns', pattern: 'service', sub: 'position was never load-bearing' },
       ],
     },
     {
@@ -33,7 +33,6 @@ export const schemaEvolution: Scene = {
       framed: true,
       label: 'mergeSchema: off, rightly',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'it reads EVERY footer — ruinous for a million files',
     },
   ],

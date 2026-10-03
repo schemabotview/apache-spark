@@ -22,7 +22,7 @@ export const theThree: Scene = {
       id: 'advice',
       label: 'And the honest advice',
       pattern: 'network',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'the mechanism matters; the choice rarely does',
     },
   ],

@@ -12,8 +12,8 @@ export const whatEvictionDoes: Scene = {
       sub: 'a partition is never half-cached — the unit that arrives is the unit that leaves',
       cols: 2,
       children: [
-        { id: 'l-unit', label: 'the unit is a partition', pattern: 'network', sub: 'not a row, not a block of rows' },
-        { id: 'l-order', label: 'least recently used first', pattern: 'network', sub: 'across everything cached' },
+        { id: 'l-unit', icon: 'layers', label: 'the unit is a partition', pattern: 'network', sub: 'not a row, not a block of rows' },
+        { id: 'l-order', icon: 'clock', label: 'least recently used first', pattern: 'network', sub: 'across everything cached' },
       ],
     },
     {
@@ -32,7 +32,6 @@ export const whatEvictionDoes: Scene = {
       framed: true,
       label: 'The thrash',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'too big to fit → evict, recompute, evict, recompute',
     },
   ],

@@ -23,9 +23,9 @@ export const encodingCompression: Scene = {
       sub: 'each exploits a property a COLUMN has and a row never does — repetition, ordering, narrow range',
       cols: 3,
       children: [
-        { id: 'e-dict', label: 'dictionary', pattern: 'service', sub: '"United States" → 0, stored once' },
-        { id: 'e-rle', label: 'run-length', pattern: 'service', sub: '0,0,0,0,0 → (0 × 5)' },
-        { id: 'e-delta', label: 'delta', pattern: 'service', sub: 'store differences, not values' },
+        { id: 'e-dict', icon: 'tag', label: 'dictionary', pattern: 'service', sub: '"United States" → 0, stored once' },
+        { id: 'e-rle', icon: 'repeat', label: 'run-length', pattern: 'service', sub: '0,0,0,0,0 → (0 × 5)' },
+        { id: 'e-delta', icon: 'sigma', label: 'delta', pattern: 'service', sub: 'store differences, not values' },
       ],
     },
     {

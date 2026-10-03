@@ -23,9 +23,9 @@ export const whyLazyPays: Scene = {
       sub: 'the filter is pushed into the scan, so the rows are never read in the first place',
       cols: 3,
       children: [
-        { id: 'l-push', label: 'predicate pushdown', pattern: 'service', sub: 'the filter moves into the read' },
-        { id: 'l-prune', label: 'column pruning', pattern: 'service', sub: 'read 3 columns, not 200' },
-        { id: 'l-fuse', label: 'operator fusion', pattern: 'service', sub: 'ten steps become one pass' },
+        { id: 'l-push', icon: 'funnel', label: 'predicate pushdown', pattern: 'service', sub: 'the filter moves into the read' },
+        { id: 'l-prune', icon: 'scissors', label: 'column pruning', pattern: 'service', sub: 'read 3 columns, not 200' },
+        { id: 'l-fuse', icon: 'merge', label: 'operator fusion', pattern: 'service', sub: 'ten steps become one pass' },
       ],
     },
     {
@@ -33,7 +33,6 @@ export const whyLazyPays: Scene = {
       framed: true,
       label: 'The price you pay for it',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'errors surface at the action, far from the line that caused them',
     },
   ],

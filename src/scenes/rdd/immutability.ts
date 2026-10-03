@@ -13,8 +13,8 @@ export const immutability: Scene = {
       flow: 'LR',
       children: [
         { id: 'a', label: 'rddA', pattern: 'storage', sub: 'read from a file' },
-        { id: 'b', label: 'rddB', pattern: 'service', sub: '= rddA, filtered' },
-        { id: 'c', label: 'rddC', pattern: 'service', sub: '= rddB, mapped' },
+        { id: 'b', icon: 'funnel', label: 'rddB', pattern: 'service', sub: '= rddA, filtered' },
+        { id: 'c', icon: 'swap', label: 'rddC', pattern: 'service', sub: '= rddB, mapped' },
       ],
       edges: [
         { source: 'a', target: 'b' },
@@ -28,9 +28,9 @@ export const immutability: Scene = {
       sub: 'three properties that are hard to retrofit and free if you start here',
       cols: 3,
       children: [
-        { id: 'bu-safe', label: 'no locking needed', pattern: 'network', sub: 'nothing can be written concurrently' },
-        { id: 'bu-redo', label: 'safely recomputable', pattern: 'network', sub: 'the same inputs give the same answer' },
-        { id: 'bu-share', label: 'freely shareable', pattern: 'network', sub: 'two branches can read one parent' },
+        { id: 'bu-safe', icon: 'lock', label: 'no locking needed', pattern: 'network', sub: 'nothing can be written concurrently' },
+        { id: 'bu-redo', icon: 'repeat', label: 'safely recomputable', pattern: 'network', sub: 'the same inputs give the same answer' },
+        { id: 'bu-share', icon: 'share', label: 'freely shareable', pattern: 'network', sub: 'two branches can read one parent' },
       ],
     },
   ],

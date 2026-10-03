@@ -24,8 +24,8 @@ export const compaction: Scene = {
       cols: 3,
       children: [
         { id: 'f-read', label: 'read 1000 small', pattern: 'network', sub: 'the current file set' },
-        { id: 'f-write', label: 'write 10 large', pattern: 'service', sub: 'the same rows' },
-        { id: 'f-commit', label: 'one entry: add + remove', pattern: 'service', sub: 'atomic, as ever' },
+        { id: 'f-write', icon: 'package', label: 'write 10 large', pattern: 'service', sub: 'the same rows' },
+        { id: 'f-commit', icon: 'circlecheck', label: 'one entry: add + remove', pattern: 'service', sub: 'atomic, as ever' },
       ],
     },
     {
@@ -33,7 +33,7 @@ export const compaction: Scene = {
       framed: true,
       label: 'And readers are undisturbed',
       pattern: 'service',
-      icon: 'shield',
+      icon: 'shieldcheck',
       sub: 'a running query keeps its version — nothing is deleted yet',
     },
   ],

@@ -29,9 +29,9 @@ export const skew: Scene = {
       sub: 'same code, same memory, same executor class — the only difference is how many rows arrived',
       cols: 4,
       children: [
-        { id: 't-5', label: 'task 5', pattern: 'service', sub: '1.2M rows · 9 s' },
-        { id: 't-6', label: 'task 6', pattern: 'service', sub: '1.1M rows · 8 s' },
-        { id: 't-7', label: 'task 7', pattern: 'service', sub: '1.3M rows · 11 s' },
+        { id: 't-5', icon: 'clock', label: 'task 5', pattern: 'service', sub: '1.2M rows · 9 s' },
+        { id: 't-6', icon: 'clock', label: 'task 6', pattern: 'service', sub: '1.1M rows · 8 s' },
+        { id: 't-7', icon: 'clock', label: 'task 7', pattern: 'service', sub: '1.3M rows · 11 s' },
         { id: 't-8', label: 'task 8', pattern: 'warn', sub: '412M rows · 1 h 20 m · then OOM' },
       ],
     },

@@ -12,10 +12,10 @@ export const theDriver: Scene = {
       sub: 'your main() runs here — every transformation you write builds a plan in this one process',
       cols: 4,
       children: [
-        { id: 'r-plan', label: 'builds the plan', pattern: 'network', sub: 'logical → physical' },
-        { id: 'r-split', label: 'cuts it into stages', pattern: 'network', sub: 'at every shuffle' },
-        { id: 'r-assign', label: 'assigns tasks', pattern: 'network', sub: 'to free slots, near the data' },
-        { id: 'r-collect', label: 'collects results', pattern: 'network', sub: 'and this is the danger' },
+        { id: 'r-plan', icon: 'workflow', label: 'builds the plan', pattern: 'network', sub: 'logical → physical' },
+        { id: 'r-split', icon: 'scissors', label: 'cuts it into stages', pattern: 'network', sub: 'at every shuffle' },
+        { id: 'r-assign', icon: 'share', label: 'assigns tasks', pattern: 'network', sub: 'to free slots, near the data' },
+        { id: 'r-collect', icon: 'funnel', label: 'collects results', pattern: 'network', sub: 'and this is the danger' },
       ],
     },
     {
@@ -23,7 +23,6 @@ export const theDriver: Scene = {
       framed: true,
       label: 'One process, no backup',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'the driver dies → the whole application dies, executors included',
     },
     {

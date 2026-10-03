@@ -10,7 +10,7 @@ export const windows: Scene = {
       framed: true,
       label: 'A bounded question',
       pattern: 'service',
-      icon: 'crop',
+      icon: 'scissors',
       sub: '"how many?" has no answer · "how many by 09:10?" does',
     },
     {
@@ -21,8 +21,8 @@ export const windows: Scene = {
       cols: 3,
       children: [
         { id: 'k-tumb', label: 'tumbling', pattern: 'service', sub: 'fixed, no overlap · one window per row' },
-        { id: 'k-slide', label: 'sliding', pattern: 'network', sub: 'overlapping · a row counts in several' },
-        { id: 'k-sess', label: 'session', pattern: 'network', sub: 'grows with activity, closes on a gap' },
+        { id: 'k-slide', icon: 'copy', label: 'sliding', pattern: 'network', sub: 'overlapping · a row counts in several' },
+        { id: 'k-sess', icon: 'dooropen', label: 'session', pattern: 'network', sub: 'grows with activity, closes on a gap' },
       ],
     },
     {

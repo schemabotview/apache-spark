@@ -24,14 +24,15 @@ export const threeProcesses: Scene = {
       children: [
         {
           id: 'driver',
+          icon: 'brain',
           label: '1 · Driver',
           pattern: 'service',
           sub: 'one per application · decides, never works',
           cols: 1,
           children: [
-            { id: 'd-plan', label: 'holds the DAG', pattern: 'network', sub: 'the whole plan lives here' },
-            { id: 'd-sched', label: 'schedules tasks', pattern: 'network', sub: 'who does what, when' },
-            { id: 'd-state', label: 'tracks everything', pattern: 'network', sub: 'which task, which executor' },
+            { id: 'd-plan', icon: 'workflow', label: 'holds the DAG', pattern: 'network', sub: 'the whole plan lives here' },
+            { id: 'd-sched', icon: 'clock', label: 'schedules tasks', pattern: 'network', sub: 'who does what, when' },
+            { id: 'd-state', icon: 'monitor', label: 'tracks everything', pattern: 'network', sub: 'which task, which executor' },
           ],
         },
         {
@@ -47,14 +48,15 @@ export const threeProcesses: Scene = {
         },
         {
           id: 'executors',
+          icon: 'server',
           label: '3 · Executors',
           pattern: 'service',
           sub: 'JVMs · work, never decide',
           cols: 1,
           children: [
-            { id: 'x1', label: 'Executor 1', pattern: 'network', sub: '4 cores = 4 task slots' },
-            { id: 'x2', label: 'Executor 2', pattern: 'network', sub: '4 cores = 4 task slots' },
-            { id: 'x-cache', label: 'and cached data', pattern: 'network', sub: 'held between operations' },
+            { id: 'x1', icon: 'cpu', label: 'Executor 1', pattern: 'network', sub: '4 cores = 4 task slots' },
+            { id: 'x2', icon: 'cpu', label: 'Executor 2', pattern: 'network', sub: '4 cores = 4 task slots' },
+            { id: 'x-cache', icon: 'memory', label: 'and cached data', pattern: 'network', sub: 'held between operations' },
           ],
         },
       ],
@@ -66,9 +68,9 @@ export const threeProcesses: Scene = {
       sub: 'a loop, not a line — which is exactly why it is numbered here rather than drawn as arrows',
       cols: 3,
       children: [
-        { id: 't-1', label: '1 · driver → manager', pattern: 'network', sub: 'asks for resources' },
-        { id: 't-2', label: '2 · manager → executors', pattern: 'network', sub: 'launches them' },
-        { id: 't-3', label: '3 · executors → driver', pattern: 'network', sub: 'heartbeats, and results' },
+        { id: 't-1', icon: 'share', label: '1 · driver → manager', pattern: 'network', sub: 'asks for resources' },
+        { id: 't-2', icon: 'power', label: '2 · manager → executors', pattern: 'network', sub: 'launches them' },
+        { id: 't-3', icon: 'waves', label: '3 · executors → driver', pattern: 'network', sub: 'heartbeats, and results' },
       ],
     },
     {
@@ -76,7 +78,7 @@ export const threeProcesses: Scene = {
       framed: true,
       label: 'The sentence worth keeping',
       pattern: 'service',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'the driver decides and never works; executors do the reverse',
     },
   ],

@@ -23,7 +23,6 @@ export const nestedLoop: Scene = {
       framed: true,
       label: 'Every row × every row',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: '1M × 1M = 1,000,000,000,000 comparisons',
     },
     {
@@ -33,8 +32,8 @@ export const nestedLoop: Scene = {
       sub: 'the condition is genuinely non-equi — so make the inner side small instead of making it go away',
       cols: 2,
       children: [
-        { id: 'l-bnlj', label: 'broadcast the small side', pattern: 'service', sub: 'O(n×m) but with zero shuffle' },
-        { id: 'l-prefilter', label: 'add an equi-key', pattern: 'service', sub: 'join on the day, then filter the range' },
+        { id: 'l-bnlj', icon: 'share', label: 'broadcast the small side', pattern: 'service', sub: 'O(n×m) but with zero shuffle' },
+        { id: 'l-prefilter', icon: 'key', label: 'add an equi-key', pattern: 'service', sub: 'join on the day, then filter the range' },
       ],
     },
   ],

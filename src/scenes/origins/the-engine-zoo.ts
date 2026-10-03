@@ -14,12 +14,12 @@ export const theEngineZoo: Scene = {
       sub: 'a separate API, a separate cluster to operate, a separate failure model, and a separate set of people who know it',
       cols: 3,
       children: [
-        { id: 'z-hive', label: 'Hive', pattern: 'network', sub: 'SQL over MapReduce' },
-        { id: 'z-storm', label: 'Storm', pattern: 'network', sub: 'stream processing' },
-        { id: 'z-impala', label: 'Impala', pattern: 'network', sub: 'interactive SQL' },
-        { id: 'z-giraph', label: 'Giraph', pattern: 'network', sub: 'graph processing' },
-        { id: 'z-mahout', label: 'Mahout', pattern: 'network', sub: 'machine learning' },
-        { id: 'z-drill', label: 'Drill', pattern: 'network', sub: 'ad-hoc queries' },
+        { id: 'z-hive', icon: 'database', label: 'Hive', pattern: 'network', sub: 'SQL over MapReduce' },
+        { id: 'z-storm', icon: 'waves', label: 'Storm', pattern: 'network', sub: 'stream processing' },
+        { id: 'z-impala', icon: 'zap', label: 'Impala', pattern: 'network', sub: 'interactive SQL' },
+        { id: 'z-giraph', icon: 'share', label: 'Giraph', pattern: 'network', sub: 'graph processing' },
+        { id: 'z-mahout', icon: 'brain', label: 'Mahout', pattern: 'network', sub: 'machine learning' },
+        { id: 'z-drill', icon: 'search', label: 'Drill', pattern: 'network', sub: 'ad-hoc queries' },
       ],
     },
     {

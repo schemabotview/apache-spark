@@ -14,8 +14,8 @@ export const theOffsetLog: Scene = {
       children: [
         { id: 'd-off', label: 'offsets/', pattern: 'warn', sub: 'what this batch WILL process — written first' },
         { id: 'd-com', label: 'commits/', pattern: 'service', sub: 'what a batch DID process — written after' },
-        { id: 'd-state', label: 'state/', pattern: 'network', sub: 'the running aggregates' },
-        { id: 'd-meta', label: 'metadata', pattern: 'network', sub: 'the query id' },
+        { id: 'd-state', icon: 'memory', label: 'state/', pattern: 'network', sub: 'the running aggregates' },
+        { id: 'd-meta', icon: 'tag', label: 'metadata', pattern: 'network', sub: 'the query id' },
       ],
     },
     {
@@ -34,7 +34,7 @@ export const theOffsetLog: Scene = {
       framed: true,
       label: 'Replay, not guesswork',
       pattern: 'service',
-      icon: 'rotateCcw',
+      icon: 'history',
       sub: 'restart reprocesses exactly the batch that was in flight',
     },
   ],

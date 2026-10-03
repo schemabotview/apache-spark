@@ -13,9 +13,9 @@ export const theSingleMachine: Scene = {
       sub: 'each year the same code ran faster, because each year the clock went up — nobody had to do anything',
       cols: 3,
       children: [
-        { id: 'y1', label: '1995 · 100 MHz', pattern: 'service', sub: 'same code' },
-        { id: 'y2', label: '2000 · 1 GHz', pattern: 'service', sub: 'same code, 10× faster' },
-        { id: 'y3', label: '2005 · 3 GHz', pattern: 'service', sub: 'and then it stopped' },
+        { id: 'y1', icon: 'calendar', label: '1995 · 100 MHz', pattern: 'service', sub: 'same code' },
+        { id: 'y2', icon: 'calendar', label: '2000 · 1 GHz', pattern: 'service', sub: 'same code, 10× faster' },
+        { id: 'y3', icon: 'calendar', label: '2005 · 3 GHz', pattern: 'service', sub: 'and then it stopped' },
       ],
     },
     {
@@ -23,7 +23,6 @@ export const theSingleMachine: Scene = {
       framed: true,
       label: 'Heat, not ambition',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'clock speed stalled — power and heat scale faster than it does',
     },
     {
@@ -33,8 +32,8 @@ export const theSingleMachine: Scene = {
       sub: 'more cores at the same speed — which means nothing gets faster unless the program is rewritten to use them',
       cols: 2,
       children: [
-        { id: 'a-cores', label: 'more cores', pattern: 'network', sub: 'then more machines' },
-        { id: 'a-cost', label: 'the cost moved', pattern: 'network', sub: 'to you, into the program' },
+        { id: 'a-cores', icon: 'cpu', label: 'more cores', pattern: 'network', sub: 'then more machines' },
+        { id: 'a-cost', icon: 'receipt', label: 'the cost moved', pattern: 'network', sub: 'to you, into the program' },
       ],
     },
   ],

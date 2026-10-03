@@ -10,7 +10,6 @@ export const updatesAndDeletes: Scene = {
       framed: true,
       label: 'Parquet is immutable',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'no byte changes in place — the file must be replaced',
     },
     {

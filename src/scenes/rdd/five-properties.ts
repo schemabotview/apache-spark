@@ -24,8 +24,8 @@ export const fiveProperties: Scene = {
       sub: 'both are hints to the scheduler — they change how the work is placed, never what it computes',
       cols: 2,
       children: [
-        { id: 'p-partitioner', label: 'a partitioner', pattern: 'network', sub: 'how keys map to partitions, if keyed' },
-        { id: 'p-locality', label: 'preferred locations', pattern: 'network', sub: 'where each partition would rather run' },
+        { id: 'p-partitioner', icon: 'key', label: 'a partitioner', pattern: 'network', sub: 'how keys map to partitions, if keyed' },
+        { id: 'p-locality', icon: 'server', label: 'preferred locations', pattern: 'network', sub: 'where each partition would rather run' },
       ],
     },
     {
@@ -33,7 +33,7 @@ export const fiveProperties: Scene = {
       framed: true,
       label: 'That is the whole of it',
       pattern: 'service',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'every famous Spark behaviour falls out of one of these five',
     },
   ],

@@ -21,8 +21,8 @@ export const rulesToFixpoint: Scene = {
       flow: 'LR',
       children: [
         { id: 'f-1', label: '(2 + 3) * cnt > 100', pattern: 'warn', sub: 'as written' },
-        { id: 'f-2', label: '5 * cnt > 100', pattern: 'service', sub: 'folded once' },
-        { id: 'f-3', label: 'no literals left', pattern: 'service', sub: 'the rule stops changing it' },
+        { id: 'f-2', icon: 'sigma', label: '5 * cnt > 100', pattern: 'service', sub: 'folded once' },
+        { id: 'f-3', icon: 'circlecheck', label: 'no literals left', pattern: 'service', sub: 'the rule stops changing it' },
       ],
       edges: [
         { source: 'f-1', target: 'f-2' },
@@ -36,8 +36,8 @@ export const rulesToFixpoint: Scene = {
       sub: 'a batch repeats until a pass changes nothing — because one rule firing often exposes work for another',
       cols: 2,
       children: [
-        { id: 'ba-why', label: 'why repeat', pattern: 'network', sub: 'folding a constant can enable a pushdown' },
-        { id: 'ba-stop', label: 'and why it stops', pattern: 'network', sub: 'a pass with no change, or maxIterations' },
+        { id: 'ba-why', icon: 'repeat', label: 'why repeat', pattern: 'network', sub: 'folding a constant can enable a pushdown' },
+        { id: 'ba-stop', icon: 'circleslash', label: 'and why it stops', pattern: 'network', sub: 'a pass with no change, or maxIterations' },
       ],
     },
   ],

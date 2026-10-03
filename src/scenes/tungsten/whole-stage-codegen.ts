@@ -20,9 +20,9 @@ export const wholeStageCodegen: Scene = {
       sub: 'one loop, with the filter and the projection inlined into it — the operators no longer exist as objects',
       cols: 1,
       children: [
-        { id: 'g-loop', label: 'while (scan.hasNext())', pattern: 'network', sub: 'one loop for the whole stage' },
-        { id: 'g-inline', label: 'if (country == "IN")', pattern: 'network', sub: 'the Filter, inlined' },
-        { id: 'g-emit', label: 'emit(dest, cnt)', pattern: 'network', sub: 'the Project, inlined' },
+        { id: 'g-loop', icon: 'repeat', label: 'while (scan.hasNext())', pattern: 'network', sub: 'one loop for the whole stage' },
+        { id: 'g-inline', icon: 'funnel', label: 'if (country == "IN")', pattern: 'network', sub: 'the Filter, inlined' },
+        { id: 'g-emit', icon: 'table', label: 'emit(dest, cnt)', pattern: 'network', sub: 'the Project, inlined' },
       ],
     },
     {
@@ -32,9 +32,9 @@ export const wholeStageCodegen: Scene = {
       sub: 'a hand-written loop is what the JIT compiler is best at, and this is now a hand-written loop',
       cols: 3,
       children: [
-        { id: 'w-calls', label: 'no virtual calls', pattern: 'service', sub: 'nothing left to dispatch' },
-        { id: 'w-rows', label: 'no intermediate rows', pattern: 'service', sub: 'values stay in CPU registers' },
-        { id: 'w-jit', label: 'the JIT can optimize it', pattern: 'service', sub: 'unroll, vectorise, inline' },
+        { id: 'w-calls', icon: 'ban', label: 'no virtual calls', pattern: 'service', sub: 'nothing left to dispatch' },
+        { id: 'w-rows', icon: 'cpu', label: 'no intermediate rows', pattern: 'service', sub: 'values stay in CPU registers' },
+        { id: 'w-jit', icon: 'zap', label: 'the JIT can optimize it', pattern: 'service', sub: 'unroll, vectorise, inline' },
       ],
     },
   ],

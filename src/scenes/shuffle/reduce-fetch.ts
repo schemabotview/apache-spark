@@ -16,9 +16,9 @@ export const reduceFetch: Scene = {
       pattern: 'storage',
       sub: 'each holds one slice for this reducer — and a reducer must have them all before it can finish',
       children: [
-        { id: 'm-0', label: 'map task 0', pattern: 'storage', sub: 'slice 7 · 40 MB' },
-        { id: 'm-1', label: 'map task 1', pattern: 'storage', sub: 'slice 7 · 38 MB' },
-        { id: 'm-n', label: 'map task 399', pattern: 'storage', sub: 'slice 7 · 41 MB' },
+        { id: 'm-0', icon: 'file', label: 'map task 0', pattern: 'storage', sub: 'slice 7 · 40 MB' },
+        { id: 'm-1', icon: 'file', label: 'map task 1', pattern: 'storage', sub: 'slice 7 · 38 MB' },
+        { id: 'm-n', icon: 'file', label: 'map task 399', pattern: 'storage', sub: 'slice 7 · 41 MB' },
       ],
     },
     {
@@ -28,9 +28,9 @@ export const reduceFetch: Scene = {
       sub: 'one task · 400 inbound streams · ~16 GB to pull through',
       children: [
         { id: 'fetch', label: 'fetch', pattern: 'network', icon: 'router', sub: 'a few blocks in flight at a time, not all 400' },
-        { id: 'mem', label: 'execution memory', pattern: 'service', sub: 'shared with every task on the executor' },
+        { id: 'mem', icon: 'memory', label: 'execution memory', pattern: 'service', sub: 'shared with every task on the executor' },
         { id: 'spill-r', label: 'spill to disk', pattern: 'warn', sub: 'does not fit → sorted runs go out, and get read back' },
-        { id: 'merge', label: 'merge + aggregate', pattern: 'service', sub: 'the actual groupBy, finally' },
+        { id: 'merge', icon: 'merge', label: 'merge + aggregate', pattern: 'service', sub: 'the actual groupBy, finally' },
       ],
       edges: [
         { source: 'fetch', target: 'mem' },

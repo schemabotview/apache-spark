@@ -12,8 +12,8 @@ export const theStateStore: Scene = {
       sub: 'partitioned by the grouping key, versioned per batch, and written to the checkpoint so a restart can resume',
       cols: 2,
       children: [
-        { id: 'w-mem', label: 'in the executor', pattern: 'service', sub: 'for speed, during the batch' },
-        { id: 'w-ckpt', label: 'and in the checkpoint', pattern: 'service', sub: 'for survival, between them' },
+        { id: 'w-mem', icon: 'memory', label: 'in the executor', pattern: 'service', sub: 'for speed, during the batch' },
+        { id: 'w-ckpt', icon: 'harddrive', label: 'and in the checkpoint', pattern: 'service', sub: 'for survival, between them' },
       ],
     },
     {
@@ -32,7 +32,7 @@ export const theStateStore: Scene = {
       framed: true,
       label: 'Watch numRowsTotal',
       pattern: 'warn',
-      icon: 'trendingUp',
+      icon: 'barchart',
       sub: 'if it only ever rises, something never expires',
     },
   ],

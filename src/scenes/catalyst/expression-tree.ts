@@ -70,7 +70,7 @@ export const expressionTree: Scene = {
       framed: true,
       label: 'Nesting IS precedence',
       pattern: 'service',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'the shape already says what happens first',
     },
   ],

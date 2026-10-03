@@ -19,6 +19,7 @@ export const exchange: Scene = {
       children: [
         {
           id: 'exec-a',
+          icon: 'server',
           label: 'Executor A',
           pattern: 'service',
           cols: 2,
@@ -29,6 +30,7 @@ export const exchange: Scene = {
         },
         {
           id: 'exec-b',
+          icon: 'server',
           label: 'Executor B',
           pattern: 'service',
           cols: 2,
@@ -65,8 +67,8 @@ export const exchange: Scene = {
       sub: 'task k asks every node for its slice k — N writers × M readers connections',
       cols: 2,
       children: [
-        { id: 'r-0', label: 'reduce task 0', pattern: 'network', sub: 'wants slice 0 from A, B and C' },
-        { id: 'r-1', label: 'reduce task 1', pattern: 'network', sub: 'wants slice 1 from A, B and C' },
+        { id: 'r-0', icon: 'funnel', label: 'reduce task 0', pattern: 'network', sub: 'wants slice 0 from A, B and C' },
+        { id: 'r-1', icon: 'funnel', label: 'reduce task 1', pattern: 'network', sub: 'wants slice 1 from A, B and C' },
       ],
     },
   ],

@@ -12,9 +12,9 @@ export const storageVsExecution: Scene = {
       sub: 'transient · needed only while an operator runs',
       cols: 1,
       children: [
-        { id: 'e-shuffle', label: 'shuffle buffers', pattern: 'network', sub: 'the map-side sort' },
-        { id: 'e-join', label: 'join hash tables', pattern: 'network', sub: 'the build side' },
-        { id: 'e-sort', label: 'sorts and aggregates', pattern: 'network', sub: 'accumulating state' },
+        { id: 'e-shuffle', icon: 'swap', label: 'shuffle buffers', pattern: 'network', sub: 'the map-side sort' },
+        { id: 'e-join', icon: 'merge', label: 'join hash tables', pattern: 'network', sub: 'the build side' },
+        { id: 'e-sort', icon: 'sortarrows', label: 'sorts and aggregates', pattern: 'network', sub: 'accumulating state' },
       ],
     },
     {
@@ -24,8 +24,8 @@ export const storageVsExecution: Scene = {
       sub: 'durable · kept across operations on purpose',
       cols: 1,
       children: [
-        { id: 's-cache', label: 'cached partitions', pattern: 'network', sub: 'what cache() put there' },
-        { id: 's-bcast', label: 'broadcast variables', pattern: 'network', sub: 'the small side of a join' },
+        { id: 's-cache', icon: 'memory', label: 'cached partitions', pattern: 'network', sub: 'what cache() put there' },
+        { id: 's-bcast', icon: 'share', label: 'broadcast variables', pattern: 'network', sub: 'the small side of a join' },
       ],
     },
     {
@@ -33,7 +33,7 @@ export const storageVsExecution: Scene = {
       framed: true,
       label: 'One pool, a soft boundary',
       pattern: 'warn',
-      icon: 'gitmerge',
+      icon: 'merge',
       sub: 'they share, and the line between them moves at runtime',
     },
   ],

@@ -12,8 +12,8 @@ export const timeTravel: Scene = {
       sub: 'the log is an ordered list, so replaying it to entry 5 instead of entry 12 gives the file set as of version 5',
       cols: 2,
       children: [
-        { id: 'h-now', label: 'replay to the end', pattern: 'service', sub: 'today’s table' },
-        { id: 'h-then', label: 'replay to entry 5', pattern: 'service', sub: 'Tuesday’s table' },
+        { id: 'h-now', icon: 'clock', label: 'replay to the end', pattern: 'service', sub: 'today’s table' },
+        { id: 'h-then', icon: 'history', label: 'replay to entry 5', pattern: 'service', sub: 'Tuesday’s table' },
       ],
     },
     {
@@ -23,9 +23,9 @@ export const timeTravel: Scene = {
       sub: 'the debugging use is the one that pays for itself the first time a number changes and nobody knows why',
       cols: 3,
       children: [
-        { id: 'u-debug', label: 'what changed?', pattern: 'network', sub: 'diff two versions, exactly' },
-        { id: 'u-rollback', label: 'undo a bad write', pattern: 'network', sub: 'restore a previous version' },
-        { id: 'u-repro', label: 'reproduce a model', pattern: 'network', sub: 'train on the data as it was' },
+        { id: 'u-debug', icon: 'bug', label: 'what changed?', pattern: 'network', sub: 'diff two versions, exactly' },
+        { id: 'u-rollback', icon: 'history', label: 'undo a bad write', pattern: 'network', sub: 'restore a previous version' },
+        { id: 'u-repro', icon: 'brain', label: 'reproduce a model', pattern: 'network', sub: 'train on the data as it was' },
       ],
     },
     {
@@ -33,7 +33,6 @@ export const timeTravel: Scene = {
       framed: true,
       label: 'And it is not free',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'old versions exist because their files were never deleted — §11',
     },
   ],

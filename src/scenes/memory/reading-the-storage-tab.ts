@@ -24,7 +24,7 @@ export const readingTheStorageTab: Scene = {
       id: 'rule',
       label: 'The rule, in one line',
       pattern: 'network',
-      icon: 'lightbulb',
+      icon: 'star',
       sub: 'expensive, shared, reused — and measured. Else do not.',
     },
   ],

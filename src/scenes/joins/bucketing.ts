@@ -27,8 +27,8 @@ export const bucketing: Scene = {
       flow: 'LR',
       children: [
         { id: 'w0', label: 'write day', pattern: 'service', sub: 'the shuffle happens here, once' },
-        { id: 'w1', label: 'Monday', pattern: 'network', sub: 'no Exchange in the plan' },
-        { id: 'w2', label: 'every day after', pattern: 'network', sub: 'no Exchange in the plan' },
+        { id: 'w1', icon: 'calendar', label: 'Monday', pattern: 'network', sub: 'no Exchange in the plan' },
+        { id: 'w2', icon: 'calendar', label: 'every day after', pattern: 'network', sub: 'no Exchange in the plan' },
       ],
     },
     {

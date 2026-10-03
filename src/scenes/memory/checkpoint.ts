@@ -23,8 +23,8 @@ export const checkpoint: Scene = {
       sub: 'setCheckpointDir first · the new lineage is one step: read this file',
       cols: 2,
       children: [
-        { id: 'ch-data', label: 'the data, on HDFS or S3', pattern: 'service', sub: 'durable, not local' },
-        { id: 'ch-graph', label: 'lineage: truncated', pattern: 'service', sub: 'the graph before it is discarded' },
+        { id: 'ch-data', icon: 'harddrive', label: 'the data, on HDFS or S3', pattern: 'service', sub: 'durable, not local' },
+        { id: 'ch-graph', icon: 'scissors', label: 'lineage: truncated', pattern: 'service', sub: 'the graph before it is discarded' },
       ],
     },
     {
@@ -34,8 +34,8 @@ export const checkpoint: Scene = {
       sub: 'a loop that never ends: 200 iterations means a 200-deep graph the driver has to carry and replay',
       cols: 2,
       children: [
-        { id: 'wh-iter', label: 'iterative algorithms', pattern: 'network', sub: 'ML, graph, anything converging' },
-        { id: 'wh-stream', label: 'streaming state', pattern: 'network', sub: 'where it is not optional' },
+        { id: 'wh-iter', icon: 'repeat', label: 'iterative algorithms', pattern: 'network', sub: 'ML, graph, anything converging' },
+        { id: 'wh-stream', icon: 'waves', label: 'streaming state', pattern: 'network', sub: 'where it is not optional' },
       ],
     },
   ],

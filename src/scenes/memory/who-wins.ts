@@ -32,7 +32,7 @@ export const whoWins: Scene = {
       framed: true,
       label: 'Protects the unrebuildable',
       pattern: 'service',
-      icon: 'shield',
+      icon: 'shieldcheck',
       sub: 'and your cache is the thing it is willing to lose',
     },
   ],

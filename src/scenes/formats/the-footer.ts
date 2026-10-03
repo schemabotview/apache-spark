@@ -10,7 +10,7 @@ export const theFooter: Scene = {
       framed: true,
       label: 'Start at the END',
       pattern: 'service',
-      icon: 'bookOpen',
+      icon: 'scroll',
       sub: 'the last 8 bytes say how far back the footer starts',
     },
     {
@@ -20,10 +20,10 @@ export const theFooter: Scene = {
       sub: 'everything needed to decide what NOT to read, available before any data is touched',
       cols: 2,
       children: [
-        { id: 'h-schema', label: 'the schema', pattern: 'network', sub: 'names, types, nesting' },
-        { id: 'h-offsets', label: 'offsets', pattern: 'network', sub: 'where each chunk begins' },
-        { id: 'h-stats', label: 'min / max per chunk', pattern: 'service', sub: 'the pushdown lives on this' },
-        { id: 'h-nulls', label: 'null counts', pattern: 'service', sub: 'and distinct counts, sometimes' },
+        { id: 'h-schema', icon: 'braces', label: 'the schema', pattern: 'network', sub: 'names, types, nesting' },
+        { id: 'h-offsets', icon: 'ruler', label: 'offsets', pattern: 'network', sub: 'where each chunk begins' },
+        { id: 'h-stats', icon: 'barchart', label: 'min / max per chunk', pattern: 'service', sub: 'the pushdown lives on this' },
+        { id: 'h-nulls', icon: 'hash', label: 'null counts', pattern: 'service', sub: 'and distinct counts, sometimes' },
       ],
     },
     {
@@ -31,7 +31,6 @@ export const theFooter: Scene = {
       framed: true,
       label: 'So it is not streamable',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'a truncated file is unreadable, not partly readable',
     },
   ],

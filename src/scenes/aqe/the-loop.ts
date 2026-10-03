@@ -11,10 +11,10 @@ export const theLoop: Scene = {
       pattern: 'service',
       sub: 'on by default since Spark 3.2 — spark.sql.adaptive.enabled, which is now a thing to KNOW rather than a thing to turn on',
       children: [
-        { id: 'l-run', label: 'run the next query stage', pattern: 'service', sub: 'to completion, shuffle written' },
-        { id: 'l-read', label: 'read its real statistics', pattern: 'network', sub: 'measured, not estimated' },
-        { id: 'l-replan', label: 're-optimize what is left', pattern: 'network', sub: 'Catalyst runs again on the remainder' },
-        { id: 'l-next', label: 'repeat at the next', pattern: 'service', sub: 'until the query is finished' },
+        { id: 'l-run', icon: 'workflow', label: 'run the next query stage', pattern: 'service', sub: 'to completion, shuffle written' },
+        { id: 'l-read', icon: 'gauge', label: 'read its real statistics', pattern: 'network', sub: 'measured, not estimated' },
+        { id: 'l-replan', icon: 'repeat', label: 're-optimize what is left', pattern: 'network', sub: 'Catalyst runs again on the remainder' },
+        { id: 'l-next', icon: 'circlecheck', label: 'repeat at the next', pattern: 'service', sub: 'until the query is finished' },
       ],
       edges: [
         { source: 'l-run', target: 'l-read' },

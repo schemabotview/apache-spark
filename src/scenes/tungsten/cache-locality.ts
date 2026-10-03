@@ -22,7 +22,6 @@ export const cacheLocality: Scene = {
       framed: true,
       label: 'Pointer-chasing loses',
       pattern: 'warn',
-      icon: 'alertTriangle',
       sub: 'each hop is an address the prefetcher cannot predict',
     },
     {
@@ -32,8 +31,8 @@ export const cacheLocality: Scene = {
       sub: 'the hardware prefetcher recognises a sequential scan and fetches the next line before it is asked for',
       cols: 2,
       children: [
-        { id: 'co-pre', label: 'prefetching works', pattern: 'service', sub: 'the next row is already in cache' },
-        { id: 'co-sort', label: 'cache-aware sorting', pattern: 'service', sub: 'sort keys and pointers together' },
+        { id: 'co-pre', icon: 'zap', label: 'prefetching works', pattern: 'service', sub: 'the next row is already in cache' },
+        { id: 'co-sort', icon: 'sortarrows', label: 'cache-aware sorting', pattern: 'service', sub: 'sort keys and pointers together' },
       ],
     },
   ],

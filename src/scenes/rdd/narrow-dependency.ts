@@ -12,9 +12,9 @@ export const narrowDependency: Scene = {
       sub: 'map · filter · flatMap · mapPartitions · union — no row ever needs to know about another partition',
       cols: 3,
       children: [
-        { id: 'n-a', label: 'partition 0 → 0′', pattern: 'service', sub: 'host A, start to finish' },
-        { id: 'n-b', label: 'partition 1 → 1′', pattern: 'service', sub: 'host B, start to finish' },
-        { id: 'n-c', label: 'partition 2 → 2′', pattern: 'service', sub: 'host C, start to finish' },
+        { id: 'n-a', icon: 'layers', label: 'partition 0 → 0′', pattern: 'service', sub: 'host A, start to finish' },
+        { id: 'n-b', icon: 'layers', label: 'partition 1 → 1′', pattern: 'service', sub: 'host B, start to finish' },
+        { id: 'n-c', icon: 'layers', label: 'partition 2 → 2′', pattern: 'service', sub: 'host C, start to finish' },
       ],
     },
     {
@@ -24,9 +24,9 @@ export const narrowDependency: Scene = {
       sub: 'the reason Spark works hard to keep a run of operations narrow for as long as it can',
       cols: 3,
       children: [
-        { id: 'g-pipe', label: 'pipelining', pattern: 'network', sub: 'ten narrow steps, one pass over the rows' },
-        { id: 'g-local', label: 'no network', pattern: 'network', sub: 'the work happens where the data is' },
-        { id: 'g-cheap', label: 'cheap recovery', pattern: 'network', sub: 'one lost partition, one parent to redo' },
+        { id: 'g-pipe', icon: 'workflow', label: 'pipelining', pattern: 'network', sub: 'ten narrow steps, one pass over the rows' },
+        { id: 'g-local', icon: 'server', label: 'no network', pattern: 'network', sub: 'the work happens where the data is' },
+        { id: 'g-cheap', icon: 'repeat', label: 'cheap recovery', pattern: 'network', sub: 'one lost partition, one parent to redo' },
       ],
     },
   ],

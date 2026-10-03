@@ -13,8 +13,8 @@ export const theProblem: Scene = {
       sub: 'orders ⋈ customers on customer_id — every matching pair, wherever the two rows live',
       cols: 2,
       children: [
-        { id: 'o-row', label: 'an order row', pattern: 'storage', sub: 'customer_id = 42 · on host A' },
-        { id: 'c-row', label: 'its customer row', pattern: 'storage', sub: 'customer_id = 42 · on host D' },
+        { id: 'o-row', icon: 'receipt', label: 'an order row', pattern: 'storage', sub: 'customer_id = 42 · on host A' },
+        { id: 'c-row', icon: 'users', label: 'its customer row', pattern: 'storage', sub: 'customer_id = 42 · on host D' },
       ],
     },
     {
@@ -32,8 +32,8 @@ export const theProblem: Scene = {
       sub: 'every join strategy in Spark is one of these two answers, and nothing else',
       cols: 2,
       children: [
-        { id: 'move-small', label: 'Move one side whole', pattern: 'network', sub: 'copy the small table everywhere' },
-        { id: 'move-both', label: 'Move both by key', pattern: 'network', sub: 'repartition so matches land together' },
+        { id: 'move-small', icon: 'share', label: 'Move one side whole', pattern: 'network', sub: 'copy the small table everywhere' },
+        { id: 'move-both', icon: 'swap', label: 'Move both by key', pattern: 'network', sub: 'repartition so matches land together' },
       ],
     },
   ],
