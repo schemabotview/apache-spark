@@ -12,10 +12,10 @@ export const lineage: Scene = {
       sub: 'built on the driver as you write transformations, all the way back to something durable on disk',
       flow: 'LR',
       children: [
-        { id: 'l-file', label: 'the file', pattern: 'storage', sub: 'durable — the root' },
-        { id: 'l-1', icon: 'funnel', label: 'filtered', pattern: 'service', sub: 'narrow' },
-        { id: 'l-2', icon: 'swap', label: 'mapped', pattern: 'service', sub: 'narrow' },
-        { id: 'l-3', label: 'grouped', pattern: 'warn', sub: 'wide' },
+        { id: 'l-file', variant: 'tile', label: 'the file', pattern: 'storage', sub: 'durable — the root' },
+        { id: 'l-1', variant: 'tile', icon: 'funnel', label: 'filtered', pattern: 'service', sub: 'narrow' },
+        { id: 'l-2', variant: 'tile', icon: 'swap', label: 'mapped', pattern: 'service', sub: 'narrow' },
+        { id: 'l-3', variant: 'tile', label: 'grouped', pattern: 'warn', sub: 'wide' },
       ],
       edges: [
         { source: 'l-file', target: 'l-1' },

@@ -12,9 +12,9 @@ export const immutability: Scene = {
       sub: 'rddB does not change rddA; it records that it is rddA with a filter applied',
       flow: 'LR',
       children: [
-        { id: 'a', label: 'rddA', pattern: 'storage', sub: 'read from a file' },
-        { id: 'b', icon: 'funnel', label: 'rddB', pattern: 'service', sub: '= rddA, filtered' },
-        { id: 'c', icon: 'swap', label: 'rddC', pattern: 'service', sub: '= rddB, mapped' },
+        { id: 'a', variant: 'tile', label: 'rddA', pattern: 'storage', sub: 'read from a file' },
+        { id: 'b', variant: 'tile', icon: 'funnel', label: 'rddB', pattern: 'service', sub: '= rddA, filtered' },
+        { id: 'c', variant: 'tile', icon: 'swap', label: 'rddC', pattern: 'service', sub: '= rddB, mapped' },
       ],
       edges: [
         { source: 'a', target: 'b' },

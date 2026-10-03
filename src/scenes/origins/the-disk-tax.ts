@@ -13,9 +13,9 @@ export const theDiskTax: Scene = {
       flow: 'LR',
       sub: 'and a three-step job pays this twice · a hundred-step job pays it ninety-nine times',
       children: [
-        { id: 'm1', icon: 'gears', label: 'step 1 · map + reduce', pattern: 'service', sub: 'computes in memory — fast' },
-        { id: 'd1', label: 'write to HDFS', pattern: 'warn', sub: 'to disk, then replicated ×3 over the network' },
-        { id: 'm2', icon: 'gears', label: 'step 2 · map + reduce', pattern: 'service', sub: 'and it starts by reading all of that back' },
+        { id: 'm1', variant: 'tile', icon: 'gears', label: 'step 1 · map + reduce', pattern: 'service', sub: 'computes in memory — fast' },
+        { id: 'd1', variant: 'tile', label: 'write to HDFS', pattern: 'warn', sub: 'to disk, then replicated ×3 over the network' },
+        { id: 'm2', variant: 'tile', icon: 'gears', label: 'step 2 · map + reduce', pattern: 'service', sub: 'and it starts by reading all of that back' },
       ],
       edges: [
         { source: 'm1', target: 'd1' },
