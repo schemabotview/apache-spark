@@ -11,7 +11,7 @@ export const oneEngine: Scene = {
       label: 'The libraries you choose between',
       pattern: 'network',
       sub: 'each one replaces a whole engine from the zoo — and they compose, because they share the layer below',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 'l-sql', icon: 'database', label: 'Spark SQL', pattern: 'network', sub: 'replaces Hive and Impala' },
         { id: 'l-stream', icon: 'waves', label: 'Structured Streaming', pattern: 'network', sub: 'replaces Storm' },

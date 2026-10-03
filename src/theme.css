@@ -10,3 +10,38 @@
   --brand-hover: #ff7a45; /* lighter orange — the eyebrow's hover state */
   --accent-2: #f5b33c; /* Spark gold — the slide's `###` subheading */
 }
+
+/* LIGHT THEME — the same three tokens, RE-PICKED rather than reused.
+ *
+ * The shell's stylesheet says this explicitly where it declares `:root[data-theme='light']`: it
+ * leaves --brand, --brand-hover and --accent-2 alone because they belong to the content repo, and
+ * "a brand tuned for glow on slate can be unreadable on off-white". This repo had never done that
+ * half, so the dark values were being painted straight onto a white slide panel. Measured, before:
+ *
+ *   --accent-2  #f5b33c  on #ffffff   1.84:1   the `###` subheading, 31px bold — needs 3:1 as
+ *                                              LARGE text and missed it by more than half
+ *   --brand     #e25a1c  on #f7f8fa   3.46:1   the eyebrow, 15px bold — small text, needs 4.5:1
+ *   --brand     #e25a1c  on #ffffff   3.68:1   the h2, 45px bold — large, so this one did pass
+ *
+ * The gold was the visible one: a pale yellow is near-white by construction, so it half-vanished.
+ *
+ * Both are DARKENED ALONG THEIR OWN HUE, not swapped for different colours — the same move the
+ * engine makes in ui-flow's LIGHT_PATTERNS, where every accent is darkened until it carries
+ * text-weight contrast on near-white. The orange holds its signature almost exactly (G/R 0.386 vs
+ * 0.398, B/R 0.106 vs 0.124). The gold cannot: reaching 4.5:1 on white forces its luminance down
+ * far enough that it reads as deep amber rather than pale gold. That is physics, not a choice —
+ * every design system's accessible yellow is an ochre — and a legible amber beats an invisible gold.
+ *
+ * After, all against the surface each token is actually painted on:
+ *
+ *   --accent-2  #96690a  on #ffffff   4.86:1   passes the strict 4.5:1 bar, not just the large one
+ *   --brand     #bd4914  on #f7f8fa   4.79:1   eyebrow, small text
+ *   --brand     #bd4914  on #ffffff   5.09:1   h2
+ *   --brand-hover #9d390c on #f7f8fa  6.53:1   hover goes DARKER on light, as it goes lighter on dark
+ *
+ * Dark is untouched above, and still measures 6.86:1 (gold) and 3.44:1 (orange h2, large text). */
+:root[data-theme='light'] {
+  --brand: #bd4914;
+  --brand-hover: #9d390c;
+  --accent-2: #96690a;
+}

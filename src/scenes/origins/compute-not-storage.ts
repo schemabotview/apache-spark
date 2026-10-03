@@ -22,7 +22,7 @@ export const computeNotStorage: Scene = {
       label: 'Spark ships only the compute half',
       pattern: 'storage',
       sub: 'it reads and writes, and owns nothing long-term — the deliberate gap where a storage system goes',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 's-s3', icon: 'cloud', label: 'S3 · ADLS · GCS', pattern: 'storage', sub: 'object storage' },
         { id: 's-hdfs', icon: 'harddrive', label: 'HDFS', pattern: 'storage', sub: 'still supported' },
