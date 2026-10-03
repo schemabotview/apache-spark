@@ -10,7 +10,7 @@ export const theDriver: Scene = {
       label: 'What the driver does, and only the driver',
       pattern: 'network',
       sub: 'your main() runs here — every transformation you write builds a plan in this one process',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 'r-plan', icon: 'workflow', label: 'builds the plan', pattern: 'network', sub: 'logical → physical' },
         { id: 'r-split', icon: 'scissors', label: 'cuts it into stages', pattern: 'network', sub: 'at every shuffle' },

@@ -18,7 +18,7 @@ export const preferredLocations: Scene = {
       label: 'The levels it will settle for, best first',
       pattern: 'network',
       sub: 'it waits briefly for a better level before giving up — spark.locality.wait, 3 seconds by default',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 'lv-1', label: 'PROCESS_LOCAL', pattern: 'service', sub: 'same JVM — already cached here' },
         { id: 'lv-2', icon: 'server', label: 'NODE_LOCAL', pattern: 'network', sub: 'same machine, another process' },

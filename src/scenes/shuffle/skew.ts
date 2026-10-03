@@ -27,7 +27,7 @@ export const skew: Scene = {
       label: 'Reduce tasks in the same stage',
       pattern: 'service',
       sub: 'same code, same memory, same executor class — the only difference is how many rows arrived',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 't-5', icon: 'clock', label: 'task 5', pattern: 'service', sub: '1.2M rows · 9 s' },
         { id: 't-6', icon: 'clock', label: 'task 6', pattern: 'service', sub: '1.1M rows · 8 s' },

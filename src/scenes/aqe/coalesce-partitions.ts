@@ -10,7 +10,7 @@ export const coalescePartitions: Scene = {
       label: 'Before — 200 reduce partitions, because 200 is the default',
       pattern: 'warn',
       sub: 'the filter upstream removed 99% of the rows, and nothing downstream was told',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 'b-1', label: '8 MB', pattern: 'warn', sub: 'a whole task, for this' },
         { id: 'b-2', label: '7 MB', pattern: 'warn', sub: 'and again' },

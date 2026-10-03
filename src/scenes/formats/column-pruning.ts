@@ -18,7 +18,7 @@ export const columnPruning: Scene = {
       label: 'What the reader actually fetches',
       pattern: 'service',
       sub: 'offsets from the footer point straight at the two chunks — everything else is seeked past',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 'rd-1', icon: 'circlecheck', label: 'chunk: dest', pattern: 'service', sub: 'read' },
         { id: 'rd-2', icon: 'circlecheck', label: 'chunk: cnt', pattern: 'service', sub: 'read' },

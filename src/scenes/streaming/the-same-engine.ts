@@ -3,7 +3,7 @@ import type { Scene } from '@graphlearning/flow'
 export const theSameEngine: Scene = {
   id: 'str-same-engine',
   padding: 0.13,
-  flow: 'LR',
+  flow: 'TB',
   nodes: [
     {
       id: 'batch',

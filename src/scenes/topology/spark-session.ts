@@ -10,7 +10,7 @@ export const sparkSession: Scene = {
       label: 'Before Spark 2.0 — one context per library',
       pattern: 'warn',
       sub: 'they had to be created in the right order, and passed around by hand',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 'b-sc', label: 'SparkContext', pattern: 'warn', sub: 'RDDs, the cluster' },
         { id: 'b-sql', label: 'SQLContext', pattern: 'warn', sub: 'DataFrames' },

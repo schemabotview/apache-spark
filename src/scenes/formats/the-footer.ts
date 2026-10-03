@@ -3,7 +3,7 @@ import type { Scene } from '@graphlearning/flow'
 export const theFooter: Scene = {
   id: 'fmt-footer',
   padding: 0.13,
-  flow: 'LR',
+  flow: 'TB',
   nodes: [
     {
       id: 'read',

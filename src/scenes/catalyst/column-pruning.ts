@@ -18,7 +18,7 @@ export const columnPruning: Scene = {
       label: 'The table has two hundred',
       pattern: 'storage',
       sub: 'a wide event table — the other 197 columns are never mentioned anywhere in the plan',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 't-used1', icon: 'circlecheck', label: 'dest', pattern: 'service', sub: 'used' },
         { id: 't-used2', icon: 'circlecheck', label: 'cnt', pattern: 'service', sub: 'used' },

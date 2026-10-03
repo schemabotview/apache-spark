@@ -3,7 +3,7 @@ import type { Scene } from '@graphlearning/flow'
 export const downToRdds: Scene = {
   id: 'cat-to-rdds',
   padding: 0.13,
-  flow: 'LR',
+  flow: 'TB',
   nodes: [
     {
       id: 'physical',

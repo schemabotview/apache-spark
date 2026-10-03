@@ -3,7 +3,7 @@ import type { Scene } from '@graphlearning/flow'
 export const nothingHappensYet: Scene = {
   id: 'exec-nothing-yet',
   padding: 0.13,
-  flow: 'LR',
+  flow: 'TB',
   nodes: [
     {
       id: 'wrote',

@@ -10,12 +10,11 @@ export const thePartition: Scene = {
       label: 'One logical collection, many physical pieces',
       pattern: 'storage',
       sub: 'you write code against the whole thing; Spark runs it once per partition, in parallel',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 'pa', icon: 'layers', label: 'partition 0', pattern: 'storage', sub: 'on host A' },
         { id: 'pb', icon: 'layers', label: 'partition 1', pattern: 'storage', sub: 'on host B' },
         { id: 'pc', icon: 'layers', label: 'partition 2', pattern: 'storage', sub: 'on host C' },
-        { id: 'pd', icon: 'layers', label: 'partition 3', pattern: 'storage', sub: 'on host A' },
       ],
     },
     {

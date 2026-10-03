@@ -10,7 +10,7 @@ export const jobStageTask: Scene = {
       label: 'Four units, each bounded by a different thing',
       pattern: 'service',
       sub: 'being able to name which one you are looking at is most of what reading the Spark UI is',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 'u-job', icon: 'zap', label: 'Job', pattern: 'service', sub: 'bounded by one action' },
         { id: 'u-stage', icon: 'layers', label: 'Stage', pattern: 'service', sub: 'bounded by a shuffle' },

@@ -10,7 +10,7 @@ export const theObjectTax: Scene = {
       label: 'One short string, as a JVM object',
       pattern: 'network',
       sub: '"abc" is three bytes of information — and it is nowhere near three bytes of memory',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 'o-hdr', label: 'object header', pattern: 'warn', sub: '~16 bytes' },
         { id: 'o-ref', label: 'a pointer to an array', pattern: 'warn', sub: '8 bytes' },

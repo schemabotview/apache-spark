@@ -21,7 +21,7 @@ export const clusterManager: Scene = {
       label: 'The four, and what each is really for',
       pattern: 'service',
       sub: 'Spark does not care which — the same application runs on all of them unchanged',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 'c-standalone', icon: 'box', label: 'Standalone', pattern: 'service', sub: 'ships with Spark · one tenant' },
         { id: 'c-yarn', icon: 'warehouse', label: 'YARN', pattern: 'service', sub: 'the Hadoop estate' },

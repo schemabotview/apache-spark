@@ -21,7 +21,7 @@ export const folderIsNotATable: Scene = {
       label: 'What a table has that this does not',
       pattern: 'warn',
       sub: 'every one of these is something a database gave you for free, and you have quietly stopped having',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 'm-atomic', label: 'atomic writes', pattern: 'warn', sub: 'all of it, or none' },
         { id: 'm-iso', label: 'isolation', pattern: 'warn', sub: 'a reader never sees a half-write' },

@@ -10,7 +10,7 @@ export const csvAndJson: Scene = {
       label: 'What a text format does not have',
       pattern: 'warn',
       sub: 'every optimisation in this course rested on metadata — and a CSV has none of it',
-      cols: 4,
+      cols: 3,
       children: [
         { id: 'm-schema', label: 'no schema', pattern: 'warn', sub: 'everything is text' },
         { id: 'm-stats', label: 'no statistics', pattern: 'warn', sub: 'nothing to skip on' },
