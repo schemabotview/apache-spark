@@ -8,7 +8,7 @@ export const dynamicPartitionPruning: Scene = {
     {
       id: 'query',
       label: 'The classic star-schema shape',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'a filter on the DIMENSION, a join to the FACT, and no filter the fact table can use directly',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const dynamicPartitionPruning: Scene = {
     {
       id: 'build',
       label: 'So Spark builds the filter it needs',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'run the dimension side first, collect the join keys that survived, and turn them into a predicate',
       cols: 2,
       children: [
@@ -29,6 +29,7 @@ export const dynamicPartitionPruning: Scene = {
     },
     {
       id: 'apply',
+      framed: true,
       label: 'Pushed into the scan',
       pattern: 'service',
       icon: 'filter',

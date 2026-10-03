@@ -18,6 +18,7 @@ export const expressionTree: Scene = {
   nodes: [
     {
       id: 'src',
+      framed: true,
       label: '((price+5)*200)-6 < budget',
       pattern: 'network',
       icon: 'filecode',
@@ -66,6 +67,7 @@ export const expressionTree: Scene = {
     },
     {
       id: 'note',
+      framed: true,
       label: 'Nesting IS precedence',
       pattern: 'service',
       icon: 'lightbulb',

@@ -8,7 +8,7 @@ export const onKubernetes: Scene = {
     {
       id: 'pods',
       label: 'Everything is a pod',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'spark-submit asks the K8s API server for a driver pod; the driver then requests its own executor pods',
       cols: 2,
       children: [
@@ -18,6 +18,7 @@ export const onKubernetes: Scene = {
     },
     {
       id: 'dynamic',
+      framed: true,
       label: 'Dynamic allocation',
       pattern: 'network',
       icon: 'activity',
@@ -26,7 +27,7 @@ export const onKubernetes: Scene = {
     {
       id: 'catch',
       label: 'The catch nobody mentions until it bites',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'an executor that goes away takes its shuffle files with it — unless something else is there to serve them',
       cols: 2,
       children: [

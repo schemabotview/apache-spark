@@ -13,7 +13,7 @@ export const skew: Scene = {
     {
       id: 'cause',
       label: 'The partitioner is doing its job correctly',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'hash spreads KEYS evenly — nobody promised the rows were spread evenly over the keys',
       cols: 3,
       children: [
@@ -25,7 +25,7 @@ export const skew: Scene = {
     {
       id: 'tasks',
       label: 'Reduce tasks in the same stage',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'same code, same memory, same executor class — the only difference is how many rows arrived',
       cols: 4,
       children: [
@@ -38,7 +38,7 @@ export const skew: Scene = {
     {
       id: 'result',
       label: 'What you see in the UI',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the signature of skew, and the reason more hardware is not the answer',
       cols: 3,
       children: [

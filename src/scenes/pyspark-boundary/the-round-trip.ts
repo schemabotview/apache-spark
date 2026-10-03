@@ -8,7 +8,7 @@ export const theRoundTrip: Scene = {
     {
       id: 'loop',
       label: 'What happens to one row',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'and then again for the next row, and the next — a million times per partition',
       cols: 3,
       children: [
@@ -22,6 +22,7 @@ export const theRoundTrip: Scene = {
     },
     {
       id: 'ratio',
+      framed: true,
       label: 'The ratio to remember',
       pattern: 'warn',
       icon: 'scale',

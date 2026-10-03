@@ -8,7 +8,7 @@ export const compaction: Scene = {
     {
       id: 'cause',
       label: 'The small-file problem, now arriving faster',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'a log makes frequent writes SAFE, which means people do them — and every commit adds files',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const compaction: Scene = {
     {
       id: 'fix',
       label: 'Compaction is a normal commit with an unusual content',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'read many small files, write few large ones, and record both facts in one log entry',
       cols: 3,
       children: [
@@ -30,6 +30,7 @@ export const compaction: Scene = {
     },
     {
       id: 'safe',
+      framed: true,
       label: 'And readers are undisturbed',
       pattern: 'service',
       icon: 'shield',

@@ -8,7 +8,7 @@ export const theStateStore: Scene = {
     {
       id: 'what',
       label: 'Where a running aggregate actually lives',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'partitioned by the grouping key, versioned per batch, and written to the checkpoint so a restart can resume',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const theStateStore: Scene = {
     {
       id: 'providers',
       label: 'Two providers, and the choice is about size',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the default keeps the whole state in the JVM heap, which is fine until it is not',
       cols: 2,
       children: [
@@ -29,6 +29,7 @@ export const theStateStore: Scene = {
     },
     {
       id: 'watch',
+      framed: true,
       label: 'Watch numRowsTotal',
       pattern: 'warn',
       icon: 'trendingUp',

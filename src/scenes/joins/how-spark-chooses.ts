@@ -9,6 +9,7 @@ export const howSparkChooses: Scene = {
   nodes: [
     {
       id: 'equi',
+      framed: true,
       label: 'An equality to join on?',
       pattern: 'service',
       icon: 'gitbranch',
@@ -17,7 +18,7 @@ export const howSparkChooses: Scene = {
     {
       id: 'ladder',
       label: 'If yes: the first rule that matches wins',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'Spark walks this list in order and stops — it is not choosing the cheapest, it is taking the first that applies',
       children: [
         { id: 'r1', label: '1 · broadcast hash', pattern: 'network', sub: 'a hint, or a side under the threshold' },
@@ -32,7 +33,7 @@ export const howSparkChooses: Scene = {
     {
       id: 'no-equi',
       label: 'If no: the fall-through',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'this is where an accidental cross join comes from — nothing failed, nothing warned',
       cols: 2,
       children: [

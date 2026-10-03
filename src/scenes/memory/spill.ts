@@ -8,7 +8,7 @@ export const spill: Scene = {
     {
       id: 'what',
       label: 'Spilling is execution memory running out',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'a sort or an aggregate is accumulating state and the pool will not stretch — so it writes a sorted run out',
       cols: 3,
       children: [
@@ -20,7 +20,7 @@ export const spill: Scene = {
     {
       id: 'metrics',
       label: 'The two numbers in the UI, which measure different things',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'a large memory figure against a small disk figure is normal — it is the same data, measured twice',
       cols: 2,
       children: [
@@ -31,7 +31,7 @@ export const spill: Scene = {
     {
       id: 'fix',
       label: 'And the fix is almost never more memory',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'spilling means the partition was too big — so make the partitions smaller, or stop one being huge',
       cols: 2,
       children: [

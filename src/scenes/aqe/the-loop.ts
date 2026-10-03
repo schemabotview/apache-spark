@@ -8,7 +8,7 @@ export const theLoop: Scene = {
     {
       id: 'loop',
       label: 'Plan a bit, run a bit, look, plan again',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'on by default since Spark 3.2 — spark.sql.adaptive.enabled, which is now a thing to KNOW rather than a thing to turn on',
       children: [
         { id: 'l-run', label: 'run the next query stage', pattern: 'service', sub: 'to completion, shuffle written' },
@@ -25,7 +25,7 @@ export const theLoop: Scene = {
     {
       id: 'shape',
       label: 'Which changes what a plan IS',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'not one decision taken before the job, but a sequence of decisions taken during it',
       cols: 2,
       children: [

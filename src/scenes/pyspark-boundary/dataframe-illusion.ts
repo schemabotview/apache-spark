@@ -7,6 +7,7 @@ export const dataframeIllusion: Scene = {
   nodes: [
     {
       id: 'wrote',
+      framed: true,
       label: 'What you wrote, in Python',
       pattern: 'network',
       icon: 'filecode',
@@ -15,7 +16,7 @@ export const dataframeIllusion: Scene = {
     {
       id: 'became',
       label: 'What it became',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the Python objects were builders — they described a plan and then had nothing more to do',
       cols: 3,
       children: [
@@ -26,6 +27,7 @@ export const dataframeIllusion: Scene = {
     },
     {
       id: 'zero',
+      framed: true,
       label: 'Python in the data: zero',
       pattern: 'service',
       icon: 'check',

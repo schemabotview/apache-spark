@@ -9,7 +9,7 @@ export const computeNotStorage: Scene = {
     {
       id: 'hadoop',
       label: 'Hadoop shipped both halves, welded together',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'HDFS and MapReduce were one product — you could not sensibly take one without the other',
       flow: 'LR',
       children: [
@@ -20,7 +20,7 @@ export const computeNotStorage: Scene = {
     {
       id: 'spark',
       label: 'Spark ships only the compute half',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'it reads and writes, and owns nothing long-term — the deliberate gap where a storage system goes',
       cols: 4,
       children: [
@@ -33,7 +33,7 @@ export const computeNotStorage: Scene = {
     {
       id: 'buys',
       label: 'What the omission buys, and what it costs',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'this one decision is why Spark outlived the Hadoop stack it was born inside',
       cols: 2,
       children: [

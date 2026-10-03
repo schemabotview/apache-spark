@@ -8,7 +8,7 @@ export const aCommit: Scene = {
     {
       id: 'steps',
       label: 'Writing, in two phases',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the files can be written slowly and carelessly, because until the last step they are not part of anything',
       cols: 1,
       children: [
@@ -19,7 +19,7 @@ export const aCommit: Scene = {
     {
       id: 'atomic',
       label: 'Which makes step 2 the atomic moment',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'whether it succeeds comes down to one thing: can two writers both create 003.json?',
       cols: 2,
       children: [
@@ -29,6 +29,7 @@ export const aCommit: Scene = {
     },
     {
       id: 'crash',
+      framed: true,
       label: 'A crash is now dull',
       pattern: 'service',
       icon: 'shield',

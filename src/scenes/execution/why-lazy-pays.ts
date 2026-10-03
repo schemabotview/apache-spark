@@ -8,7 +8,7 @@ export const whyLazyPays: Scene = {
     {
       id: 'naive',
       label: 'If Spark ran each line as you wrote it',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'read one billion rows, then throw away all but one thousand of them',
       flow: 'LR',
       children: [
@@ -19,7 +19,7 @@ export const whyLazyPays: Scene = {
     {
       id: 'lazy',
       label: 'Because it waited, it can rearrange',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the filter is pushed into the scan, so the rows are never read in the first place',
       cols: 3,
       children: [
@@ -30,6 +30,7 @@ export const whyLazyPays: Scene = {
     },
     {
       id: 'price',
+      framed: true,
       label: 'The price you pay for it',
       pattern: 'warn',
       icon: 'alertTriangle',

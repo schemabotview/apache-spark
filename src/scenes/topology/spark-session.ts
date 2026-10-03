@@ -8,7 +8,7 @@ export const sparkSession: Scene = {
     {
       id: 'before',
       label: 'Before Spark 2.0 — one context per library',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'they had to be created in the right order, and passed around by hand',
       cols: 4,
       children: [
@@ -20,6 +20,7 @@ export const sparkSession: Scene = {
     },
     {
       id: 'now',
+      framed: true,
       label: 'SparkSession',
       pattern: 'service',
       icon: 'key',
@@ -28,7 +29,7 @@ export const sparkSession: Scene = {
     {
       id: 'holds',
       label: 'What it actually holds',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'a session is not a connection — it is the configuration and catalog your plans are built against',
       cols: 3,
       children: [

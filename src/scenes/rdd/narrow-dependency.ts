@@ -8,7 +8,7 @@ export const narrowDependency: Scene = {
     {
       id: 'shape',
       label: 'Narrow — each output partition reads exactly one input',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'map · filter · flatMap · mapPartitions · union — no row ever needs to know about another partition',
       cols: 3,
       children: [
@@ -20,7 +20,7 @@ export const narrowDependency: Scene = {
     {
       id: 'gifts',
       label: 'Three things this buys, all at once',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the reason Spark works hard to keep a run of operations narrow for as long as it can',
       cols: 3,
       children: [

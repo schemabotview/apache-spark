@@ -16,6 +16,7 @@ export const avoiding: Scene = {
   nodes: [
     {
       id: 'claim',
+      framed: true,
       label: 'Why a shuffle exists',
       pattern: 'service',
       icon: 'router',
@@ -24,7 +25,7 @@ export const avoiding: Scene = {
     {
       id: 'ways',
       label: 'So there are three ways out — and all three are the same way out',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'move the other side · pay for it once · be colocated already',
       cols: 3,
       children: [

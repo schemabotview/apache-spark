@@ -8,7 +8,7 @@ export const theExecutorBudget: Scene = {
     {
       id: 'heap',
       label: 'One executor’s JVM heap, carved up',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'spark.executor.memory is the heap — and rather less than all of it is yours to use',
       children: [
         { id: 'h-res', label: 'reserved · 300 MB', pattern: 'warn', sub: 'Spark’s own internals · not negotiable' },
@@ -19,7 +19,7 @@ export const theExecutorBudget: Scene = {
     {
       id: 'outside',
       label: 'And a fourth region, outside the heap entirely',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'memoryOverhead — the container has to hold this too, and the kernel enforces it, not the JVM',
       cols: 3,
       children: [
@@ -30,6 +30,7 @@ export const theExecutorBudget: Scene = {
     },
     {
       id: 'sum',
+      framed: true,
       label: '16 GB in, ~9 GB usable',
       pattern: 'warn',
       icon: 'calculator',

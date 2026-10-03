@@ -8,7 +8,7 @@ export const immutability: Scene = {
     {
       id: 'chain',
       label: 'Nothing is ever modified — each step describes a NEW collection',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'rddB does not change rddA; it records that it is rddA with a filter applied',
       flow: 'LR',
       children: [
@@ -24,7 +24,7 @@ export const immutability: Scene = {
     {
       id: 'buys',
       label: 'What immutability buys',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'three properties that are hard to retrofit and free if you start here',
       cols: 3,
       children: [

@@ -8,7 +8,7 @@ export const thePartition: Scene = {
     {
       id: 'split',
       label: 'One logical collection, many physical pieces',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'you write code against the whole thing; Spark runs it once per partition, in parallel',
       cols: 4,
       children: [
@@ -20,6 +20,7 @@ export const thePartition: Scene = {
     },
     {
       id: 'ceiling',
+      framed: true,
       label: 'min(partitions, slots)',
       pattern: 'warn',
       icon: 'ruler',
@@ -28,7 +29,7 @@ export const thePartition: Scene = {
     {
       id: 'where',
       label: 'Where the count comes from',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'nobody sets this once — it changes at every read and at every shuffle, and both defaults are guesses',
       cols: 3,
       children: [

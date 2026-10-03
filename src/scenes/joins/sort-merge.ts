@@ -10,7 +10,7 @@ export const sortMerge: Scene = {
     {
       id: 'smj',
       label: 'Sort-merge join — the default when neither side is small',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'three phases, two of them expensive, and it is the only strategy that never needs a side to fit in memory',
       children: [
         {
@@ -35,7 +35,7 @@ export const sortMerge: Scene = {
     {
       id: 'why',
       label: 'Why sort, when hashing found the partition already',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the sort is what lets the merge stream — and streaming is what removes the memory ceiling',
       cols: 2,
       children: [

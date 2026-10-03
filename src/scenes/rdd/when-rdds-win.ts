@@ -7,6 +7,7 @@ export const whenRddsWin: Scene = {
   nodes: [
     {
       id: 'default',
+      framed: true,
       label: 'The default is: do not',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -15,7 +16,7 @@ export const whenRddsWin: Scene = {
     {
       id: 'lost',
       label: 'What you give up by dropping to RDDs',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the structured API knows your rows have a schema; the RDD API knows only that they are objects',
       cols: 3,
       children: [
@@ -27,7 +28,7 @@ export const whenRddsWin: Scene = {
     {
       id: 'still',
       label: 'The narrow set of cases that still justify them',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'each one is a thing the structured API genuinely cannot express, not a preference',
       cols: 3,
       children: [

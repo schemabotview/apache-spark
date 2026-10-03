@@ -8,7 +8,7 @@ export const sinksAndIdempotence: Scene = {
     {
       id: 'three',
       label: 'Exactly-once needs three things, and Spark provides two',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the third is the sink’s, and no amount of Spark configuration can supply it',
       cols: 3,
       children: [
@@ -19,6 +19,7 @@ export const sinksAndIdempotence: Scene = {
     },
     {
       id: 'why',
+      framed: true,
       label: 'A retry writes twice',
       pattern: 'warn',
       icon: 'copy',
@@ -27,7 +28,7 @@ export const sinksAndIdempotence: Scene = {
     {
       id: 'how',
       label: 'How a sink can manage it',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'file and Delta sinks handle this for you; anything you write by hand does not',
       cols: 3,
       children: [

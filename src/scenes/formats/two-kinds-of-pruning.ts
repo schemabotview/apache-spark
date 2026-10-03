@@ -8,7 +8,7 @@ export const twoKindsOfPruning: Scene = {
     {
       id: 'ladder',
       label: 'Four things the reader gets to skip, coarsest first',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'each rung is cheaper than the one below it, because it is decided with less information read',
       children: [
         { id: 'p-dir', label: '1 · whole directories', pattern: 'service', sub: 'partition pruning — from the path alone' },
@@ -24,6 +24,7 @@ export const twoKindsOfPruning: Scene = {
     },
     {
       id: 'left',
+      framed: true,
       label: 'And only then, what is left',
       pattern: 'warn',
       icon: 'filter',

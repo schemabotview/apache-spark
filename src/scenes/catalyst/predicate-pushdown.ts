@@ -8,7 +8,7 @@ export const predicatePushdown: Scene = {
     {
       id: 'before',
       label: 'Before — the filter is above the join',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'as written: join everything, then discard. Read bottom-up.',
       children: [
         { id: 'p-f', label: 'Filter (country#7 = IN)', pattern: 'warn', sub: 'runs on the JOINED rows' },
@@ -23,7 +23,7 @@ export const predicatePushdown: Scene = {
     {
       id: 'after',
       label: 'After — PushDownPredicate fired',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the filter moved BELOW the join and INTO the scan, so the rows never reach the join at all',
       children: [
         { id: 'q-j', label: 'Join (user#3 = user#9)', pattern: 'service', sub: 'now joins 40M rows, not 4B' },
@@ -33,6 +33,7 @@ export const predicatePushdown: Scene = {
     },
     {
       id: 'legal',
+      framed: true,
       label: 'Why it is allowed',
       pattern: 'service',
       icon: 'check',

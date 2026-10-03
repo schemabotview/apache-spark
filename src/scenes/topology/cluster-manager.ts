@@ -8,7 +8,7 @@ export const clusterManager: Scene = {
     {
       id: 'split',
       label: 'Two jobs that sound like one',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'granting resources and scheduling tasks are different problems, solved by different software',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const clusterManager: Scene = {
     {
       id: 'which',
       label: 'The four, and what each is really for',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'Spark does not care which — the same application runs on all of them unchanged',
       cols: 4,
       children: [
@@ -31,6 +31,7 @@ export const clusterManager: Scene = {
     },
     {
       id: 'why',
+      framed: true,
       label: 'Why separate them',
       pattern: 'network',
       icon: 'layers',

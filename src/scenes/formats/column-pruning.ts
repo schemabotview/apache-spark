@@ -7,6 +7,7 @@ export const columnPruning: Scene = {
   nodes: [
     {
       id: 'ask',
+      framed: true,
       label: 'SELECT dest, cnt',
       pattern: 'network',
       icon: 'filecode',
@@ -15,7 +16,7 @@ export const columnPruning: Scene = {
     {
       id: 'reads',
       label: 'What the reader actually fetches',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'offsets from the footer point straight at the two chunks — everything else is seeked past',
       cols: 4,
       children: [
@@ -27,6 +28,7 @@ export const columnPruning: Scene = {
     },
     {
       id: 'star',
+      framed: true,
       label: 'The real cost of *',
       pattern: 'warn',
       icon: 'alertTriangle',

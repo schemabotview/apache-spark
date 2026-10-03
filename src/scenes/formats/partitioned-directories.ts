@@ -8,7 +8,7 @@ export const partitionedDirectories: Scene = {
     {
       id: 'layout',
       label: 'The directory names ARE an index',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'written by partitionBy("year","month") — and the values are not stored in the files at all',
       flow: 'LR',
       children: [
@@ -20,7 +20,7 @@ export const partitionedDirectories: Scene = {
     {
       id: 'free',
       label: 'Which makes the column free, twice over',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'it costs no bytes on disk, and a filter on it is answered by listing paths rather than reading data',
       cols: 2,
       children: [
@@ -31,7 +31,7 @@ export const partitionedDirectories: Scene = {
     {
       id: 'wrong',
       label: 'And how it goes wrong',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'a partition column must be low-cardinality — the failure is thousands of directories with one tiny file each',
       cols: 2,
       children: [

@@ -7,6 +7,7 @@ export const predicatePushdown: Scene = {
   nodes: [
     {
       id: 'filter',
+      framed: true,
       label: 'WHERE cnt > 5000',
       pattern: 'network',
       icon: 'filter',
@@ -15,7 +16,7 @@ export const predicatePushdown: Scene = {
     {
       id: 'groups',
       label: 'The footer already says what is in each row group',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'compare the predicate against min and max — and two of these three need not be opened at all',
       cols: 3,
       children: [
@@ -27,7 +28,7 @@ export const predicatePushdown: Scene = {
     {
       id: 'sorted',
       label: 'Which is why sortedness is worth money',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'statistics only exclude a group when its range is narrow — and sorting is what makes ranges narrow',
       cols: 2,
       children: [

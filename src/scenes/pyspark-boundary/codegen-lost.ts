@@ -8,7 +8,7 @@ export const codegenLost: Scene = {
     {
       id: 'without',
       label: 'Without a UDF — one fused loop',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'scan, filter and project compiled into a single generated Java method, marked *(1) in the plan',
       flow: 'LR',
       children: [
@@ -24,7 +24,7 @@ export const codegenLost: Scene = {
     {
       id: 'with',
       label: 'With one Python UDF in the middle',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'BatchEvalPython has no * — it is a wall, and the loop that held three operators is now two loops',
       flow: 'LR',
       children: [
@@ -39,6 +39,7 @@ export const codegenLost: Scene = {
     },
     {
       id: 'and',
+      framed: true,
       label: 'Opaque to Catalyst too',
       pattern: 'warn',
       icon: 'eyeOff',

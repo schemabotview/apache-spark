@@ -8,7 +8,7 @@ export const checkpoint: Scene = {
     {
       id: 'cache',
       label: 'cache() keeps the result AND the lineage',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'it has to — if the cache is evicted, the lineage is the only way to get the data back',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const checkpoint: Scene = {
     {
       id: 'check',
       label: 'checkpoint() writes to reliable storage and CUTS it',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'setCheckpointDir first · the new lineage is one step: read this file',
       cols: 2,
       children: [
@@ -30,7 +30,7 @@ export const checkpoint: Scene = {
     {
       id: 'when',
       label: 'When you actually need it',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'a loop that never ends: 200 iterations means a 200-deep graph the driver has to carry and replay',
       cols: 2,
       children: [

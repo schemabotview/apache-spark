@@ -7,6 +7,7 @@ export const theUdfCrossing: Scene = {
   nodes: [
     {
       id: 'driver',
+      framed: true,
       label: 'The driver serialises it',
       pattern: 'service',
       icon: 'package',
@@ -15,7 +16,7 @@ export const theUdfCrossing: Scene = {
     {
       id: 'exec',
       label: 'On every executor, the row now leaves the JVM',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the Python process stops being idle — and the engine has no idea what your function does',
       cols: 2,
       children: [
@@ -45,6 +46,7 @@ export const theUdfCrossing: Scene = {
     },
     {
       id: 'gotcha',
+      framed: true,
       label: 'The closure gotcha',
       pattern: 'warn',
       icon: 'alertTriangle',

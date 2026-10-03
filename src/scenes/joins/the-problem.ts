@@ -9,7 +9,7 @@ export const theProblem: Scene = {
     {
       id: 'want',
       label: 'What a join asks for',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'orders ⋈ customers on customer_id — every matching pair, wherever the two rows live',
       cols: 2,
       children: [
@@ -19,6 +19,7 @@ export const theProblem: Scene = {
     },
     {
       id: 'gap',
+      framed: true,
       label: 'On different machines',
       pattern: 'warn',
       icon: 'router',
@@ -27,7 +28,7 @@ export const theProblem: Scene = {
     {
       id: 'options',
       label: 'So exactly one of two things must happen',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'every join strategy in Spark is one of these two answers, and nothing else',
       cols: 2,
       children: [

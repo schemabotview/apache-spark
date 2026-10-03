@@ -8,7 +8,7 @@ export const snapshotIsolation: Scene = {
     {
       id: 'read',
       label: 'A reader resolves the version once, at the start',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'read the log to version N, take the set of files it describes, and use that set for the whole query',
       cols: 2,
       children: [
@@ -18,6 +18,7 @@ export const snapshotIsolation: Scene = {
     },
     {
       id: 'meanwhile',
+      framed: true,
       label: 'A writer commits v8',
       pattern: 'network',
       icon: 'edit',
@@ -26,7 +27,7 @@ export const snapshotIsolation: Scene = {
     {
       id: 'why',
       label: 'Which is what actually makes the table usable',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'writers stop needing a window when nobody is reading — the thing every nightly pipeline is scheduled around',
       cols: 2,
       children: [

@@ -8,7 +8,7 @@ export const theUnboundedTable: Scene = {
     {
       id: 'table',
       label: 'A stream is a table that rows keep being appended to',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'not a sequence of events to react to — a table, which happens never to be finished',
       flow: 'LR',
       children: [
@@ -19,6 +19,7 @@ export const theUnboundedTable: Scene = {
     },
     {
       id: 'query',
+      framed: true,
       label: 'Query it as a table',
       pattern: 'service',
       icon: 'filecode',
@@ -27,7 +28,7 @@ export const theUnboundedTable: Scene = {
     {
       id: 'result',
       label: 'The result table, kept up to date',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'conceptually recomputed from the whole input every time — and then made efficient, which is §4',
       cols: 2,
       children: [

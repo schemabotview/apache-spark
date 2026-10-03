@@ -8,7 +8,7 @@ export const thePartialWrite: Scene = {
     {
       id: 'job',
       label: 'A job writing 200 files',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'each task writes its own file, independently, and there is no moment when they all become visible together',
       cols: 3,
       children: [
@@ -19,6 +19,7 @@ export const thePartialWrite: Scene = {
     },
     {
       id: 'reader',
+      framed: true,
       label: 'A reader sees 140 files',
       pattern: 'warn',
       icon: 'eye',
@@ -27,7 +28,7 @@ export const thePartialWrite: Scene = {
     {
       id: 'worse',
       label: 'And the recovery is worse than the failure',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'rerunning appends a second copy of the 140 — so now the table is wrong in a new way',
       cols: 2,
       children: [

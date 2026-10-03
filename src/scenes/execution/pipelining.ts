@@ -8,7 +8,7 @@ export const pipelining: Scene = {
     {
       id: 'imagined',
       label: 'What people imagine three narrow steps cost',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'three passes over the data, and two intermediate collections nobody asked for',
       flow: 'LR',
       children: [
@@ -23,6 +23,7 @@ export const pipelining: Scene = {
     },
     {
       id: 'actual',
+      framed: true,
       label: 'What it actually costs',
       pattern: 'service',
       icon: 'zap',
@@ -31,7 +32,7 @@ export const pipelining: Scene = {
     {
       id: 'stops',
       label: 'Where the fusion stops',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'exactly one thing ends it, and it is the same thing that ends a stage',
       cols: 2,
       children: [

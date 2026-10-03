@@ -9,7 +9,7 @@ export const theBet: Scene = {
     {
       id: 'keep',
       label: 'Keep what MapReduce got right',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'UC Berkeley AMPLab, 2009 — the distribution model was never the problem',
       cols: 2,
       children: [
@@ -19,6 +19,7 @@ export const theBet: Scene = {
     },
     {
       id: 'change',
+      framed: true,
       label: 'Change one thing',
       pattern: 'warn',
       icon: 'zap',
@@ -27,7 +28,7 @@ export const theBet: Scene = {
     {
       id: 'follows',
       label: 'What falls out of that single change',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'not a faster MapReduce — a different set of things it is possible to write at all',
       cols: 3,
       children: [

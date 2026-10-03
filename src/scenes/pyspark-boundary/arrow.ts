@@ -7,6 +7,7 @@ export const arrow: Scene = {
   nodes: [
     {
       id: 'insight',
+      framed: true,
       label: 'Not a faster pickle',
       pattern: 'service',
       icon: 'lightbulb',
@@ -15,7 +16,7 @@ export const arrow: Scene = {
     {
       id: 'arrow',
       label: 'Apache Arrow — a columnar format neither side has to translate',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'the JVM writes an Arrow batch; pandas and NumPy read that same memory · spark.sql.execution.arrow.pyspark.enabled',
       cols: 3,
       children: [
@@ -27,7 +28,7 @@ export const arrow: Scene = {
     {
       id: 'effect',
       label: 'What changes',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the transport cost stops scaling with your row count and starts scaling with your batch count',
       cols: 2,
       children: [

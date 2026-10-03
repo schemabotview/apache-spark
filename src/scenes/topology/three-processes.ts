@@ -18,7 +18,7 @@ export const threeProcesses: Scene = {
     {
       id: 'processes',
       label: 'A running Spark application is three kinds of process',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'in the order they are introduced — and the division of labour between them is strict',
       cols: 3,
       children: [
@@ -62,7 +62,7 @@ export const threeProcesses: Scene = {
     {
       id: 'talk',
       label: 'And the conversation between them, in order',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'a loop, not a line — which is exactly why it is numbered here rather than drawn as arrows',
       cols: 3,
       children: [
@@ -73,6 +73,7 @@ export const threeProcesses: Scene = {
     },
     {
       id: 'claim',
+      framed: true,
       label: 'The sentence worth keeping',
       pattern: 'service',
       icon: 'lightbulb',

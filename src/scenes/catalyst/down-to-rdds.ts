@@ -7,6 +7,7 @@ export const downToRdds: Scene = {
   nodes: [
     {
       id: 'physical',
+      framed: true,
       label: 'The selected physical plan',
       pattern: 'service',
       icon: 'gitmerge',
@@ -15,7 +16,7 @@ export const downToRdds: Scene = {
     {
       id: 'codegen',
       label: 'Whole-stage code generation',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'a run of operators is compiled into ONE generated Java method — no operator-to-operator calls left',
       cols: 2,
       children: [
@@ -25,6 +26,7 @@ export const downToRdds: Scene = {
     },
     {
       id: 'rdds',
+      framed: true,
       label: 'And then: RDDs',
       pattern: 'storage',
       icon: 'layers',

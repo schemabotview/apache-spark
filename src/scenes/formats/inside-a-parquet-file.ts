@@ -8,7 +8,7 @@ export const insideAParquetFile: Scene = {
     {
       id: 'file',
       label: 'One Parquet file',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'hybrid, not purely columnar: split by rows first, then columnar INSIDE each split',
       children: [
         {
@@ -33,6 +33,7 @@ export const insideAParquetFile: Scene = {
     },
     {
       id: 'why',
+      framed: true,
       label: 'Why hybrid',
       pattern: 'service',
       icon: 'lightbulb',

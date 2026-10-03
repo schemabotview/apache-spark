@@ -8,7 +8,7 @@ export const oneParentThreeChildren: Scene = {
     {
       id: 'shape',
       label: 'One expensive parent, three things that want it',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'an ordinary shape: read, clean, then answer three questions from the cleaned data',
       cols: 3,
       children: [
@@ -19,6 +19,7 @@ export const oneParentThreeChildren: Scene = {
     },
     {
       id: 'without',
+      framed: true,
       label: 'The parent runs 3×',
       pattern: 'warn',
       icon: 'repeat',
@@ -27,7 +28,7 @@ export const oneParentThreeChildren: Scene = {
     {
       id: 'with',
       label: 'With cache: once, then reused',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'and this is the ONLY situation where caching reliably pays — a shared, expensive, reused parent',
       cols: 2,
       children: [

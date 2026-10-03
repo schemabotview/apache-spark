@@ -7,6 +7,7 @@ export const theSameEngine: Scene = {
   nodes: [
     {
       id: 'batch',
+      framed: true,
       label: 'Batch',
       pattern: 'network',
       icon: 'filecode',
@@ -14,6 +15,7 @@ export const theSameEngine: Scene = {
     },
     {
       id: 'stream',
+      framed: true,
       label: 'Streaming',
       pattern: 'network',
       icon: 'activity',
@@ -22,7 +24,7 @@ export const theSameEngine: Scene = {
     {
       id: 'shared',
       label: 'Everything between the first line and the last is identical',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'same parser, same analyzer, same Catalyst rules, same Tungsten codegen, same shuffle',
       cols: 3,
       children: [

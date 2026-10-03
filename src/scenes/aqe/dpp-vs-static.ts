@@ -8,7 +8,7 @@ export const dppVsStatic: Scene = {
     {
       id: 'static',
       label: 'Static partition pruning — the filter is in your query',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'WHERE year = 2026 · the value is a literal, visible at plan time, and directories are excluded immediately',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const dppVsStatic: Scene = {
     {
       id: 'dynamic',
       label: 'Dynamic partition pruning — the filter is DERIVED',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'you never wrote a filter on the fact table; Spark worked one out from the other side of the join',
       cols: 2,
       children: [
@@ -29,6 +29,7 @@ export const dppVsStatic: Scene = {
     },
     {
       id: 'note',
+      framed: true,
       label: 'DPP is not part of AQE',
       pattern: 'warn',
       icon: 'alertTriangle',

@@ -8,7 +8,7 @@ export const theOffsetLog: Scene = {
     {
       id: 'dir',
       label: 'The checkpoint directory',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'not an optimisation — the query’s identity. Delete it and you have a different query with no memory.',
       cols: 2,
       children: [
@@ -21,7 +21,7 @@ export const theOffsetLog: Scene = {
     {
       id: 'order',
       label: 'Write-ahead, and the order is the whole point',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the offset is recorded BEFORE the work, so a crash can be distinguished from a completion',
       cols: 2,
       children: [
@@ -31,6 +31,7 @@ export const theOffsetLog: Scene = {
     },
     {
       id: 'result',
+      framed: true,
       label: 'Replay, not guesswork',
       pattern: 'service',
       icon: 'rotateCcw',

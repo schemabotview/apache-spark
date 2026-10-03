@@ -8,7 +8,7 @@ export const folderIsNotATable: Scene = {
     {
       id: 'have',
       label: 'What you have: a directory of Parquet files',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'excellent at being read — and that is the whole of what it is good at',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const folderIsNotATable: Scene = {
     {
       id: 'missing',
       label: 'What a table has that this does not',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'every one of these is something a database gave you for free, and you have quietly stopped having',
       cols: 4,
       children: [
@@ -31,6 +31,7 @@ export const folderIsNotATable: Scene = {
     },
     {
       id: 'why',
+      framed: true,
       label: 'Structural, not an oversight',
       pattern: 'service',
       icon: 'lightbulb',

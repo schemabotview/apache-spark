@@ -8,7 +8,7 @@ export const offHeap: Scene = {
     {
       id: 'what',
       label: 'What turning it on actually does',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'spark.memory.offHeap.enabled plus a size — and the size is a SECOND budget, not a share of the first',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const offHeap: Scene = {
     {
       id: 'cost',
       label: 'And what it costs you',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'you have traded one number you had to get right for two numbers you have to get right',
       cols: 3,
       children: [
@@ -30,6 +30,7 @@ export const offHeap: Scene = {
     },
     {
       id: 'when',
+      framed: true,
       label: 'Only if GC is measured',
       pattern: 'service',
       icon: 'activity',

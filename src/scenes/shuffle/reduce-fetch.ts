@@ -13,7 +13,7 @@ export const reduceFetch: Scene = {
     {
       id: 'sources',
       label: 'Every map task that ran',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'each holds one slice for this reducer — and a reducer must have them all before it can finish',
       children: [
         { id: 'm-0', label: 'map task 0', pattern: 'storage', sub: 'slice 7 · 40 MB' },
@@ -24,7 +24,7 @@ export const reduceFetch: Scene = {
     {
       id: 'reducer',
       label: 'Reduce task 7',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'one task · 400 inbound streams · ~16 GB to pull through',
       children: [
         { id: 'fetch', label: 'fetch', pattern: 'network', icon: 'router', sub: 'a few blocks in flight at a time, not all 400' },

@@ -8,7 +8,7 @@ export const lineage: Scene = {
     {
       id: 'graph',
       label: 'The lineage graph — every RDD knows its parents',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'built on the driver as you write transformations, all the way back to something durable on disk',
       flow: 'LR',
       children: [
@@ -25,6 +25,7 @@ export const lineage: Scene = {
     },
     {
       id: 'loss',
+      framed: true,
       label: 'A machine dies',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -33,7 +34,7 @@ export const lineage: Scene = {
     {
       id: 'recover',
       label: 'The recovery, which is just the graph read backwards',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'only the lost partition is rebuilt — not the RDD, not the stage, not the job',
       cols: 3,
       children: [

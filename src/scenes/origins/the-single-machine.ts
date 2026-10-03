@@ -9,7 +9,7 @@ export const theSingleMachine: Scene = {
     {
       id: 'free-lunch',
       label: 'Until ~2005, programs got faster on their own',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'each year the same code ran faster, because each year the clock went up — nobody had to do anything',
       cols: 3,
       children: [
@@ -20,6 +20,7 @@ export const theSingleMachine: Scene = {
     },
     {
       id: 'wall',
+      framed: true,
       label: 'Heat, not ambition',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -28,7 +29,7 @@ export const theSingleMachine: Scene = {
     {
       id: 'after',
       label: 'The industry turned sideways instead',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'more cores at the same speed — which means nothing gets faster unless the program is rewritten to use them',
       cols: 2,
       children: [

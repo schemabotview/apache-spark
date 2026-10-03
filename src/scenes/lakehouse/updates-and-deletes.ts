@@ -7,6 +7,7 @@ export const updatesAndDeletes: Scene = {
   nodes: [
     {
       id: 'problem',
+      framed: true,
       label: 'Parquet is immutable',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -15,7 +16,7 @@ export const updatesAndDeletes: Scene = {
     {
       id: 'cow',
       label: 'Copy-on-write — rewrite the whole file',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'read the file containing the row, write a new one with the change, then add the new and remove the old in ONE entry',
       cols: 2,
       children: [
@@ -26,7 +27,7 @@ export const updatesAndDeletes: Scene = {
     {
       id: 'mor',
       label: 'Merge-on-read — write the change beside it',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'record that a row is deleted, or write the new version alongside, and let the reader reconcile them',
       cols: 2,
       children: [

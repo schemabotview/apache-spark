@@ -8,7 +8,7 @@ export const theDriver: Scene = {
     {
       id: 'does',
       label: 'What the driver does, and only the driver',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'your main() runs here — every transformation you write builds a plan in this one process',
       cols: 4,
       children: [
@@ -20,6 +20,7 @@ export const theDriver: Scene = {
     },
     {
       id: 'single',
+      framed: true,
       label: 'One process, no backup',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -28,7 +29,7 @@ export const theDriver: Scene = {
     {
       id: 'kills',
       label: 'The two ways people kill their own driver',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'both are the same mistake: pulling distributed data into one process that was never sized for it',
       cols: 2,
       children: [

@@ -22,7 +22,7 @@ export const theCatalog: Scene = {
     {
       id: 'sources',
       label: 'Where it comes from',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'a session always has one — in-memory by default, and a shared metastore when tables outlive the session',
       cols: 2,
       children: [
@@ -32,6 +32,7 @@ export const theCatalog: Scene = {
     },
     {
       id: 'stats',
+      framed: true,
       label: 'Statistics are OPTIONAL',
       pattern: 'warn',
       icon: 'alertTriangle',

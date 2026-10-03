@@ -8,6 +8,7 @@ export const shuffleHash: Scene = {
   nodes: [
     {
       id: 'same',
+      framed: true,
       label: 'The same shuffle',
       pattern: 'warn',
       sub: 'both sides repartitioned by key — identical cost',
@@ -15,7 +16,7 @@ export const shuffleHash: Scene = {
     {
       id: 'diff',
       label: 'Then it does something different per partition',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'no sort — build a hash table from the smaller side and probe it with the larger',
       cols: 2,
       children: [
@@ -26,7 +27,7 @@ export const shuffleHash: Scene = {
     {
       id: 'tradeoff',
       label: 'The trade',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'preferSortMergeJoin is true by default, so Spark picks this only when it is clearly right',
       cols: 2,
       children: [

@@ -7,6 +7,7 @@ export const whereItStops: Scene = {
   nodes: [
     {
       id: 'opaque',
+      framed: true,
       label: 'Codegen must see inside',
       pattern: 'service',
       icon: 'eye',
@@ -15,7 +16,7 @@ export const whereItStops: Scene = {
     {
       id: 'breaks',
       label: 'What breaks the fusion',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'each of these becomes a wall the generated loop stops at, and the stage splits around it',
       cols: 3,
       children: [
@@ -27,7 +28,7 @@ export const whereItStops: Scene = {
     {
       id: 'lesson',
       label: 'Which reframes what a UDF costs',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the cost is not only running your function — it is everything around it that now cannot be fused',
       cols: 2,
       children: [

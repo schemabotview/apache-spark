@@ -8,7 +8,7 @@ export const coalescePartitions: Scene = {
     {
       id: 'before',
       label: 'Before — 200 reduce partitions, because 200 is the default',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the filter upstream removed 99% of the rows, and nothing downstream was told',
       cols: 4,
       children: [
@@ -21,7 +21,7 @@ export const coalescePartitions: Scene = {
     {
       id: 'after',
       label: 'After — contiguous partitions merged toward a target size',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'advisoryPartitionSizeInBytes, 64 MB by default — the target, not a guarantee',
       cols: 3,
       children: [
@@ -33,7 +33,7 @@ export const coalescePartitions: Scene = {
     {
       id: 'why',
       label: 'And the reason this is worth having',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'it makes the old advice obsolete: you no longer size shuffle.partitions for the WHOLE query',
       cols: 2,
       children: [

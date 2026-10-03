@@ -8,7 +8,7 @@ export const encodingCompression: Scene = {
     {
       id: 'two',
       label: 'Two different steps people say in one breath',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'encoding understands the data and is type-aware; compression does not and is not',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const encodingCompression: Scene = {
     {
       id: 'encodings',
       label: 'The encodings that do the real work',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'each exploits a property a COLUMN has and a row never does — repetition, ordering, narrow range',
       cols: 3,
       children: [
@@ -31,7 +31,7 @@ export const encodingCompression: Scene = {
     {
       id: 'codecs',
       label: 'And then a codec on top',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'snappy is the default because decompression speed usually matters more than ratio',
       cols: 3,
       children: [

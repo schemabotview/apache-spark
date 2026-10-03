@@ -8,7 +8,7 @@ export const fiveProperties: Scene = {
     {
       id: 'required',
       label: 'The three every RDD must have',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'this is the whole interface — an RDD is a description of how to produce data, not the data',
       cols: 3,
       children: [
@@ -20,7 +20,7 @@ export const fiveProperties: Scene = {
     {
       id: 'optional',
       label: 'And two that are optional',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'both are hints to the scheduler — they change how the work is placed, never what it computes',
       cols: 2,
       children: [
@@ -30,6 +30,7 @@ export const fiveProperties: Scene = {
     },
     {
       id: 'claim',
+      framed: true,
       label: 'That is the whole of it',
       pattern: 'service',
       icon: 'lightbulb',

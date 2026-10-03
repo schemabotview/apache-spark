@@ -7,6 +7,7 @@ export const windows: Scene = {
   nodes: [
     {
       id: 'why',
+      framed: true,
       label: 'A bounded question',
       pattern: 'service',
       icon: 'crop',
@@ -15,7 +16,7 @@ export const windows: Scene = {
     {
       id: 'kinds',
       label: 'Three shapes of window',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the cost differs: a row lands in one tumbling window, and in several sliding ones',
       cols: 3,
       children: [
@@ -26,6 +27,7 @@ export const windows: Scene = {
     },
     {
       id: 'cost',
+      framed: true,
       label: 'Each window is state',
       pattern: 'warn',
       icon: 'database',

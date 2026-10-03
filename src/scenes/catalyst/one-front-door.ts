@@ -8,7 +8,7 @@ export const oneFrontDoor: Scene = {
     {
       id: 'ways',
       label: 'Three ways to ask the same question',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'people believe one of these is faster than the others — and on the structured APIs, none of them is',
       cols: 3,
       children: [
@@ -19,6 +19,7 @@ export const oneFrontDoor: Scene = {
     },
     {
       id: 'same',
+      framed: true,
       label: 'One unresolved logical plan',
       pattern: 'service',
       icon: 'gitmerge',
@@ -27,7 +28,7 @@ export const oneFrontDoor: Scene = {
     {
       id: 'why',
       label: 'Which is why two things people argue about are settled',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'language and dialect are ergonomic choices, not performance ones — the optimizer never learns which you used',
       cols: 2,
       children: [

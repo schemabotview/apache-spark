@@ -8,7 +8,7 @@ export const timeTravel: Scene = {
     {
       id: 'how',
       label: 'Not a feature — the same replay, stopped early',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the log is an ordered list, so replaying it to entry 5 instead of entry 12 gives the file set as of version 5',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const timeTravel: Scene = {
     {
       id: 'uses',
       label: 'What it is actually for',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the debugging use is the one that pays for itself the first time a number changes and nobody knows why',
       cols: 3,
       children: [
@@ -30,6 +30,7 @@ export const timeTravel: Scene = {
     },
     {
       id: 'cost',
+      framed: true,
       label: 'And it is not free',
       pattern: 'warn',
       icon: 'alertTriangle',

@@ -10,7 +10,7 @@ export const bucketing: Scene = {
     {
       id: 'without',
       label: 'Without bucketing — every run pays again',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the same table, shuffled by the same key, every single day',
       flow: 'LR',
       children: [
@@ -22,7 +22,7 @@ export const bucketing: Scene = {
     {
       id: 'with',
       label: 'With bucketing — pay once, at write time',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'bucketBy(320, "customer_id").sortBy("customer_id").saveAsTable(…)',
       flow: 'LR',
       children: [
@@ -34,7 +34,7 @@ export const bucketing: Scene = {
     {
       id: 'conditions',
       label: 'The conditions, all of which must hold',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'miss one and you get no error, no warning, and no benefit — just the shuffle you thought you had removed',
       cols: 3,
       children: [

@@ -7,6 +7,7 @@ export const streamStreamJoins: Scene = {
   nodes: [
     {
       id: 'problem',
+      framed: true,
       label: 'No side can be the build',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -15,7 +16,7 @@ export const streamStreamJoins: Scene = {
     {
       id: 'buffer',
       label: 'So both sides are buffered in state',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'every unmatched row is kept, in case its partner turns up — and without a bound, that is every row forever',
       cols: 2,
       children: [
@@ -26,7 +27,7 @@ export const streamStreamJoins: Scene = {
     {
       id: 'need',
       label: 'Which is why Spark demands two things before it will run one',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'together they put a ceiling on how long a row can usefully be kept — and so on the state',
       cols: 2,
       children: [

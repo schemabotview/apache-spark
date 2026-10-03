@@ -8,6 +8,7 @@ export const threshold: Scene = {
   nodes: [
     {
       id: 'knob',
+      framed: true,
       label: 'The broadcast threshold',
       pattern: 'service',
       icon: 'ruler',
@@ -16,7 +17,7 @@ export const threshold: Scene = {
     {
       id: 'measures',
       label: 'What the 10 MB is measured against',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'not the file on disk — the optimizer’s ESTIMATE of the side’s size in memory',
       cols: 3,
       children: [
@@ -28,7 +29,7 @@ export const threshold: Scene = {
     {
       id: 'fails',
       label: 'How it goes wrong',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'both failure directions land on the driver, which is why they are worth knowing',
       cols: 2,
       children: [

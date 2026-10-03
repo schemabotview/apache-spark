@@ -8,7 +8,7 @@ export const twoProcesses: Scene = {
     {
       id: 'cluster',
       label: 'What is actually running on one worker node',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'not one process with two languages in it — two operating-system processes that talk over a socket',
       cols: 2,
       children: [
@@ -38,6 +38,7 @@ export const twoProcesses: Scene = {
     },
     {
       id: 'claim',
+      framed: true,
       label: 'Your rows are in the JVM',
       pattern: 'service',
       icon: 'lightbulb',

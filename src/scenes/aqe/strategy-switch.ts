@@ -7,6 +7,7 @@ export const strategySwitch: Scene = {
   nodes: [
     {
       id: 'planned',
+      framed: true,
       label: 'Planned as a sort-merge join',
       pattern: 'warn',
       icon: 'gitmerge',
@@ -15,7 +16,7 @@ export const strategySwitch: Scene = {
     {
       id: 'measured',
       label: 'Then the stage ran, and it measured 3 MB',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the filter was far more selective than the heuristic assumed — which is normal, not exceptional',
       cols: 2,
       children: [
@@ -26,7 +27,7 @@ export const strategySwitch: Scene = {
     {
       id: 'switch',
       label: 'So it switches, mid-flight',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the sort and the second shuffle are dropped — and a local shuffle reader avoids re-reading what is already there',
       cols: 2,
       children: [

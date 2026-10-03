@@ -13,7 +13,7 @@ export const dependencies: Scene = {
     {
       id: 'narrow',
       label: 'Narrow dependency',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'filter · map · union — every output reads exactly one input',
       cols: 2,
       children: [
@@ -30,7 +30,7 @@ export const dependencies: Scene = {
     {
       id: 'wide',
       label: 'Wide dependency',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'groupBy · join · distinct — an output needs rows it does not hold',
       cols: 2,
       children: [

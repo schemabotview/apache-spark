@@ -8,7 +8,7 @@ export const wideDependency: Scene = {
     {
       id: 'shape',
       label: 'Wide — an output partition needs rows from many inputs',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'groupByKey · reduceByKey · join · distinct · sortBy — every input can contribute to every output',
       cols: 2,
       children: [
@@ -20,7 +20,7 @@ export const wideDependency: Scene = {
     {
       id: 'costs',
       label: 'Everything narrow gave you, taken back',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'one wide dependency undoes all three gifts at once — which is why the count of them is the cost of the job',
       cols: 3,
       children: [

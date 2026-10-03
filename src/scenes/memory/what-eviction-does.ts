@@ -8,7 +8,7 @@ export const whatEvictionDoes: Scene = {
     {
       id: 'lru',
       label: 'Eviction is LRU, and it works on whole partitions',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'a partition is never half-cached — the unit that arrives is the unit that leaves',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const whatEvictionDoes: Scene = {
     {
       id: 'after',
       label: 'And what happens next depends entirely on the level',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'this is the whole practical difference between the two defaults from the last section',
       cols: 2,
       children: [
@@ -29,6 +29,7 @@ export const whatEvictionDoes: Scene = {
     },
     {
       id: 'worst',
+      framed: true,
       label: 'The thrash',
       pattern: 'warn',
       icon: 'alertTriangle',

@@ -7,6 +7,7 @@ export const rulesToFixpoint: Scene = {
   nodes: [
     {
       id: 'rule',
+      framed: true,
       label: 'Rule = tree → tree',
       pattern: 'service',
       icon: 'repeat',
@@ -15,7 +16,7 @@ export const rulesToFixpoint: Scene = {
     {
       id: 'example',
       label: 'One rule firing three times, on one expression',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'ConstantFolding: wherever both operands are literals, evaluate them now instead of per row',
       flow: 'LR',
       children: [
@@ -31,7 +32,7 @@ export const rulesToFixpoint: Scene = {
     {
       id: 'batch',
       label: 'Rules run in batches, to a fixed point',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'a batch repeats until a pass changes nothing — because one rule firing often exposes work for another',
       cols: 2,
       children: [

@@ -31,6 +31,7 @@ export const dagScheduler: Scene = {
     },
     {
       id: 'lost',
+      framed: true,
       label: 'When a shuffle file is lost',
       pattern: 'warn',
       icon: 'alertTriangle',

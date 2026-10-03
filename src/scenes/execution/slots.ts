@@ -8,7 +8,7 @@ export const slots: Scene = {
     {
       id: 'waves',
       label: '200 tasks over 100 slots runs in two waves',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'tasks queue; they do not run in parallel past the number of cores you actually have',
       flow: 'LR',
       children: [
@@ -18,6 +18,7 @@ export const slots: Scene = {
     },
     {
       id: 'ragged',
+      framed: true,
       label: 'And 201 tasks runs in three',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -26,7 +27,7 @@ export const slots: Scene = {
     {
       id: 'rule',
       label: 'The arithmetic worth doing before any tuning',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'it is free, it takes ten seconds, and it is frequently the whole problem',
       cols: 2,
       children: [

@@ -8,7 +8,7 @@ export const unresolvedPlan: Scene = {
     {
       id: 'plan',
       label: 'The unresolved logical plan — real nodes, unknown names',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the grammar is fine, so a tree exists; but nothing in it has been checked against anything real',
       children: [
         { id: 'u-proj', label: "Project ['dest, 'total]", pattern: 'warn', sub: "the ' prefix means UNRESOLVED" },
@@ -25,7 +25,7 @@ export const unresolvedPlan: Scene = {
     {
       id: 'knows',
       label: 'What it knows, and what it does not',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'this is the boundary between a syntax error and an analysis error, and it is why they arrive at different times',
       cols: 2,
       children: [

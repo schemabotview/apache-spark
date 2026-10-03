@@ -8,7 +8,7 @@ export const whoWins: Scene = {
     {
       id: 'rule',
       label: 'The borrow rule, and it is not symmetric',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'storageFraction (0.5) is not a reservation — it is only the floor storage is allowed to defend',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const whoWins: Scene = {
     {
       id: 'why',
       label: 'Why the asymmetry is right',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'one of these two can be rebuilt for free, and the other cannot be rebuilt at all',
       cols: 2,
       children: [
@@ -29,6 +29,7 @@ export const whoWins: Scene = {
     },
     {
       id: 'so',
+      framed: true,
       label: 'Protects the unrebuildable',
       pattern: 'service',
       icon: 'shield',

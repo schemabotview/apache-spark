@@ -7,6 +7,7 @@ export const physicalCandidates: Scene = {
   nodes: [
     {
       id: 'logical',
+      framed: true,
       label: 'The logical plan: WHAT',
       pattern: 'service',
       icon: 'gitmerge',
@@ -15,7 +16,7 @@ export const physicalCandidates: Scene = {
     {
       id: 'strategies',
       label: 'Several physical plans say HOW',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'each computes exactly the same rows; they differ only in what they do to the cluster',
       cols: 3,
       children: [
@@ -26,6 +27,7 @@ export const physicalCandidates: Scene = {
     },
     {
       id: 'same',
+      framed: true,
       label: 'Same answer, different cost',
       pattern: 'warn',
       icon: 'scale',

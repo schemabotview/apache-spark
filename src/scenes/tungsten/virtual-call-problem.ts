@@ -8,7 +8,7 @@ export const virtualCallProblem: Scene = {
     {
       id: 'volcano',
       label: 'The classic model: every operator is an iterator',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'each one calls next() on its child — the textbook design, and it is correct and general',
       flow: 'LR',
       children: [
@@ -24,7 +24,7 @@ export const virtualCallProblem: Scene = {
     {
       id: 'cost',
       label: 'What it costs per row',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'per row, per operator — and the work inside each call is often a single comparison',
       cols: 3,
       children: [

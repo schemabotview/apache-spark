@@ -7,6 +7,7 @@ export const watermarks: Scene = {
   nodes: [
     {
       id: 'problem',
+      framed: true,
       label: 'When can state be dropped?',
       pattern: 'warn',
       icon: 'helpCircle',
@@ -15,7 +16,7 @@ export const watermarks: Scene = {
     {
       id: 'promise',
       label: 'A watermark is a promise you make about lateness',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'withWatermark("ts", "10 minutes") — the threshold is subtracted from the latest event time SEEN',
       cols: 2,
       children: [
@@ -26,7 +27,7 @@ export const watermarks: Scene = {
     {
       id: 'trade',
       label: 'And the trade it forces you to make explicitly',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'there is no setting that gives you both — the honest answer is a number chosen from your data',
       cols: 2,
       children: [

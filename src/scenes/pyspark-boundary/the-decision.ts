@@ -8,7 +8,7 @@ export const theDecision: Scene = {
     {
       id: 'ladder',
       label: 'Try these in order, and stop at the first that works',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the ordering is not style — each rung down gives up something the engine was doing for you',
       children: [
         { id: 'r1', label: '1 · a built-in function', pattern: 'service', sub: 'stays in the JVM · fuses · optimizable' },
@@ -25,7 +25,7 @@ export const theDecision: Scene = {
     {
       id: 'check',
       label: 'And check which one you actually got',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the plan names it, so there is no need to guess whether the fast path was taken',
       cols: 2,
       children: [

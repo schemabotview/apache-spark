@@ -23,6 +23,7 @@ export const theStageCut: Scene = {
     },
     {
       id: 'cut',
+      framed: true,
       label: 'Exchange',
       pattern: 'warn',
       icon: 'router',

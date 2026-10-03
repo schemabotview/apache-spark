@@ -7,6 +7,7 @@ export const wholeStageCodegen: Scene = {
   nodes: [
     {
       id: 'idea',
+      framed: true,
       label: 'Compile, don’t interpret',
       pattern: 'service',
       icon: 'zap',
@@ -15,7 +16,7 @@ export const wholeStageCodegen: Scene = {
     {
       id: 'result',
       label: 'What the generated method looks like',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'one loop, with the filter and the projection inlined into it — the operators no longer exist as objects',
       cols: 1,
       children: [
@@ -27,7 +28,7 @@ export const wholeStageCodegen: Scene = {
     {
       id: 'why',
       label: 'Why this is faster than the sum of its parts',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'a hand-written loop is what the JIT compiler is best at, and this is now a hand-written loop',
       cols: 3,
       children: [

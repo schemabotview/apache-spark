@@ -8,7 +8,7 @@ export const offHeap: Scene = {
     {
       id: 'onheap',
       label: 'On-heap — inside the JVM',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'Tungsten rows still live in byte arrays the JVM owns, so the GC still has to consider the array',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const offHeap: Scene = {
     {
       id: 'offheap',
       label: 'Off-heap — memory Spark manages itself',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'allocated outside the JVM heap through Unsafe · spark.memory.offHeap.enabled + a size',
       cols: 2,
       children: [
@@ -29,6 +29,7 @@ export const offHeap: Scene = {
     },
     {
       id: 'honest',
+      framed: true,
       label: 'And it is not a free win',
       pattern: 'warn',
       icon: 'alertTriangle',

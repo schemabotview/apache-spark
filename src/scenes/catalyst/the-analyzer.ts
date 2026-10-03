@@ -8,7 +8,7 @@ export const theAnalyzer: Scene = {
     {
       id: 'before',
       label: 'Before — every name a guess',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the same four nodes as the last frame, still carrying apostrophes',
       flow: 'LR',
       children: [
@@ -20,7 +20,7 @@ export const theAnalyzer: Scene = {
     {
       id: 'after',
       label: 'After — every name bound to a real column, with a type and an id',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the apostrophes are gone; #7 and #11 are attribute ids, unique for the life of the plan',
       flow: 'LR',
       children: [
@@ -32,7 +32,7 @@ export const theAnalyzer: Scene = {
     {
       id: 'rejects',
       label: 'Or it refuses — and this is the error you get FAST',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'analysis runs as you build the plan, long before any action, which is why a typo fails immediately',
       cols: 3,
       children: [

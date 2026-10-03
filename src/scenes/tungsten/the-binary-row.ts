@@ -8,7 +8,7 @@ export const theBinaryRow: Scene = {
     {
       id: 'row',
       label: 'UnsafeRow — one row, one contiguous block of bytes',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'no object headers, no pointers between fields, nothing for the GC to trace inside it',
       flow: 'LR',
       children: [
@@ -19,6 +19,7 @@ export const theBinaryRow: Scene = {
     },
     {
       id: 'trick',
+      framed: true,
       label: 'The 8-byte trick',
       pattern: 'service',
       icon: 'lightbulb',
@@ -27,7 +28,7 @@ export const theBinaryRow: Scene = {
     {
       id: 'gains',
       label: 'What the layout buys',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'every one of these follows from "it is one block of bytes", not from any cleverness above it',
       cols: 3,
       children: [

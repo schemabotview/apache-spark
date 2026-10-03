@@ -8,7 +8,7 @@ export const memoryEras: Scene = {
     {
       id: 'static',
       label: 'Spark 1.x — two fixed pools, and a wall between them',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'you set the fractions in advance; an idle storage pool could not help a starving shuffle',
       flow: 'LR',
       children: [
@@ -19,7 +19,7 @@ export const memoryEras: Scene = {
     {
       id: 'unified',
       label: 'Spark 1.6+ — one pool, a soft boundary, a borrow rule',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'spark.memory.fraction (0.6) is the pool; storageFraction (0.5) is only the floor storage can defend',
       cols: 2,
       children: [
@@ -29,6 +29,7 @@ export const memoryEras: Scene = {
     },
     {
       id: 'now',
+      framed: true,
       label: '"My cache disappeared"',
       pattern: 'service',
       icon: 'lightbulb',

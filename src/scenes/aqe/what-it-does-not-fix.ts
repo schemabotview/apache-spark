@@ -7,6 +7,7 @@ export const whatItDoesNotFix: Scene = {
   nodes: [
     {
       id: 'shuffle',
+      framed: true,
       label: 'It never removes a shuffle',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -15,7 +16,7 @@ export const whatItDoesNotFix: Scene = {
     {
       id: 'others',
       label: 'And three more it cannot reach',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'each one is outside the mechanism: AQE only ever acts at a shuffle boundary, using what that shuffle measured',
       cols: 3,
       children: [
@@ -27,7 +28,7 @@ export const whatItDoesNotFix: Scene = {
     {
       id: 'stats',
       label: 'And it is not a substitute for statistics',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'AQE fixes the plan after the fact; ANALYZE TABLE means the first plan was right — both are worth having',
       cols: 2,
       children: [

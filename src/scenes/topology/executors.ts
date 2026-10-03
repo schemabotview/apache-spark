@@ -8,7 +8,7 @@ export const executors: Scene = {
     {
       id: 'inside',
       label: 'Inside one executor',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'a JVM with N cores — and the cores are the unit of parallelism, not the executors',
       cols: 2,
       children: [
@@ -41,7 +41,7 @@ export const executors: Scene = {
     {
       id: 'sizing',
       label: 'Why very large executors are a trap',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the usual advice is ~5 cores each: enough to share a cached partition, few enough to keep GC and HDFS throughput sane',
       cols: 2,
       children: [

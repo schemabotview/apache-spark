@@ -8,7 +8,7 @@ export const jobStageTask: Scene = {
     {
       id: 'units',
       label: 'Four units, each bounded by a different thing',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'being able to name which one you are looking at is most of what reading the Spark UI is',
       cols: 4,
       children: [
@@ -21,7 +21,7 @@ export const jobStageTask: Scene = {
     {
       id: 'counts',
       label: 'Which means the counts are not yours to choose',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'three of these four numbers are decided for you, and knowing by what is how you change them',
       cols: 3,
       children: [

@@ -8,7 +8,7 @@ export const localMode: Scene = {
     {
       id: 'local',
       label: 'local[4] — one JVM on your laptop',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the driver and the executor are threads in the same process, and the cluster manager is skipped entirely',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const localMode: Scene = {
     {
       id: 'same',
       label: 'What is genuinely the same',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the reason local mode is a real test and not a toy — the code path is the code path',
       cols: 2,
       children: [
@@ -30,7 +30,7 @@ export const localMode: Scene = {
     {
       id: 'differs',
       label: 'What it can never show you',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'every bug in this list is a distribution bug, and local mode has no distribution',
       cols: 2,
       children: [

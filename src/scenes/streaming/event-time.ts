@@ -8,7 +8,7 @@ export const eventTime: Scene = {
     {
       id: 'two',
       label: 'Two clocks, and only one of them is about your data',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'they are usually close, and the gap is exactly where the difficulty of streaming lives',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const eventTime: Scene = {
     {
       id: 'gap',
       label: 'Why they come apart',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'every one of these is ordinary operations, not a malfunction — and each widens the gap',
       cols: 3,
       children: [
@@ -30,6 +30,7 @@ export const eventTime: Scene = {
     },
     {
       id: 'rule',
+      framed: true,
       label: 'So aggregate on event time',
       pattern: 'service',
       icon: 'clock',

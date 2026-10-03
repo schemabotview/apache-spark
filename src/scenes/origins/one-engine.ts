@@ -9,7 +9,7 @@ export const oneEngine: Scene = {
     {
       id: 'libs',
       label: 'The libraries you choose between',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'each one replaces a whole engine from the zoo — and they compose, because they share the layer below',
       cols: 4,
       children: [
@@ -21,6 +21,7 @@ export const oneEngine: Scene = {
     },
     {
       id: 'core',
+      framed: true,
       label: 'One core engine',
       pattern: 'service',
       icon: 'cpu',
@@ -29,7 +30,7 @@ export const oneEngine: Scene = {
     {
       id: 'payoff',
       label: 'Why sharing the layer below is the whole point',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'a SQL read feeding an ML model is one plan, not two systems handing files to each other',
       cols: 2,
       children: [

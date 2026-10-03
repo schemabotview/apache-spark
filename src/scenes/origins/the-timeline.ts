@@ -10,7 +10,7 @@ export const theTimeline: Scene = {
     {
       id: 'early',
       label: 'The RDD era',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'you wrote the plan yourself — map, filter, reduceByKey — and Spark ran exactly what you wrote',
       flow: 'LR',
       children: [
@@ -21,6 +21,7 @@ export const theTimeline: Scene = {
     },
     {
       id: 'structured',
+      framed: true,
       label: 'The structured era',
       pattern: 'warn',
       icon: 'gitbranch',
@@ -29,7 +30,7 @@ export const theTimeline: Scene = {
     {
       id: 'adaptive',
       label: 'The adaptive era',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the plan stops being fixed before the job starts, and is re-decided from real measurements mid-flight',
       flow: 'LR',
       children: [

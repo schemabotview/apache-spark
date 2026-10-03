@@ -16,7 +16,7 @@ export const aqeLoop: Scene = {
     {
       id: 'loop',
       label: 'Adaptive Query Execution — on by default since Spark 3.2',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'a shuffle is the one moment the optimizer stops guessing, because the data has been counted',
       children: [
         { id: 'run', label: 'a stage completes', pattern: 'service', sub: 'its shuffle files are written' },
@@ -44,7 +44,7 @@ export const aqeLoop: Scene = {
     {
       id: 'limits',
       label: 'What it still cannot do for you',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the three sentences to keep beside every "just turn on AQE"',
       cols: 3,
       children: [

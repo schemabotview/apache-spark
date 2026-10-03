@@ -8,7 +8,7 @@ export const schemaEvolution: Scene = {
     {
       id: 'safe',
       label: 'What you can change safely',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'Parquet matches columns by NAME, not by position — which is what makes these safe',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const schemaEvolution: Scene = {
     {
       id: 'unsafe',
       label: 'What you cannot',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'each of these produces nulls or an error at read time, in files written before the change',
       cols: 3,
       children: [
@@ -30,6 +30,7 @@ export const schemaEvolution: Scene = {
     },
     {
       id: 'merge',
+      framed: true,
       label: 'mergeSchema: off, rightly',
       pattern: 'warn',
       icon: 'alertTriangle',

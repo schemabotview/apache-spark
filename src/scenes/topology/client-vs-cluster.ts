@@ -8,7 +8,7 @@ export const clientVsCluster: Scene = {
     {
       id: 'client',
       label: 'Client mode — the driver stays where you typed',
-      pattern: 'group',
+      pattern: 'user',
       sub: 'your laptop or a gateway node is now part of the running job',
       flow: 'LR',
       children: [
@@ -19,7 +19,7 @@ export const clientVsCluster: Scene = {
     {
       id: 'cluster',
       label: 'Cluster mode — the driver is submitted too',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the cluster manager launches the driver on a node inside the cluster, then you can walk away',
       flow: 'LR',
       children: [
@@ -30,7 +30,7 @@ export const clientVsCluster: Scene = {
     {
       id: 'choose',
       label: 'How to choose, in one line each',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the failure question is the decisive one: in client mode, closing your laptop kills the job',
       cols: 2,
       children: [

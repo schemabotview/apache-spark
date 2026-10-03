@@ -7,6 +7,7 @@ export const columnPruning: Scene = {
   nodes: [
     {
       id: 'query',
+      framed: true,
       label: 'The query: 3 columns',
       pattern: 'network',
       icon: 'filecode',
@@ -15,7 +16,7 @@ export const columnPruning: Scene = {
     {
       id: 'table',
       label: 'The table has two hundred',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'a wide event table — the other 197 columns are never mentioned anywhere in the plan',
       cols: 4,
       children: [
@@ -28,7 +29,7 @@ export const columnPruning: Scene = {
     {
       id: 'result',
       label: 'What the scan node ends up saying',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'ReadSchema is the honest record of what will actually be read off disk',
       cols: 2,
       children: [

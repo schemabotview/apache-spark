@@ -7,6 +7,7 @@ export const encoders: Scene = {
   nodes: [
     {
       id: 'object',
+      framed: true,
       label: 'Your JVM object',
       pattern: 'storage',
       icon: 'package',
@@ -26,6 +27,7 @@ export const encoders: Scene = {
     },
     {
       id: 'binary',
+      framed: true,
       label: 'UnsafeRow',
       pattern: 'service',
       icon: 'binary',
@@ -34,7 +36,7 @@ export const encoders: Scene = {
     {
       id: 'cost',
       label: 'Which is the real cost of a typed Dataset',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'a DataFrame stays in binary throughout; a typed lambda forces a round trip per row',
       cols: 2,
       children: [

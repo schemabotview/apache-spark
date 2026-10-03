@@ -8,7 +8,7 @@ export const theTask: Scene = {
     {
       id: 'what',
       label: 'One task = one partition of one stage',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the smallest unit Spark schedules — it cannot be split, moved mid-flight, or run by two cores',
       cols: 3,
       children: [
@@ -20,7 +20,7 @@ export const theTask: Scene = {
     {
       id: 'retry',
       label: 'What happens when one fails',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'tasks are retried individually — spark.task.maxFailures is 4, and only then does the stage fail',
       cols: 3,
       children: [
@@ -31,6 +31,7 @@ export const theTask: Scene = {
     },
     {
       id: 'spec',
+      framed: true,
       label: 'Speculative execution',
       pattern: 'warn',
       icon: 'copy',

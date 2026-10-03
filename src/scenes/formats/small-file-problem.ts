@@ -8,7 +8,7 @@ export const smallFileProblem: Scene = {
     {
       id: 'cause',
       label: 'How a million tiny files happen',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'nobody chooses this — it is what a streaming job or an over-partitioned write does by default',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const smallFileProblem: Scene = {
     {
       id: 'costs',
       label: 'Three costs, and the first is the worst',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the driver has to enumerate every file before any executor starts — on object storage that is an API call each',
       cols: 3,
       children: [
@@ -31,7 +31,7 @@ export const smallFileProblem: Scene = {
     {
       id: 'fix',
       label: 'The fixes, in order of how often they are the right one',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'aim for files in the region of 128 MB to 1 GB — the exact number matters far less than the order of magnitude',
       cols: 3,
       children: [

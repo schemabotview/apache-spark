@@ -8,7 +8,7 @@ export const theMemoryProblem: Scene = {
     {
       id: 'budget',
       label: 'The executor’s memory, as Spark accounts for it',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'Spark sizes, tracks and spills the JVM heap — it can do none of those things to a Python process',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const theMemoryProblem: Scene = {
     {
       id: 'fail',
       label: 'So the failure arrives from outside Spark',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the container exceeds its limit and the kernel kills it — there is no Java exception to catch',
       cols: 3,
       children: [

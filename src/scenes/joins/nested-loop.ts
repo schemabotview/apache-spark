@@ -9,7 +9,7 @@ export const nestedLoop: Scene = {
     {
       id: 'cause',
       label: 'What forces it',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'every other strategy needs an equality to hash on — take that away and only this is left',
       cols: 3,
       children: [
@@ -20,6 +20,7 @@ export const nestedLoop: Scene = {
     },
     {
       id: 'cost',
+      framed: true,
       label: 'Every row × every row',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -28,7 +29,7 @@ export const nestedLoop: Scene = {
     {
       id: 'live',
       label: 'When you have to live with it',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the condition is genuinely non-equi — so make the inner side small instead of making it go away',
       cols: 2,
       children: [

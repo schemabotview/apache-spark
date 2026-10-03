@@ -7,6 +7,7 @@ export const cacheVsPersist: Scene = {
   nodes: [
     {
       id: 'cache',
+      framed: true,
       label: 'cache()',
       pattern: 'service',
       icon: 'zap',
@@ -15,7 +16,7 @@ export const cacheVsPersist: Scene = {
     {
       id: 'defaults',
       label: 'And the default is not the same for both APIs',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'a genuine trap: the same method name means two different things depending on what you call it on',
       cols: 2,
       children: [
@@ -26,7 +27,7 @@ export const cacheVsPersist: Scene = {
     {
       id: 'lazy',
       label: 'Both are lazy. unpersist() is not.',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'marking something cached does nothing until an action fills it — and a partial action fills it partially',
       cols: 2,
       children: [

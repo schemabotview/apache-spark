@@ -10,6 +10,7 @@ export const skewedJoins: Scene = {
   nodes: [
     {
       id: 'problem',
+      framed: true,
       label: 'One key, one task',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -18,7 +19,7 @@ export const skewedJoins: Scene = {
     {
       id: 'aqe',
       label: 'First: let Spark do it',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'spark.sql.adaptive.skewJoin.enabled — it measures the partitions and splits the outliers itself',
       cols: 2,
       children: [
@@ -29,7 +30,7 @@ export const skewedJoins: Scene = {
     {
       id: 'salt',
       label: 'Only if that is not enough: salting',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'turn one hot key into n keys by hand — the technique AQE automated, and the reason it rarely earns its complexity now',
       cols: 3,
       children: [

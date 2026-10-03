@@ -8,7 +8,7 @@ export const theAction: Scene = {
     {
       id: 'kinds',
       label: 'An action is anything that needs a real answer',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'a transformation returns another description; an action returns a value, writes a file, or shows rows',
       cols: 3,
       children: [
@@ -19,6 +19,7 @@ export const theAction: Scene = {
     },
     {
       id: 'triggers',
+      framed: true,
       label: 'One action, one job',
       pattern: 'warn',
       icon: 'zap',
@@ -27,7 +28,7 @@ export const theAction: Scene = {
     {
       id: 'trap',
       label: 'The trap that follows from "every time"',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'three actions on one DataFrame is three jobs, each re-running the entire chain from the source',
       cols: 2,
       children: [

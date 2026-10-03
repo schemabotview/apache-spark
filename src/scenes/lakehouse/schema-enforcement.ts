@@ -8,7 +8,7 @@ export const schemaEnforcement: Scene = {
     {
       id: 'before',
       label: 'Without a log: whatever you write becomes the table',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'nothing is checked, so the error surfaces weeks later, in a query, as nulls nobody can explain',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const schemaEnforcement: Scene = {
     {
       id: 'after',
       label: 'With a log: the schema is IN it, and the write is checked',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the failure moves to the moment it is caused, which is the whole of what enforcement buys',
       cols: 2,
       children: [
@@ -30,7 +30,7 @@ export const schemaEnforcement: Scene = {
     {
       id: 'more',
       label: 'And the log can hold more than a schema',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'constraints are the thing people arrive for and the thing they did not know they could have',
       cols: 2,
       children: [

@@ -30,6 +30,7 @@ export const storageVsExecution: Scene = {
     },
     {
       id: 'one',
+      framed: true,
       label: 'One pool, a soft boundary',
       pattern: 'warn',
       icon: 'gitmerge',

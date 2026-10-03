@@ -7,6 +7,7 @@ export const vacuum: Scene = {
   nodes: [
     {
       id: 'why',
+      framed: true,
       label: 'Nothing has been deleted',
       pattern: 'service',
       icon: 'archive',
@@ -15,7 +16,7 @@ export const vacuum: Scene = {
     {
       id: 'vacuum',
       label: 'VACUUM is the only thing that actually deletes',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'it removes files no live version references, older than a retention threshold — 7 days by default',
       cols: 2,
       children: [
@@ -26,7 +27,7 @@ export const vacuum: Scene = {
     {
       id: 'danger',
       label: 'Which is the one irreversible operation here',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the retention default is not timidity — it is protecting a query that started before the vacuum did',
       cols: 2,
       children: [

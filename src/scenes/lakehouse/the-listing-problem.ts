@@ -8,7 +8,7 @@ export const theListingProblem: Scene = {
     {
       id: 'assume',
       label: 'A directory listing feels free, and on object storage it is not',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'S3 has no directories at all — the slashes in a key are a convention, and a "listing" is a paged API scan',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const theListingProblem: Scene = {
     {
       id: 'cost',
       label: 'So finding out what a table contains is itself expensive',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'and it happens on the driver, single-threaded, before a single executor is given anything to do',
       cols: 3,
       children: [
@@ -30,6 +30,7 @@ export const theListingProblem: Scene = {
     },
     {
       id: 'idea',
+      framed: true,
       label: 'Which suggests the fix',
       pattern: 'service',
       icon: 'lightbulb',

@@ -9,7 +9,7 @@ export const shipCodeToData: Scene = {
     {
       id: 'old',
       label: 'The old shape — bring the data to the program',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'works until the data is bigger than the pipe: a terabyte over a gigabit link is hours before any work starts',
       flow: 'LR',
       children: [
@@ -25,7 +25,7 @@ export const shipCodeToData: Scene = {
     {
       id: 'new',
       label: 'The inversion — send the program to the data',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the program is kilobytes and the data is terabytes, so move the small thing — GFS and MapReduce, Google, 2003–04',
       cols: 3,
       children: [

@@ -7,6 +7,7 @@ export const incrementalExecution: Scene = {
   nodes: [
     {
       id: 'naive',
+      framed: true,
       label: 'Recompute everything?',
       pattern: 'warn',
       icon: 'repeat',
@@ -15,7 +16,7 @@ export const incrementalExecution: Scene = {
     {
       id: 'real',
       label: 'So the engine keeps the RUNNING RESULT instead',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'a count per key, updated by the new rows — the answer is the same, the work is proportional to what arrived',
       cols: 3,
       children: [
@@ -26,6 +27,7 @@ export const incrementalExecution: Scene = {
     },
     {
       id: 'cost',
+      framed: true,
       label: 'Which introduces STATE',
       pattern: 'warn',
       icon: 'database',

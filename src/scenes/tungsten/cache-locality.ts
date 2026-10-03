@@ -8,7 +8,7 @@ export const cacheLocality: Scene = {
     {
       id: 'gap',
       label: 'The gap the layout is really exploiting',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'a CPU has not been limited by arithmetic for twenty years — it is limited by waiting for memory',
       cols: 3,
       children: [
@@ -19,6 +19,7 @@ export const cacheLocality: Scene = {
     },
     {
       id: 'pointer',
+      framed: true,
       label: 'Pointer-chasing loses',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -27,7 +28,7 @@ export const cacheLocality: Scene = {
     {
       id: 'contig',
       label: 'Contiguous bytes win it',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the hardware prefetcher recognises a sequential scan and fetches the next line before it is asked for',
       cols: 2,
       children: [

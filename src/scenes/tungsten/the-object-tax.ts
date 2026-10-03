@@ -8,7 +8,7 @@ export const theObjectTax: Scene = {
     {
       id: 'one',
       label: 'One short string, as a JVM object',
-      pattern: 'group',
+      pattern: 'network',
       sub: '"abc" is three bytes of information — and it is nowhere near three bytes of memory',
       cols: 4,
       children: [
@@ -20,6 +20,7 @@ export const theObjectTax: Scene = {
     },
     {
       id: 'scale',
+      framed: true,
       label: 'Multiply by a billion rows',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -28,7 +29,7 @@ export const theObjectTax: Scene = {
     {
       id: 'gc',
       label: 'And the second cost, which is worse',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the garbage collector must walk live objects — so the cost scales with the NUMBER of them, not their size',
       cols: 2,
       children: [

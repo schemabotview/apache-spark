@@ -8,7 +8,7 @@ export const recomputeNotReplicate: Scene = {
     {
       id: 'hdfs',
       label: 'MapReduce — buy safety with copies',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'write every intermediate result three times, so losing one machine loses nothing',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const recomputeNotReplicate: Scene = {
     {
       id: 'spark',
       label: 'Spark — buy safety with a recipe',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'keep the lineage graph instead of the copies: a few kilobytes on the driver, per job',
       cols: 2,
       children: [
@@ -29,6 +29,7 @@ export const recomputeNotReplicate: Scene = {
     },
     {
       id: 'condition',
+      framed: true,
       label: 'The condition',
       pattern: 'warn',
       icon: 'alertTriangle',

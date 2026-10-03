@@ -8,7 +8,7 @@ export const theCostModel: Scene = {
     {
       id: 'inputs',
       label: 'What the choice is made from',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'estimated sizes — and "estimated" is the load-bearing word in this entire course',
       cols: 3,
       children: [
@@ -19,6 +19,7 @@ export const theCostModel: Scene = {
     },
     {
       id: 'decide',
+      framed: true,
       label: 'One candidate wins',
       pattern: 'service',
       icon: 'check',
@@ -27,7 +28,7 @@ export const theCostModel: Scene = {
     {
       id: 'wrong',
       label: 'When the estimate is wrong',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'a bad estimate does not make Spark choose badly sometimes — it makes it choose badly on every run, identically',
       cols: 2,
       children: [

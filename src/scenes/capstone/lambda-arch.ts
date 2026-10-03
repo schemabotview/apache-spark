@@ -42,7 +42,7 @@ export const lambdaArch: Scene = {
     {
       id: 'sources',
       label: 'Sources — one event stream, two entry points',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'the clickstream',
       cols: 2,
       children: [
@@ -53,7 +53,7 @@ export const lambdaArch: Scene = {
     {
       id: 'lanes',
       label: 'Two layers — one clickstream, two speeds',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the Lambda split',
       // No edges between the lanes — an edgeless container STACKS its children, which is what folds
       // the two LR lanes into a near-square block instead of a 2320px-wide row.

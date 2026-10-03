@@ -8,7 +8,7 @@ export const nothingHappensYet: Scene = {
     {
       id: 'wrote',
       label: 'What you wrote',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'four lines that look like they read a file and compute an answer',
       cols: 1,
       children: [
@@ -20,7 +20,7 @@ export const nothingHappensYet: Scene = {
     {
       id: 'happened',
       label: 'What actually happened',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'a plan was built on the driver, in memory, and nothing was sent anywhere',
       cols: 2,
       children: [
@@ -30,6 +30,7 @@ export const nothingHappensYet: Scene = {
     },
     {
       id: 'why',
+      framed: true,
       label: 'Why wait',
       pattern: 'service',
       icon: 'lightbulb',

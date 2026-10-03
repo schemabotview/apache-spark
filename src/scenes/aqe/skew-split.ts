@@ -8,7 +8,7 @@ export const skewSplit: Scene = {
     {
       id: 'detect',
       label: 'A partition is skewed only if BOTH tests pass',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'two conditions, because either alone gives false positives on a small or a uniformly large stage',
       cols: 2,
       children: [
@@ -19,7 +19,7 @@ export const skewSplit: Scene = {
     {
       id: 'split',
       label: 'The fix: split one side, replicate the other',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'splitting alone would lose matches — the counterpart partition has to be copied to every piece',
       cols: 2,
       children: [
@@ -30,7 +30,7 @@ export const skewSplit: Scene = {
     {
       id: 'limits',
       label: 'And where it stops',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'it needs somewhere to cut — and a single key has no internal boundary to cut along',
       cols: 2,
       children: [

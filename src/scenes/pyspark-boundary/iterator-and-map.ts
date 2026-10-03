@@ -7,6 +7,7 @@ export const iteratorAndMap: Scene = {
   nodes: [
     {
       id: 'problem',
+      framed: true,
       label: 'Setup runs per batch',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -15,7 +16,7 @@ export const iteratorAndMap: Scene = {
     {
       id: 'iter',
       label: 'Iterator UDFs — set up once, then yield per batch',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'Iterator[pd.Series] → Iterator[pd.Series]: everything before the loop runs once per PARTITION',
       cols: 2,
       children: [
@@ -26,7 +27,7 @@ export const iteratorAndMap: Scene = {
     {
       id: 'wider',
       label: 'And two that take whole frames',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'when a Series is the wrong shape because your function needs several columns at once',
       cols: 2,
       children: [

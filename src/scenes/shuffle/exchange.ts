@@ -14,7 +14,7 @@ export const exchange: Scene = {
     {
       id: 'writers',
       label: 'The map side, after Stage 0 finished',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'shuffle output lives on the disk of the node that produced it — it was never sent anywhere',
       children: [
         {
@@ -52,6 +52,7 @@ export const exchange: Scene = {
     },
     {
       id: 'ess',
+      framed: true,
       label: 'External shuffle service',
       pattern: 'service',
       icon: 'server',
@@ -60,7 +61,7 @@ export const exchange: Scene = {
     {
       id: 'readers',
       label: 'The reduce side, Stage 1',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'task k asks every node for its slice k — N writers × M readers connections',
       cols: 2,
       children: [

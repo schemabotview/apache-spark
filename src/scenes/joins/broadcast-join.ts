@@ -8,6 +8,7 @@ export const broadcastJoin: Scene = {
   nodes: [
     {
       id: 'driver',
+      framed: true,
       label: 'Driver',
       pattern: 'service',
       icon: 'server',
@@ -16,7 +17,7 @@ export const broadcastJoin: Scene = {
     {
       id: 'cluster',
       label: 'Every executor gets the whole small table',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the big side never moves — no shuffle, no stage boundary, no Exchange in the plan',
       cols: 3,
       children: [
@@ -55,7 +56,7 @@ export const broadcastJoin: Scene = {
     {
       id: 'probe',
       label: 'Then every task probes locally — one pass, no network',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the big partition is streamed through, and each row looks its key up in the table already beside it',
       cols: 2,
       children: [

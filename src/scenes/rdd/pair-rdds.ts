@@ -8,6 +8,7 @@ export const pairRdds: Scene = {
     {
       id: 'shape',
       label: 'Just (key, value) tuples',
+      framed: true,
       pattern: 'service',
       icon: 'key',
       sub: 'no new type — but the key is what every distributed op needs',
@@ -15,7 +16,7 @@ export const pairRdds: Scene = {
     {
       id: 'unlocks',
       label: 'What having a key unlocks',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'partitioning, grouping and joining are all "put the same key in the same place" — they need a key to exist',
       cols: 3,
       children: [
@@ -27,7 +28,7 @@ export const pairRdds: Scene = {
     {
       id: 'classic',
       label: 'The oldest optimisation in Spark, and still the clearest',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'both give the same answer; one of them moves a hundredth of the data',
       cols: 2,
       children: [

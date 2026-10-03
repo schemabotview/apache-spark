@@ -10,7 +10,7 @@ export const theEngineZoo: Scene = {
     {
       id: 'zoo',
       label: 'One specialist engine per workload, each with its own everything',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'a separate API, a separate cluster to operate, a separate failure model, and a separate set of people who know it',
       cols: 3,
       children: [
@@ -25,7 +25,7 @@ export const theEngineZoo: Scene = {
     {
       id: 'glue',
       label: 'And the real work was between them',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'a pipeline crossing three engines wrote to disk at every border, because nothing else could be shared',
       cols: 2,
       children: [

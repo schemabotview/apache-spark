@@ -8,7 +8,7 @@ export const theTransactionLog: Scene = {
     {
       id: 'layout',
       label: 'The data does not move — a log is added beside it',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'still Parquet, still readable by anything; what changes is that something now says which files count',
       flow: 'LR',
       children: [
@@ -19,7 +19,7 @@ export const theTransactionLog: Scene = {
     {
       id: 'entries',
       label: 'And each entry is an ordered list of what changed',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'not the data — a record of intent: these files joined the table, these left it, under this schema',
       cols: 3,
       children: [
@@ -30,6 +30,7 @@ export const theTransactionLog: Scene = {
     },
     {
       id: 'definition',
+      framed: true,
       label: 'The LOG is the table',
       pattern: 'service',
       icon: 'bookOpen',

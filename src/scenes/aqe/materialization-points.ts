@@ -7,6 +7,7 @@ export const materializationPoints: Scene = {
   nodes: [
     {
       id: 'stage',
+      framed: true,
       label: 'A stage runs to completion',
       pattern: 'service',
       icon: 'checkCircle',
@@ -15,7 +16,7 @@ export const materializationPoints: Scene = {
     {
       id: 'known',
       label: 'At that instant, guessing stops being necessary',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'the shuffle files are on disk and have been measured — these are counts, not estimates',
       cols: 3,
       children: [
@@ -26,6 +27,7 @@ export const materializationPoints: Scene = {
     },
     {
       id: 'boundary',
+      framed: true,
       label: 'So re-plan here',
       pattern: 'network',
       icon: 'gitbranch',

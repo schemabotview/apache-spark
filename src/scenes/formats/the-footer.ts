@@ -7,6 +7,7 @@ export const theFooter: Scene = {
   nodes: [
     {
       id: 'read',
+      framed: true,
       label: 'Start at the END',
       pattern: 'service',
       icon: 'bookOpen',
@@ -15,7 +16,7 @@ export const theFooter: Scene = {
     {
       id: 'holds',
       label: 'What the footer holds',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'everything needed to decide what NOT to read, available before any data is touched',
       cols: 2,
       children: [
@@ -27,6 +28,7 @@ export const theFooter: Scene = {
     },
     {
       id: 'consequence',
+      framed: true,
       label: 'So it is not streamable',
       pattern: 'warn',
       icon: 'alertTriangle',

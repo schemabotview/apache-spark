@@ -8,7 +8,7 @@ export const staticPlanProblem: Scene = {
     {
       id: 'when',
       label: 'The optimizer decides before it has seen anything',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'every choice about how to run the query is made at plan time, from numbers nobody measured',
       cols: 3,
       children: [
@@ -19,6 +19,7 @@ export const staticPlanProblem: Scene = {
     },
     {
       id: 'consequence',
+      framed: true,
       label: 'Wrong, deterministically',
       pattern: 'warn',
       icon: 'repeat',
@@ -26,6 +27,7 @@ export const staticPlanProblem: Scene = {
     },
     {
       id: 'idea',
+      framed: true,
       label: 'But they exist — later',
       pattern: 'service',
       icon: 'lightbulb',

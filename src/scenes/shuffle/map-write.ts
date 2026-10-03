@@ -14,7 +14,7 @@ export const mapWrite: Scene = {
     {
       id: 'task',
       label: 'One map task — task 2 of 4, on executor B',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'sort-based shuffle writer · the default since Spark 1.2',
       children: [
         { id: 'rows', label: 'its partition of rows', pattern: 'storage', icon: 'database', sub: 'the only rows this task can see' },
@@ -35,7 +35,7 @@ export const mapWrite: Scene = {
         {
           id: 'disk',
           label: 'local disk — spark.local.dir',
-          pattern: 'group',
+          pattern: 'storage',
           sub: 'spilled runs merged into exactly two files, however many reducers there are',
           cols: 2,
           children: [

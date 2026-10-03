@@ -8,7 +8,7 @@ export const aRealLineage: Scene = {
     {
       id: 'chain',
       label: 'groupBy → sum → sort → limit → collect, in full',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'one action, two shuffles, three stages — and the task counts change at every boundary',
       children: [
         {

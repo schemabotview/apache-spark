@@ -9,7 +9,8 @@ export const theDiskTax: Scene = {
     {
       id: 'chain',
       label: 'One boundary, between two steps of one algorithm',
-      pattern: 'group',
+      pattern: 'service',
+      flow: 'LR',
       sub: 'and a three-step job pays this twice · a hundred-step job pays it ninety-nine times',
       children: [
         { id: 'm1', label: 'step 1 · map + reduce', pattern: 'service', sub: 'computes in memory — fast' },
@@ -24,7 +25,7 @@ export const theDiskTax: Scene = {
     {
       id: 'who-pays',
       label: 'Who this hurts most',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'any algorithm whose steps are a loop rather than a line — which is most of the interesting ones',
       cols: 3,
       children: [

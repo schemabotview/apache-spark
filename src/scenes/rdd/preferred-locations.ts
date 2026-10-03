@@ -7,6 +7,7 @@ export const preferredLocations: Scene = {
   nodes: [
     {
       id: 'ask',
+      framed: true,
       label: 'Send the task to the data',
       pattern: 'service',
       icon: 'mapPin',
@@ -15,7 +16,7 @@ export const preferredLocations: Scene = {
     {
       id: 'levels',
       label: 'The levels it will settle for, best first',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'it waits briefly for a better level before giving up — spark.locality.wait, 3 seconds by default',
       cols: 4,
       children: [
@@ -28,7 +29,7 @@ export const preferredLocations: Scene = {
     {
       id: 'sign',
       label: 'What it looks like when this is hurting you',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'the locality column in the Stages tab is the fastest read on whether placement is working',
       cols: 2,
       children: [

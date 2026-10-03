@@ -8,7 +8,7 @@ export const py4j: Scene = {
     {
       id: 'driver',
       label: 'The driver, which is also two processes',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'your script runs in Python; the plan it builds lives in the JVM beside it',
       cols: 2,
       children: [
@@ -18,6 +18,7 @@ export const py4j: Scene = {
     },
     {
       id: 'gateway',
+      framed: true,
       label: 'Py4J',
       pattern: 'service',
       icon: 'plug',
@@ -26,7 +27,7 @@ export const py4j: Scene = {
     {
       id: 'scale',
       label: 'Why this costs nothing',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'one message per API call you write, not per row — a hundred-line script is a few hundred messages',
       cols: 2,
       children: [

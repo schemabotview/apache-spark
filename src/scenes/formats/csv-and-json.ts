@@ -8,7 +8,7 @@ export const csvAndJson: Scene = {
     {
       id: 'missing',
       label: 'What a text format does not have',
-      pattern: 'group',
+      pattern: 'warn',
       sub: 'every optimisation in this course rested on metadata — and a CSV has none of it',
       cols: 4,
       children: [
@@ -20,6 +20,7 @@ export const csvAndJson: Scene = {
     },
     {
       id: 'infer',
+      framed: true,
       label: 'inferSchema: an extra pass',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -28,7 +29,7 @@ export const csvAndJson: Scene = {
     {
       id: 'do',
       label: 'So: declare the schema, and convert once',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'CSV and JSON are interchange formats — fine at the edge of a system, wrong as a place to keep data',
       cols: 2,
       children: [

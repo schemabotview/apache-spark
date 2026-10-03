@@ -8,7 +8,7 @@ export const failureModes: Scene = {
     {
       id: 'exec-dies',
       label: 'An executor dies — survivable, by design',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'the driver notices the missing heartbeat, and re-runs that executor’s tasks somewhere else',
       cols: 3,
       children: [
@@ -19,6 +19,7 @@ export const failureModes: Scene = {
     },
     {
       id: 'driver-dies',
+      framed: true,
       label: 'The driver dies',
       pattern: 'warn',
       icon: 'alertTriangle',
@@ -27,7 +28,7 @@ export const failureModes: Scene = {
     {
       id: 'asymmetry',
       label: 'What the asymmetry should change about how you build',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'it is the reason the driver is the process to protect, and the last place to put work',
       cols: 3,
       children: [

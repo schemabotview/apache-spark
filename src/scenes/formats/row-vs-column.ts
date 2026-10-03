@@ -8,7 +8,7 @@ export const rowVsColumn: Scene = {
     {
       id: 'row',
       label: 'Row-wise — all of row 1, then all of row 2',
-      pattern: 'group',
+      pattern: 'network',
       sub: 'CSV, JSON, Avro, and every OLTP database — built for "give me this one record, all of it"',
       flow: 'LR',
       children: [
@@ -20,7 +20,7 @@ export const rowVsColumn: Scene = {
     {
       id: 'col',
       label: 'Columnar — all of column 1, then all of column 2',
-      pattern: 'group',
+      pattern: 'storage',
       sub: 'Parquet and ORC — built for "give me these three columns, for all ten billion rows"',
       flow: 'LR',
       children: [
@@ -32,7 +32,7 @@ export const rowVsColumn: Scene = {
     {
       id: 'why',
       label: 'Which shape matches an analytical query',
-      pattern: 'group',
+      pattern: 'service',
       sub: 'analytics reads few columns of many rows — the opposite of what a row layout is good at',
       cols: 2,
       children: [
