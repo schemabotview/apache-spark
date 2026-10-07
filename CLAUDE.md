@@ -176,10 +176,30 @@ What was missed by not reading it, all of it present in the pinned `flow@1.2.0`:
 | `bidirectional` / `dir` | edge direction control | read/write channels, and back edges |
 | vendor icons | `s3`, `adls`, … | see the icon note below |
 
-§1 `application-shape` is now built on that fixture's grammar, reduced for section scale: the fixture
-is a poster for `?full=1` at 50 nodes, while a section scene renders in half a 1920×1080 frame beside
-a slide. The cluster-manager band is dropped (§9 owns the four managers) and one worker is drawn
-rather than two. **The remaining 15 scenes have not been swept for these affordances.**
+§1 `application-shape` is built on that fixture's grammar, reduced for section scale: the fixture is a
+poster for `?full=1` at 50 nodes, while a section scene renders in half a 1920×1080 frame beside a
+slide.
+
+**The sweep is done — all 15 scenes carry these now.** What it changed:
+
+- **`icon: 'none'` on all 22 `pattern: 'group'` containers.** Every one was drawing a grey cube that
+  meant nothing. A group container is a HEADING; it is not a thing with a glyph. Removing it also
+  made each container narrower, so several boards scaled UP noticeably (`scale-out` went from a
+  956px to a 1092px viewport, `dependencies` 1596 → 1601 with far more inside it).
+- **50 leaves became chips, 32 stayed tiles.** The rule that settled it: a chip is for a COUNTED
+  token — tasks, slots, partitions, blocks, commodity nodes — where what the reader takes from the
+  row is *how many*, read without reading words. A tile is for a DESCRIBED thing, which is anything
+  carrying a `sub`, plus a vendor logo. `scale-out` now uses both on purpose: scale-up's three are
+  described (more cores, more RAM), scale-out's four are interchangeable tokens, and that asymmetry
+  *is* the difference between the two strategies.
+- **`align: 'start'` + `stretch` on the two column forks** (ch1 §2 `fork`, ch2 §6 `compare`). Both
+  were previously kept level by hand-balancing each card's `sub` until the rows happened to line up —
+  a hack that silently breaks the next time anyone edits a word.
+
+One knock-on worth recording: chips made `dependencies` compact enough that the board scaled up, and
+the larger type meant its nine shuffle edges now cut through the inner containers' headings. The fix
+was to move the operation names up to each column's `sub` and shorten the inner labels to
+`Parents` / `Children` — less text in the edges' way. **Only the rendered frame shows this.**
 
 ## Authoring a chapter
 
