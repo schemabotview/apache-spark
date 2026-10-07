@@ -8,10 +8,9 @@ model extends to unbounded data, and what it takes to run all of it in productio
 Live at **[graphl.in/apache-spark/](https://graphl.in/apache-spark/)** — part of the catalog at
 [graphl.in](https://graphl.in).
 
-> **Status: chapters 1–3 of 8 authored** — `foundations` (7), `architecture` (9) and
-> `programming` (9): 25 sections, scenes and narration written; narration audio not yet
-> generated. See
-> [`COURSE-PLAN.md`](./COURSE-PLAN.md) for the full 8-chapter / 71-section syllabus and
+> **Status: all 8 chapters authored** — 70 of 70 sections, 69 scenes, scenes and narration written.
+> Narration audio is the only remaining content work (one Colab pass per chapter). See
+> [`COURSE-PLAN.md`](./COURSE-PLAN.md) for the full 8-chapter / 70-section syllabus and
 > [`CLAUDE.md`](./CLAUDE.md) for the course arc, the authoring steps and the guards.
 
 ## The model

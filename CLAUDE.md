@@ -1,11 +1,15 @@
 # CLAUDE.md — apache-spark (lean operational pointers)
 
-> **Status: CHAPTERS 1–3 OF 8 AUTHORED, 2026-10-07.** 25 of 71 sections · **24 scenes** (ch2 §1 and
-> §2 share one) · **0 wavs** (narration written, Colab pass pending). `npm run build`,
-> `tsc --noEmit` and `npm run check` all clean, and all 25 routes were rendered and verified at
-> 1920×1080 — 0 clipping, 0 page errors.
-> Not yet a git repo with a remote: `schemabotview/apache-spark` does not exist (404, verified
-> 2026-10-07) and nothing is pushed or deployed.
+> **Status: ALL 8 CHAPTERS AUTHORED, 2026-10-07.** **70 of 70 sections · 69 scenes** (ch2 §1 and §2
+> share one) · **0 wavs** (narration written, Colab pass pending — the only remaining content work).
+> `npm run build`, `tsc --noEmit` and `npm run check` all clean, and all 70 routes were rendered and
+> verified at 1920×1080 — 0 clipping, 0 page errors, nothing below 1:1 except three dense ch1–2
+> boards (0.85–0.98).
+>
+> **Git:** `schemabotview/apache-spark` exists and `HEAD == origin/main` at the chapter-3 commit.
+> **Chapters 4–8 are uncommitted** — 101 new files across five course directories, plus edits to the
+> two registries, the content guard and these docs. Nothing is deployed; the first push to `main`
+> triggers the Pages build.
 
 The **Apache Spark** concept app of GraphL. Workspace-wide invariants and the content model live in
 the workspace [`CLAUDE.md`](../CLAUDE.md) — read that first; this file is Spark-specific.
@@ -24,7 +28,7 @@ snippet, the right slide is markdown. One section = one slide = one video segmen
 
 `foundations · architecture · programming · engineering · internals · performance · streaming ·
 production` — the eight chapters of [`COURSE-PLAN.md`](./COURSE-PLAN.md), played in syllabus order.
-**71 sections in total** (7 + 9 × 7), which would make this the largest content repo in the
+**70 sections in total** (7 + 9 × 7), which would make this the largest content repo in the
 workspace (`sql`, the current largest, has 46).
 
 | course | chapter | § | what it covers |
@@ -32,11 +36,11 @@ workspace (`sql`, the current largest, has 46).
 | `foundations` ✅ | 1 | 7 | scale-up vs scale-out, partitioning, data locality, MapReduce's limits, why Spark exists |
 | `architecture` ✅ | 2 | 9 | driver / executors / cluster managers, jobs → stages → tasks, narrow vs wide, lazy evaluation |
 | `programming` ✅ | 3 | 9 | RDDs and lineage, DataFrames and schemas, Spark SQL, the file formats |
-| `engineering` | 4 | 9 | schema evolution, data quality, joins, window functions, complex types, UDF trade-offs |
-| `internals` | 5 | 9 | logical → physical plans, Catalyst, Tungsten, whole-stage codegen, shuffle, reading `explain()` |
-| `performance` | 6 | 9 | partition sizing, join strategies, skew, caching, pushdown, AQE, the Spark UI |
-| `streaming` | 7 | 9 | Structured Streaming, event vs processing time, watermarks, state, checkpointing |
-| `production` | 8 | 9 | deployment, capacity planning, observability, failure modes, Delta/Iceberg/Hudi, the capstone |
+| `engineering` ✅ | 4 | 9 | schema evolution, data quality, joins, window functions, complex types, UDF trade-offs |
+| `internals` ✅ | 5 | 9 | logical → physical plans, Catalyst, Tungsten, whole-stage codegen, shuffle, reading `explain()` |
+| `performance` ✅ | 6 | 9 | partition sizing, join strategies, skew, caching, pushdown, AQE, the Spark UI |
+| `streaming` ✅ | 7 | 9 | Structured Streaming, event vs processing time, watermarks, state, checkpointing |
+| `production` ✅ | 8 | 9 | deployment, capacity planning, observability, failure modes, Delta/Iceberg/Hudi, the capstone |
 
 `production` ends in the capstone — an end-to-end system that weaves in every prior chapter, the same
 shape `sql`'s and `python`'s last course takes.
@@ -281,6 +285,160 @@ in the DOM**. That is the documented ±3.5% error, and it is why every route get
 measured with `panel.clientHeight` after the guard goes green. The guard catches the gross case; the
 browser catches the rest.
 
+## `engineering` — the chapter as written
+
+The chapter about messy reality, and its through-line is **silent failure**. Almost every section is
+about something that does *not* crash: `PERMISSIVE` nulls a bad row and carries on (§2), a duplicate
+join key multiplies your revenue (§4), a missing window frame turns a running total into a group
+total (§5), `explode` multiplies before an aggregate (§6), over-partitioning makes a folder per row
+(§8). A reader who finishes it should be suspicious of green pipelines.
+
+It is also the chapter a reader comes **back** to, so six of nine scenes carry a reference table
+rather than an argument — evolution safety, read modes, join semantics, the UDF ladder, layout rules.
+
+- `window-anatomy` (§5) uses a table in **DATA mode**: a real five-row result set with a running
+  total beside it, restarting at the second customer. No diagram of boxes can show the thing that
+  actually separates a window from a `groupBy` — that the row count is unchanged
+- `layout-on-disk` (§8) is the nesting scene: a dataset holds `country=UK/` directories and a
+  directory holds files. `partitionBy` is a directory layout, not an index, and seeing the folder
+  names is what makes partition pruning obvious
+- `udf-cost` (§7) draws the serialisation boundary as a crossing, because "per row" only becomes
+  visceral when you watch the row leave the JVM and come back
+
+### PROSE_W again — a band of cards stops fitting at THREE
+
+The sizing lesson of this chapter, and it cost two scenes before I measured it. A prose card is a
+fixed **300px** (`proseMetrics.ts:34`), and the scene pane is **1114px**. So:
+
+| cards across | board width | result |
+| --- | --- | --- |
+| 3 | ~976px | fits, barely |
+| 4 | ~1300px | board scaled **down** to 0.77 |
+| 5 | ~1550px | unusable |
+
+§9 shipped four prose cards and rendered its code at 12.4px; §7 shipped a five-node crossing
+(1413px) and rendered its table at 10.7px. Both were *scaled down* — `fitView` shrinking the whole
+board below 1:1, which is the signal to watch for. **A 4-or-5-across band wants tiles or chips**,
+which size to their own content; prose cards are for threes. After the fix every code card in the
+chapter lands between 18.4 and 21.9px.
+
+Worth probing for: any scene whose fitView scale is **under 1.0** is being shrunk and should be
+looked at. Three remain — `architecture-the-application` and `-driver-and-executors` (0.85, the
+shared three-band topology) and `foundations-scale-out` (0.98). All three read correctly; they are
+simply dense.
+
+## `internals` — the chapter as written
+
+The one chapters 3 and 4 kept deferring to. Every "Catalyst does that for you" is cashed out here.
+
+**It is bookended on a single query.** §1 prints that query's logical and physical plans together and
+asks what happened in between — the filter that vanished into the `FileScan`, the aggregate that
+split in two, the `Exchange` nobody wrote. §9 annotates the same physical plan with the answers.
+§2–§8 are each one of those annotations. The testable promise: open an unfamiliar plan and get four
+specific answers out of it in under a minute.
+
+Five of nine scenes carry **real plan text** in a code card rather than a drawing of one, because the
+skill being sold is reading plans and you cannot practise that against a diagram. The two exceptions
+had to be drawn: `tungsten-rows` (a memory layout) and `shuffle-mechanics` (a disk-and-fetch
+fan-out) are both *shapes*, and chips make them countable — six chips of JVM overhead against three
+of Tungsten row, and an M×R fan of shuffle blocks.
+
+Sizing: every code card lands 19–25px. Two scenes initially sat at scale 1.02 with their tables at
+15px, both pinned by a 3-across band of prose cards; converting those to tiles took them to 19.2 and
+17.6. **Three prose cards across is the ceiling, not a comfortable fit** — this is now the third
+chapter to learn it, so treat a 3-card band as the thing to convert first when a board feels tight.
+
+## `performance` — the chapter as written
+
+The only chapter whose deliverable is a **method** rather than a body of facts. §9 *is* the chapter —
+find the slowest stage, read its task distribution, name the cause from the numbers, change ONE
+thing — and §1–§8 exist so that step three has somewhere to land. Every row of §9's symptom table
+points back at a section by number.
+
+It is also where the course pays its debts: ch2 §5 counted tasks and left sizing open (§1); ch5 §7
+described the shuffle and left tuning open (§2); ch5 §4 flagged that strategy selection runs on
+statistics (§3, §7); ch4 §8 covered write layout and left read-side pruning open (§6).
+
+### The evolution node
+
+`skew` (§5) is the repo's **first `kind: 'evolution'`**. Skew is a *distribution*, and a distribution
+drawn as cards is a list of numbers the reader compares in their head; drawn as columns it is one
+glance — four stubs and a 48-million-row tower. The row is monochrome by default (the engine's
+choice: the columns are peers of one kind) and `pattern: 'warn'` on the single partition the section
+is about is the documented way to single one out. `baseline` stays at 0; truncating the axis would
+make the four small partitions look meaningfully different from each other, and the point is that
+they are all equally irrelevant.
+
+Five columns, not six: six measured 1197px against the 1114px pane.
+
+### A fourth repo-local fix to the guard
+
+The leaf-card budget exempted `code|table` only. **Every node with a `kind` is self-sizing** —
+`kinds.ts` pairs a sizer with each renderer, so `plot`, `list`, `memory` and `evolution` all reserve
+their own box. The guard was measuring an `evolution` node against the 210×96 prose-card budget and
+flagged a caption that renders perfectly. Exemption is now
+`code|table|plot|list|memory|evolution`.
+
+### A drift worth naming
+
+Dropping a column from §5's chart left the slide saying "six tasks" and the narration saying "the
+sixth" — scene, slide and narration are three copies of the same fact, and changing a scene after
+writing the content silently desynchronises them. **No guard catches this.** When a scene's counts
+change, re-read its slide and narration.
+
+## `streaming` — the chapter as written
+
+It **extends** the model rather than replacing it, and §1 makes that the thesis with a diff: the
+batch and streaming programs differ by three words, and none of them is the logic. §4 says it again
+from the other side — Structured Streaming is **micro-batch**, so every partition, stage, shuffle
+and plan from chapters 2 and 5 is still literally what happens.
+
+Organised around the three things batch never had to answer, named in §1 and then taken one at a
+time: **time** (§5, §6), **state** (§7), **recovery** (§3, §8).
+
+The recurring warning is **unbounded state**, repeated deliberately because its failure mode is
+delayed — a job without a watermark runs beautifully for three weeks and then starts dying, by which
+point nobody connects the failure to the code. §6 states it, §7 names `dropDuplicates` as the one
+with no bound by default, §9 requires watermarks on *both* sides of a stream-stream join.
+
+### The plot node
+
+`event-time` (§5) is the repo's **first `kind: 'plot'`**, and the fit is exact: the distinction
+between two clocks is a *relationship between two numbers*, which is a scatter. The dashed diagonal
+is the fiction batch systems assume; every real point sits below it and the vertical distance **is**
+the delay. `equal: true` is load-bearing — without it the 45° line misrepresents the gap.
+
+That scene was 548×1031 — narrow and **height**-bound with width going spare. The fix was removing
+height (a tile band whose content the slide already listed), not width. 0.94 → 1.24.
+
+## `production` — the chapter as written
+
+The last chapter, and it **closes loops** rather than opening them.
+
+- **§6 `table-formats`** finally solves the two problems chapter 4 named and deliberately left open:
+  schema drift that breaks every reader of old files (ch4 §1), and the small-file problem (ch4 §8).
+  Drawn as nesting, because the whole idea is that a table is *the Parquet directory you already had
+  plus a log* — people assume a format change means a new storage engine, and it does not
+- **§8 `anti-patterns`** is the course's greatest-hits table and the only scene whose *content* cites
+  chapter numbers. That is deliberate: it is a page to come back to, and each row should send the
+  reader to where the reasoning lives. Ordered by how often each happens, not by severity, because
+  someone scanning it is looking for the one they just did
+- **§9 `capstone`** is the mirror of chapter 2 §1. That scene drew the RUNTIME topology — one
+  application, driver, executors — in the banded grammar borrowed from `ui-flow`'s `spark-topology`
+  fixture. This draws the SYSTEM topology in the same grammar, with each band citing the chapters it
+  is made of. A band the reader cannot place is a chapter to revisit
+
+The closing claim, in §9's narration: the point was never the API. It is that every box on that
+diagram can be **defended** — why a job cluster, why bronze is immutable, why that partition column,
+what the ten-minute watermark gives up.
+
+### A count I had wrong from the start
+
+The syllabus is **70** sections (7 + 9 × 7), not 71. I wrote 71 in the scaffold's `CLAUDE.md`,
+`README.md` and `src/content/index.ts` and repeated it in every chapter summary for eight chapters.
+`COURSE-PLAN.md` has exactly 70 numbered items and there are exactly 70 section files. Corrected
+everywhere.
+
 ## Authoring a chapter
 
 1. `src/scenes/<course>/` — one scene per section + an `index.ts` exporting `<course>Scenes: Scene[]`.
@@ -325,7 +483,8 @@ src/scenes/          scenes + registry (a scene can be shared across sections)  
 src/content/         courses → sections + registry                               — 2 of 8 courses
 src/main.tsx         mounts <ConceptApp> — the whole app
 src/theme.css        this repo's three brand tokens — its entire design surface
-scripts/             check-content.mjs (the guard) · concept.json (publishing identity) · titles.json
+scripts/             check-content.mjs (the guard) · measure-slides.mjs (authoring aid) ·
+                     concept.json (publishing identity) · titles.json
 public/audio/        narration wavs, audio/<course>/<section>.wav                — EMPTY
 public/favicon.svg   the concept tile
 ```

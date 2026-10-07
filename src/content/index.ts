@@ -1,6 +1,11 @@
 import { foundations } from './foundations'
 import { architecture } from './architecture'
 import { programming } from './programming'
+import { engineering } from './engineering'
+import { internals } from './internals'
+import { performance } from './performance'
+import { streaming } from './streaming'
+import { production } from './production'
 import type { Course, Section } from './types'
 
 // The course catalog, in syllabus order. → past a course's last section rolls into the next course's
@@ -11,17 +16,22 @@ import type { Course, Section } from './types'
 //   foundations   why distributed processing exists, and why Spark exists after MapReduce   (7) ✓
 //   architecture  driver / executors / cluster managers, and jobs → stages → tasks          (9) ✓
 //   programming   RDDs, DataFrames and Spark SQL — the three abstractions                   (9) ✓
-//   engineering   schema, joins, windows, complex types, and pipelines that survive         (9)
+//   engineering   schema, joins, windows, complex types, and pipelines that survive         (9) ✓
 //   internals     logical → physical plans, Catalyst, Tungsten, shuffle, explain()          (9)
-//   performance   partitions, join strategies, skew, caching, AQE, the Spark UI             (9)
-//   streaming     Structured Streaming, event time, watermarks, state, checkpointing        (9)
+//   performance   partitions, join strategies, skew, caching, AQE, the Spark UI             (9) ✓
+//   streaming     Structured Streaming, event time, watermarks, state, checkpointing        (9) ✓
 //   production    deployment, sizing, observability, table formats, the capstone            (9)
 //
-// 25 of 71 sections authored.
+// ALL 70 of 70 sections authored.
 export const COURSES: Record<string, Course> = {
   [foundations.id]: foundations,
   [architecture.id]: architecture,
   [programming.id]: programming,
+  [engineering.id]: engineering,
+  [internals.id]: internals,
+  [performance.id]: performance,
+  [streaming.id]: streaming,
+  [production.id]: production,
 }
 
 export type { Course, Section }

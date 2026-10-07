@@ -224,7 +224,12 @@ for (const file of walk('src/scenes')) {
   const nodeRe = /\{\s*id: '([\w-]+)',([\s\S]*?)(?=\n\s*\{\s*id: '|\n\s*\],|\n\s*\}\s*,?\s*$)/g
   for (const [, id, body] of src.matchAll(nodeRe)) {
     // Containers grow to fit (layout.ts headerHeight); tiles, code cards and TABLES size themselves.
-    if (/\bchildren:/.test(body) || /\bkind: '(code|table)'/.test(body) || /variant: 'tile'/.test(body)) continue
+    // THIRD repo-local fix to azure's copy. The exemption list was `code|table`, but every node with
+    // a `kind` is SELF-SIZING — kinds.ts pairs a sizer with each renderer, so plot, list, memory and
+    // evolution all reserve their own box from their own content. Measuring one against the 210x96
+    // prose-card budget flags a label its sizer handles perfectly well. Found when this repo's first
+    // `evolution` node (performance §5) was reported at 157px for a caption that renders correctly.
+    if (/\bchildren:/.test(body) || /\bkind: '(code|table|plot|list|memory|evolution)'/.test(body) || /variant: 'tile'/.test(body)) continue
     const label = (body.match(/\blabel: '([^']*)'/) || ['', ''])[1] || (src.match(new RegExp(`id: '${id}',\\s*\\n?\\s*label: '([^']*)'`)) || ['', ''])[1]
     const sub = (body.match(/\bsub: '([^']*)'/) || ['', ''])[1]
     if (!label) continue
