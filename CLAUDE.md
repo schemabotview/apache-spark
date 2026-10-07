@@ -222,6 +222,25 @@ invisible from the DataFrame API precisely because the engine applies it for you
   that the two spellings are not similar but *identical*. A comparison table would imply a difference
   worth weighing
 
+### How big a code card renders — the actual model
+
+Chased this across four rounds of guessing before measuring it. The rules, in order of leverage:
+
+1. **Find out which axis binds before touching anything.** `fitView` scales a board by
+   `min(paneW/boardW, paneH/boardH)`. `programming-rdds` was **height**-bound at 775×912 in a
+   1114×1080 pane — so a round of shortening headers and dropping a chip column moved the rendered
+   type by **0.5px**. Probe natural board size first; optimising the free axis is wasted work.
+2. **`hug: true` on any code card inside a diagram.** A card is padded out to `CODE_MIN_COLS = 64`
+   unless it hugs (`ui-flow/src/codeMetrics.ts:25`). §1's lines are 42 chars, so 22 columns ≈ 198px
+   were reserved and drawn **empty**, and that dead width came straight off the rendered glyph.
+3. **`PROSE_W = 300` is a fixed constant** (`proseMetrics.ts:34`). A prose card is *always* 300px
+   wide no matter how short its label — shortening text changes only its HEIGHT. A column of them
+   beside a code card therefore costs a flat 328px of board width that nothing can recover.
+4. **Keep source lines well under 64 columns.** A longer line widens its card and shrinks that
+   scene's type — `ui-flow`'s own CLAUDE.md states this as a house rule.
+
+Where the chapter landed: **§9 25.1px · §6 23.5px · §3 21.6px · §1 21.3px · §5 20px.**
+
 ### Composition rules, learned the hard way on this chapter
 
 Three things about where a code card goes, all of which only show up in the rendered frame:
@@ -231,10 +250,17 @@ Three things about where a code card goes, all of which only show up in the rend
   side measured ~880×200 and were unreadable; **stacked** they are taller than wide, scale to HEIGHT,
   and roughly doubled. Rotating a comparison from side-by-side to stacked costs nothing and can
   double the type.
-- **A tall diagram wants its code beside it, not above it.** §1 is a 3-line snippet over a 3-deep
-  vertical chain — stacked, the board was tall and narrow and the code was tiny. Code LEFT, chain
-  RIGHT made the board square and the code legible. §9 does the mirror: five steps down the left,
-  code on the right, so the step numbers read across into the snippet's `# 1`..`# 5` comments.
+- **Give a code card a whole row where you can.** §1 ended up as two rows — code across the top,
+  then the lineage chain running LEFT TO RIGHT beneath it. Both earlier attempts failed in opposite
+  directions: stacked with a *vertical* chain the board was tall and height-bound; side by side the
+  chain ate half the width. A horizontal chain is the only arrangement where the derivation still
+  reads as a sequence and the code gets a full row to itself.
+- **A fixed-width column beside the code caps it — so cut the column.** §9 originally kept the five
+  steps on the left and the code on the right, which cost a flat 328px (see `PROSE_W` above) and held
+  the snippet to 18.5px. The column was CUT: the same five steps are numbered 1–5 in §9's own slide,
+  so the board lost no information, and the code took the whole frame at **25.1px** — the largest in
+  the chapter. It also got its real spelling back (`customers`, not `custs`), because the
+  abbreviations existed only to buy width. **When a scene's content IS the code, give it the board.**
 - **Vary the axis across a chapter.** Nine scenes that all stack vertically read as one long
   monotonous deck. §1 code-left, §6 stacked, §9 code-right is deliberate rhythm.
 

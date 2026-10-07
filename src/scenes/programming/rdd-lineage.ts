@@ -3,104 +3,95 @@ import type { Scene } from '@graphlearning/flow'
 // §1 rdd-lineage — the chapter opens underneath the API everyone actually uses, because the RDD is
 // what a DataFrame is still made of.
 //
-// COMPOSITION: the code sits BESIDE the chain, in an LR row, not above it. Stacked, the board was
-// tall and narrow — a 3-line code card over a 3-deep vertical chain — so fitView scaled to the
-// height and the code, which is the thing the section asks the reader to read, came out tiny. Side
-// by side the board is roughly square and the code is legible at capture size. Worth remembering as
-// a rule: a tall diagram wants its code to its left, not on top of it.
+// COMPOSITION: two rows. The code owns the first on its own, so nothing competes with it for width,
+// and the chain runs LEFT TO RIGHT beneath it. Both earlier attempts were worse for the same reason
+// in two different directions: stacked with a VERTICAL chain the board was tall and narrow and
+// fitView bound on height; side by side the chain ate half the board's width. A horizontal chain is
+// the only arrangement where the derivation reads as a sequence AND the code gets a full row.
 //
-// The chain runs VERTICALLY and has no `cols`, which is honest rather than lazy: depthOf
-// (ui-flow/src/layout.ts:37) ignores `cols` entirely the moment a container carries edges, and ranks
-// its children topologically instead. An earlier draft of this scene said `cols: 3` and was simply
-// describing something that could never happen.
+// `hug: true` matters as much as the layout. A code card is padded to CODE_MIN_COLS (64) unless it
+// hugs, and these lines are 42 — 22 columns of reserved, empty width that would otherwise come
+// straight off the rendered type.
 //
-// Three partitions per RDD, the same three all the way down, is the claim: a narrow derivation
-// preserves the partitioning, so p1 of `pairs` traces straight back to p1 of `lines`. That is exactly
-// why losing one costs one branch and not the dataset.
+// The operations sit on the EDGES, not in each card's `sub`. These containers are only as wide as
+// two chips, so a two-line sub wrapped down over them — and a derivation is a relationship between
+// two RDDs rather than a property of one, so the edge is where it belonged all along.
+//
+// Two partitions per RDD rather than three: in a horizontal chain the partition chips set the board's
+// width, and the claim ("p1 traces straight back through p1") needs two, not three.
 export const rddLineage: Scene = {
   id: 'rdd-lineage',
   padding: 0.1,
   flow: 'TB',
   nodes: [
     {
-      id: 'top',
-      label: 'Three names, three descriptions — and nothing read yet',
+      id: 'code',
+      kind: 'code',
+      hug: true,
+      filename: 'rdd.py',
+      label: [
+        'lines = sc.textFile("s3://logs/app.log")',
+        '# RDD[str]',
+        '',
+        'words = lines.flatMap(lambda l: l.split())',
+        '# RDD[str]',
+        '',
+        'pairs = words.map(lambda w: (w, 1))',
+        '# RDD[(str, int)]',
+      ].join('\n'),
+    },
+    {
+      id: 'chain',
+      label: 'Each RDD records the one it came from — that record IS the lineage',
       pattern: 'group',
       icon: 'none',
       flow: 'LR',
       align: 'start',
       children: [
         {
-          id: 'code',
-          kind: 'code',
-          filename: 'rdd.py',
-          label: [
-            'lines = sc.textFile("s3://logs/app.log")',
-            '# RDD[str]',
-            '',
-            'words = lines.flatMap(lambda l: l.split())',
-            '# RDD[str]',
-            '',
-            'pairs = words.map(lambda w: (w, 1))',
-            '# RDD[(str, int)]',
-          ].join('\n'),
+          id: 'r-lines',
+          label: 'lines',
+          sub: 'from the file',
+          pattern: 'storage',
+          icon: 'file',
+          cols: 2,
+          children: [
+            { id: 'l0', label: 'p0', variant: 'chip', pattern: 'storage', icon: 'none' },
+            { id: 'l1', label: 'p1', variant: 'chip', pattern: 'storage', icon: 'none' },
+          ],
         },
         {
-          id: 'chain',
-          label: 'Each RDD records the one it came from',
-          pattern: 'group',
-          icon: 'none',
-          align: 'start',
+          id: 'r-words',
+          label: 'words',
+          pattern: 'service',
+          icon: 'share',
+          cols: 2,
           children: [
-            {
-              id: 'r-lines',
-              label: 'lines',
-              sub: 'read from the file',
-              pattern: 'storage',
-              icon: 'file',
-              cols: 3,
-              children: [
-                { id: 'l0', label: 'p0', variant: 'chip', pattern: 'storage', icon: 'none' },
-                { id: 'l1', label: 'p1', variant: 'chip', pattern: 'storage', icon: 'none' },
-                { id: 'l2', label: 'p2', variant: 'chip', pattern: 'storage', icon: 'none' },
-              ],
-            },
-            {
-              id: 'r-words',
-              label: 'words',
-              sub: 'flatMap — narrow',
-              pattern: 'service',
-              icon: 'share',
-              cols: 3,
-              children: [
-                { id: 'w0', label: 'p0', variant: 'chip', pattern: 'service', icon: 'none' },
-                { id: 'w1', label: 'p1', variant: 'chip', pattern: 'service', icon: 'none' },
-                { id: 'w2', label: 'p2', variant: 'chip', pattern: 'service', icon: 'none' },
-              ],
-            },
-            {
-              id: 'r-pairs',
-              label: 'pairs',
-              sub: 'map — narrow',
-              pattern: 'service',
-              icon: 'copy',
-              cols: 3,
-              children: [
-                { id: 'q0', label: 'p0', variant: 'chip', pattern: 'service', icon: 'none' },
-                { id: 'q1', label: 'p1', variant: 'chip', pattern: 'service', icon: 'none' },
-                { id: 'q2', label: 'p2', variant: 'chip', pattern: 'service', icon: 'none' },
-              ],
-            },
+            { id: 'w0', label: 'p0', variant: 'chip', pattern: 'service', icon: 'none' },
+            { id: 'w1', label: 'p1', variant: 'chip', pattern: 'service', icon: 'none' },
           ],
-          edges: [
-            { source: 'r-lines', target: 'r-words' },
-            { source: 'r-words', target: 'r-pairs' },
+        },
+        {
+          id: 'r-pairs',
+          label: 'pairs',
+          pattern: 'service',
+          icon: 'copy',
+          cols: 2,
+          children: [
+            { id: 'q0', label: 'p0', variant: 'chip', pattern: 'service', icon: 'none' },
+            { id: 'q1', label: 'p1', variant: 'chip', pattern: 'service', icon: 'none' },
           ],
         },
       ],
-      edges: [{ source: 'code', target: 'chain', route: 'step' }],
+      edges: [
+        { source: 'r-lines', target: 'r-words', label: 'flatMap · narrow' },
+        { source: 'r-words', target: 'r-pairs', label: 'map · narrow' },
+      ],
     },
     { id: 'lost', label: 'Lose p1 of pairs', pattern: 'warn', icon: 'skull', sub: 'replay that branch only' },
   ],
-  edges: [{ source: 'top', target: 'lost', label: 'p1 of lines → flatMap → map. One branch, not the whole dataset' }],
+  edges: [
+    { source: 'code', target: 'chain', label: 'nothing has been read — these are three descriptions, not three datasets' },
+    { source: 'chain', target: 'lost', label: 'p1 of lines → flatMap → map. One branch, not the whole dataset' },
+  ],
 }
