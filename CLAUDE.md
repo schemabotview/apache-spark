@@ -6,10 +6,9 @@
 > verified at 1920×1080 — 0 clipping, 0 page errors, nothing below 1:1 except three dense ch1–2
 > boards (0.85–0.98).
 >
-> **Git:** `schemabotview/apache-spark` exists and `HEAD == origin/main` at the chapter-3 commit.
-> **Chapters 4–8 are uncommitted** — 101 new files across five course directories, plus edits to the
-> two registries, the content guard and these docs. Nothing is deployed; the first push to `main`
-> triggers the Pages build.
+> **Git:** `schemabotview/apache-spark` exists and `HEAD == origin/main` with **all 8 chapters
+> pushed**. The Colab bridge is in place too — `scripts/colab_generate_audio.ipynb` plus the
+> committed `scripts/audio-manifest.json` (70 entries). Pages builds on every push to `main`.
 
 The **Apache Spark** concept app of GraphL. Workspace-wide invariants and the content model live in
 the workspace [`CLAUDE.md`](../CLAUDE.md) — read that first; this file is Spark-specific.
@@ -479,12 +478,14 @@ thumbnail gradient in `scripts/concept.json` and this file agree.
 ## Layout
 
 ```
-src/scenes/          scenes + registry (a scene can be shared across sections)   — 2 of 8 courses
-src/content/         courses → sections + registry                               — 2 of 8 courses
+src/scenes/          scenes + registry (a scene can be shared across sections)   — all 8 courses
+src/content/         courses → sections + registry                               — all 8 courses
 src/main.tsx         mounts <ConceptApp> — the whole app
 src/theme.css        this repo's three brand tokens — its entire design surface
 scripts/             check-content.mjs (the guard) · measure-slides.mjs (authoring aid) ·
-                     concept.json (publishing identity) · titles.json
+                     colab_generate_audio.ipynb (the narration pass) · audio-manifest.json
+                     (its input, `npm run gen:audio`) · concept.json (publishing identity) ·
+                     titles.json
 public/audio/        narration wavs, audio/<course>/<section>.wav                — EMPTY
 public/favicon.svg   the concept tile
 ```
