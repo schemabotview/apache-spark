@@ -1,0 +1,11 @@
+{
+  "_comment": "Curated publish titles (YouTube title + thumbnail header) per course, keyed by course id. An override for the registry's in-app narrative course.title, read by gen-descriptions.mjs / thumb.mjs. The eight keys are the chapter arc in COURSE-PLAN.md; no course is authored yet.",
+  "foundations": "Spark Distributed Computing",
+  "architecture": "Spark Architecture",
+  "programming": "PySpark DataFrames",
+  "engineering": "Spark Data Engineering",
+  "internals": "Spark Internals",
+  "performance": "Spark Performance Tuning",
+  "streaming": "Spark Structured Streaming",
+  "production": "Spark in Production"
+}

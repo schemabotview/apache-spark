@@ -1,0 +1,8 @@
+{
+  "_comment": "Per-repo publishing identity, read by @graphlearning/shell's thumb / gen-descriptions scripts. Env vars (CONCEPT, SITE, APP_PATH, HASHTAGS, PANEL_BG) still override.",
+  "concept": "Apache Spark",
+  "site": "https://graphl.in",
+  "appPath": "/apache-spark",
+  "hashtags": "#ApacheSpark #PySpark #SparkSQL #DataEngineering #BigData #DistributedSystems #StructuredStreaming #Databricks #TechEducation",
+  "panelBg": "radial-gradient(118% 104% at 70% 34%, #e25a1c 0%, #8f3010 44%, #1f0b05 100%)"
+}

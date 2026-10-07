@@ -1,0 +1,15 @@
+/* Apache Spark's design surface — the three tokens @graphlearning/shell leaves to the repo.
+   Imported AFTER the shell's stylesheet in main.tsx, so these win the cascade.
+
+   --brand is Spark's own logo orange. It is NOT a free choice: dbt's and java's theme.css both
+   already name `#e25a1c` as apache-spark's hue and pick around it (dbt went coral #ff694a, java went
+   blue-steel because #e76f00 sat a shade off this), so changing it would silently invalidate the
+   reasoning in two other repos. The data group's warm end is crowded — databricks #ff3621,
+   aws #f0902f, dbt #ff694a — and this is the deepest, reddest of them.
+
+   --brand is WARM, so the slide's `###` counter tone is cool, the same inversion aws/dbt/java use. */
+:root {
+  --brand: #e25a1c; /* Spark orange — eyebrow, links, the catalog card tint */
+  --brand-hover: #f07a3f; /* lighter Spark orange — the eyebrow's hover state */
+  --accent-2: #5cc0cf; /* cool counter tone to --brand: the slide's `###` subheading */
+}
