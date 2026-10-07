@@ -1,11 +1,12 @@
 import type { Scene } from '@graphlearning/flow'
 import { foundationsScenes } from './foundations'
 import { architectureScenes } from './architecture'
+import { programmingScenes } from './programming'
 
 // Scene registry. Sections reference scenes by id; scenes are grouped by course (one folder each,
 // mirroring src/content). Ids are globally unique across courses, so the flat lookup below is
 // unambiguous. Courses are added here as they are authored, one chapter at a time.
-const ALL: Scene[] = [...foundationsScenes, ...architectureScenes]
+const ALL: Scene[] = [...foundationsScenes, ...architectureScenes, ...programmingScenes]
 
 export const SCENES: Record<string, Scene> = Object.fromEntries(ALL.map((s) => [s.id, s]))
 

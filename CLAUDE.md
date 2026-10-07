@@ -1,9 +1,9 @@
 # CLAUDE.md — apache-spark (lean operational pointers)
 
-> **Status: CHAPTERS 1–2 OF 8 AUTHORED, 2026-10-07.** 16 of 71 sections · **15 scenes** (§1 and §2
-> of ch2 share one) · **0 wavs**
-> (narration written, Colab pass pending). `npm run build`, `tsc --noEmit` and `npm run check` all
-> clean, and all sixteen routes were rendered and reviewed at 1920×1080 — no clipping, no page errors.
+> **Status: CHAPTERS 1–3 OF 8 AUTHORED, 2026-10-07.** 25 of 71 sections · **24 scenes** (ch2 §1 and
+> §2 share one) · **0 wavs** (narration written, Colab pass pending). `npm run build`,
+> `tsc --noEmit` and `npm run check` all clean, and all 25 routes were rendered and verified at
+> 1920×1080 — 0 clipping, 0 page errors.
 > Not yet a git repo with a remote: `schemabotview/apache-spark` does not exist (404, verified
 > 2026-10-07) and nothing is pushed or deployed.
 
@@ -31,7 +31,7 @@ workspace (`sql`, the current largest, has 46).
 | --- | --- | --- | --- |
 | `foundations` ✅ | 1 | 7 | scale-up vs scale-out, partitioning, data locality, MapReduce's limits, why Spark exists |
 | `architecture` ✅ | 2 | 9 | driver / executors / cluster managers, jobs → stages → tasks, narrow vs wide, lazy evaluation |
-| `programming` | 3 | 9 | RDDs and lineage, DataFrames and schemas, Spark SQL, the file formats |
+| `programming` ✅ | 3 | 9 | RDDs and lineage, DataFrames and schemas, Spark SQL, the file formats |
 | `engineering` | 4 | 9 | schema evolution, data quality, joins, window functions, complex types, UDF trade-offs |
 | `internals` | 5 | 9 | logical → physical plans, Catalyst, Tungsten, whole-stage codegen, shuffle, reading `explain()` |
 | `performance` | 6 | 9 | partition sizing, join strategies, skew, caching, pushdown, AQE, the Spark UI |
@@ -200,6 +200,60 @@ One knock-on worth recording: chips made `dependencies` compact enough that the 
 the larger type meant its nine shuffle edges now cut through the inner containers' headings. The fix
 was to move the operation names up to each column's `sub` and shorten the inner labels to
 `Parents` / `Children` — less text in the edges' way. **Only the rendered frame shows this.**
+
+## `programming` — the chapter as written
+
+The chapter where Spark stops being a model and becomes something you type, so **six of the nine
+scenes carry a code card** and four carry a table. An API chapter drawn entirely in boxes-and-arrows
+would be lying about its subject.
+
+Arc: §1–§3 RDDs → §4–§6 DataFrames and SQL → §7 "stay in the second group" → §8–§9 production shape.
+Teaching RDDs first and then saying *do not use these* is deliberate: a DataFrame IS an RDD
+underneath, lineage is the recovery story for both, and §3's combine-before-you-shuffle rule is
+invisible from the DataFrame API precisely because the engine applies it for you.
+
+- `combine-locally` (§3) is the chapter's best scene and the highest-payoff section in the course so
+  far — `groupByKey` vs `reduceByKey` is a one-word change with an order-of-magnitude result. The
+  chips carry it: **six records crossing the wire against two**, for the same answer. A reader counts
+  chips and has the lesson before reading a word
+- `dataframe-schema` (§4) is the repo's **first table node in SCHEMA mode** — `columns` with PK/FK
+  badges rather than `headers`/`values`. A DataFrame is a schema, so it is drawn as one
+- `sql-same-plan` (§6) is two code cards converging on one node, because the section's only claim is
+  that the two spellings are not similar but *identical*. A comparison table would imply a difference
+  worth weighing
+
+### Composition rules, learned the hard way on this chapter
+
+Three things about where a code card goes, all of which only show up in the rendered frame:
+
+- **`fitView` scales a board to whichever axis binds first.** A wide-and-short board scales to WIDTH
+  and leaves the bottom half of the pane empty with everything still small. §6's two snippets side by
+  side measured ~880×200 and were unreadable; **stacked** they are taller than wide, scale to HEIGHT,
+  and roughly doubled. Rotating a comparison from side-by-side to stacked costs nothing and can
+  double the type.
+- **A tall diagram wants its code beside it, not above it.** §1 is a 3-line snippet over a 3-deep
+  vertical chain — stacked, the board was tall and narrow and the code was tiny. Code LEFT, chain
+  RIGHT made the board square and the code legible. §9 does the mirror: five steps down the left,
+  code on the right, so the step numbers read across into the snippet's `# 1`..`# 5` comments.
+- **Vary the axis across a chapter.** Nine scenes that all stack vertically read as one long
+  monotonous deck. §1 code-left, §6 stacked, §9 code-right is deliberate rhythm.
+
+### Two silent no-ops found while composing
+
+- **`cols` is ignored once a container has edges.** `depthOf` (`ui-flow/src/layout.ts:37`) ranks a
+  container's children topologically when it carries any edges, and only falls back to the `cols`
+  grid when `edges.length === 0`. §1 shipped `cols: 3` on a chain that could never be anything but
+  vertical. No error, no warning.
+- **`badge` is rendered by `ContainerNode.tsx` and nothing else.** On a leaf card it does nothing at
+  all. §9 shipped five invisible badges; the numbers now live in the labels. Neither of these is
+  caught by `npm run check` — a third guard rule could catch the `badge` one cheaply.
+
+### The model is not the oracle — a worked example
+
+§3's slide modelled 1039px against a 1078px ceiling, passed `npm run check`, and **clipped at 1096px
+in the DOM**. That is the documented ±3.5% error, and it is why every route gets rendered and
+measured with `panel.clientHeight` after the guard goes green. The guard catches the gross case; the
+browser catches the rest.
 
 ## Authoring a chapter
 
