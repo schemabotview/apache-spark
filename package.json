@@ -14,6 +14,7 @@
     "capture:shots": "graphl-capture-shots",
     "record": "graphl-record",
     "record:reels": "graphl-record-reels",
+    "record:all": "caffeinate -ims graphl-record-all",
     "shots:4k": "graphl-shots-4k",
     "gen:audio": "graphl-gen-audio",
     "gen:desc": "graphl-gen-desc",
@@ -21,7 +22,7 @@
   },
   "dependencies": {
     "@graphlearning/flow": "^1.2.0",
-    "@graphlearning/shell": "^0.8.0",
+    "@graphlearning/shell": "^0.9.0",
     "@xyflow/react": "^12.11.2",
     "lucide-react": "^1.28.0",
     "react": "^19.2.0",
